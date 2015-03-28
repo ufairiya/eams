@@ -1,0 +1,30 @@
+/* CSS Document */
+.colorlabel {
+padding: 1px 3px 1px;
+font-size: 12px;
+font-weight: bold;
+color: #ffffff;
+text-transform: uppercase;
+white-space: nowrap;
+background-color: #999999;
+-webkit-border-radius: 3px;
+-moz-border-radius: 3px;
+border-radius: 3px;
+text-shadow: none;
+}
+
+.colorlabel.important {
+background-color: #dd3c10;
+}
+
+.colorlabel.success {
+background-color: #3b6e22;
+}
+
+.colorlabel.cancelled {
+background-color: #999999;
+}
+
+.colorlabel.closed {
+background-color: #e2c822;
+}

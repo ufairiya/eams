@@ -1,0 +1,55 @@
+@charset "utf-8";
+
+/* CSS Document */
+
+FONT.title {
+	FONT-FAMILY: arial; FONT-SIZE: 12px;
+}
+FONT.subtitle {
+	FONT-FAMILY: arial; FONT-SIZE: 11px;
+}
+FONT.detail {
+	FONT-FAMILY: arial; FONT-SIZE: 11px;
+}
+FONT.HEADING {
+	FONT-FAMILY: arial; FONT-SIZE: 11px;
+}
+BR.page {
+	PAGE-BREAK-BEFORE: always;
+}
+TR.sRow {
+	HEIGHT: 15px;
+}
+TR.TwoRow {
+	HEIGHT: 30px;
+}
+TD {
+	FONT-FAMILY: arial; FONT-SIZE: 11px;
+}
+TABLE.bor {
+	BORDER-BOTTOM: black solid; BORDER-LEFT: black solid; BORDER-TOP: black solid; BORDER-RIGHT: black solid;
+}
+.font1 {
+	FONT-FAMILY: arial; COLOR: #000099; FONT-SIZE: 9px;
+}
+.selsty {
+	WIDTH: 250px; FONT-FAMILY: arial; BACKGROUND: #e7f8f7; COLOR: #91008b; FONT-SIZE: 12px; FONT-WEIGHT: bolder;
+}
+.SELDATE {
+	FONT-FAMILY: arial; BACKGROUND: #e7f8f7; COLOR: #91008b; FONT-SIZE: 12px; FONT-WEIGHT: bolder;
+}
+.butsty {
+	BORDER-BOTTOM: #104a7b 1px solid; BORDER-LEFT: #afc4d5 1px solid; FONT-FAMILY: arial,sans-serif; BACKGROUND: #efefef; HEIGHT: 24px; COLOR: #000066; FONT-SIZE: 12px; BORDER-TOP: #afc4d5 1px solid; CURSOR: hand; BORDER-RIGHT: #104a7b 1px solid; TEXT-DECORATION: none;
+}
+
+	  
+
+	  
+
+	  
+
+	  
+
+	  
+
+	  

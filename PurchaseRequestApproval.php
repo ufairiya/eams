@@ -1,0 +1,809 @@
+<?php
+  include_once 'ApplicationHeader.php'; 
+  if(!$oCustomer->isLoggedIn())
+  {
+	header("Location: login.php");
+  }
+  $aCustomerInfo = $oSession->getSession('sesCustomerInfo');
+  $aRequest = $_REQUEST;
+  $oAssetUnit = &Singleton::getInstance('AssetUnit');
+  $oAssetUnit->setDb($oDb);
+  $oAssetVendor = &Singleton::getInstance('Vendor');
+  $oAssetVendor->setDb($oDb);
+  $oAssetDepartment = &Singleton::getInstance('Department');
+  $oAssetDepartment->setDb($oDb);
+
+  if(isset($aRequest['Update']))
+  {
+    if($result = $oMaster->updatePurchaseRequest($aRequest, 'update'))
+	{
+	  $msg = "Purchase Request Updated.";
+      echo '<script type="text/javascript">window.location.href="PurchaseRequest.php?msg=updatesucess";</script>';
+	}
+	else 
+	  $msg = "Sorry";
+  } //update
+  if($aRequest['action'] == 'Add')
+  {
+	 $_SESSION['ses_PRItemlist'] = '';
+  }
+  
+ 
+  if(isset($aRequest['send']))
+  {
+    if($oMaster->addPurchaseRequest($aRequest))
+	{
+	   $msg = "New Purchase Request Created.";
+	   echo '<script type="text/javascript">window.location.href="PurchaseRequest.php?msg=success";</script>';
+	}
+	else 
+	  $msg = "Sorry could not add..";
+  } 
+  
+  if($aRequest['action'] == 'edit')
+  {
+	$item_id = $aRequest['id'];
+	
+	$edit_result = $oMaster->getPurchaseRequestInfo($item_id,'id');
+    $aitemInfo  = $oMaster->getPurchaseRequestItemInfo($item_id,'id');
+/*	 echo '<pre>';
+	 print_r($edit_result);
+	  print_r($aitemInfo);
+	  echo '</pre>';
+exit();*/
+  } //edit
+?>
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html lang="en"> <!--<![endif]-->
+<!-- BEGIN HEAD -->
+<head>
+   <meta charset="utf-8" />
+   <title>EAMS| Purchase Request</title>
+   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+   <meta content="" name="description" />
+   <meta content="" name="author" />
+   <meta http-equiv="Cache-control" content="No-Cache">
+  <?php include('Stylesheets.php');?>
+  <style>
+	  input.add {
+		-moz-border-radius: 4px;
+		border-radius: 4px;
+		background-color: #33CC00;
+		-moz-box-shadow: 0 0 4px rgba(0, 0, 0, .75);
+		box-shadow: 0 0 4px rgba(0, 0, 0, .75);
+	}
+	input.add:hover {
+		background-color:#1EFF00;
+		-moz-border-radius: 4px;
+		border-radius: 4px;
+	}
+	input.removeRow {
+		-moz-border-radius: 4px;
+		border-radius: 4px;
+		background-color:#FFBBBB;
+		-moz-box-shadow: 0 0 4px rgba(0, 0, 0, .75);
+		box-shadow: 0 0 4px rgba(0, 0, 0, .75);
+	}
+	input.removeRow:hover {
+		background-color:#FF0000;
+		-moz-border-radius: 4px;
+		border-radius: 4px;
+	}
+  </style>
+  </head>
+<!-- END HEAD -->
+<!-- BEGIN BODY -->
+<body class="fixed-top">
+	<!-- BEGIN HEADER -->
+	<?php include_once 'Header.php'; ?>
+	<!-- END HEADER -->
+   <!-- BEGIN CONTAINER -->
+   <div class="page-container row-fluid">
+		<!-- BEGIN SIDEBAR -->
+        <?php include_once 'LeftMenu.php'; ?>
+		<!-- END SIDEBAR -->
+      <!-- BEGIN PAGE -->  
+      <div class="page-content">
+         <!-- BEGIN SAMPLE PORTLET CONFIGURATION MODAL FORM-->
+         <div id="portlet-config" class="modal hide">
+            <div class="modal-header">
+               <button data-dismiss="modal" class="close" type="button"></button>
+               <h3>portlet Settings</h3>
+            </div>
+            <div class="modal-body">
+               <p>Here will be a configuration form</p>
+            </div>
+         </div>
+         <!-- END SAMPLE PORTLET CONFIGURATION MODAL FORM-->
+         <!-- BEGIN PAGE CONTAINER-->
+         <div class="container-fluid">
+            <!-- BEGIN PAGE HEADER-->   
+            <div class="row-fluid">
+               <div class="span12">
+                  <!-- BEGIN STYLE CUSTOMIZER -->
+                 
+                  <!-- END STYLE CUSTOMIZER -->  
+                  <h3 class="page-title">
+                     Purchase Request
+                     <small>Purchase Master</small>
+                  </h3>
+                  <ul class="breadcrumb">
+                     <li>
+                        <i class="icon-home"></i>
+                        <a href="index.php">Home</a> 
+                        <span class="icon-angle-right"></span>
+                     </li>
+                     <li>
+                        <a href="#">Purchase</a>
+                        <span class="icon-angle-right"></span>
+                     </li>
+                     <li><a href="#">Purchase Request</a></li>
+                  </ul>
+               </div>
+            </div>
+                               <?php
+							     if(isset($msg))
+								 {
+							   ?>
+							    <div class="alert alert-success">
+									<button class="close" data-dismiss="alert"></button>
+									<?php echo $msg; unset($msg); ?> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <a href="PurchaseRequest.php" class="btn red mini active">Back to List</a>
+								</div>
+                                
+								<?php
+								  }
+								?> 
+                                <div class="alert alert-success" id="error_msg" style="display:none">
+									<button class="close" data-dismiss="alert"></button>
+									<div id= delete_info></div>
+								</div>
+                                
+            <!-- END PAGE HEADER-->
+            <!-- BEGIN PAGE CONTENT-->
+            <div class="row-fluid">
+               <div class="span12">
+               <!-- BEGIN SAMPLE FORM PORTLET-->   
+                  <div class="portlet box blue">
+                     <div class="portlet-title">
+                      <?php if($aRequest['action'] == 'edit')
+							{ ?>
+                         <h4><i class="icon-reorder"></i>Edit Purchase Request</h4>
+                         <?php } else {?>                      
+                           <h4><i class="icon-reorder"></i>Create Purchase Request</h4>
+                        <?php } ?>
+                        <div class="tools">
+                           <a href="javascript:;" class="collapse"></a>
+                           <a href="#portlet-config" data-toggle="modal" class="config"></a>
+                           <a href="javascript:;" class="reload"></a>
+                           <a href="javascript:;" class="remove"></a>
+                        </div>
+                     </div>
+                     <div class="portlet-body form">
+                        <!-- BEGIN FORM-->
+                       
+                                 <form action="<?php echo $_SERVER['PHP_SELF']; ?>" class="form-horizontal" id="form_sample_3" method="post">
+									    <div class="alert alert-error hide">
+                              <button class="close" data-dismiss="alert"></button>
+                              You have some form errors. Please check below.
+                           </div>
+                           <div class="control-group">
+                                       <label class="control-label">Unit</label>
+                                       <div class="controls">
+                                          <select class="large m-wrap" tabindex="1" name="fUnitId" id="fUnitId" onChange="getDivision(this.value);">
+											<option value="">Choose a Unit</option>
+											 <?php
+											  $aUnitList = $oAssetUnit->getAllAssetUnitInfo();
+											  foreach($aUnitList as $aUnit)
+											  {
+											 ?>
+                                                
+                                             <option value="<?php echo $aUnit['id_unit']; ?>" <?php if($edit_result['id_unit'] == $aUnit['id_unit']) { echo 'selected=selected' ;}?>><?php echo $aUnit['unit_name']; ?></option>
+                                             <?php
+											  }
+											 ?>
+                                          </select> 
+										   &nbsp;  &nbsp;
+										  <span><a href="#" class="unit" title="Add New Unit"><i class="icon-plus-sign" style="color:#009900;"></i></a></span>
+                                       </div>
+                                    </div>
+                                      
+                                    <div class="row-fluid">
+									
+									<div class="span6 ">
+                                     <div class="control-group">
+                                       <label class="control-label">Work Division<span class="required">*</span></label>
+                                       <div class="controls">
+                                        <select class="large m-wrap fDivisionId" tabindex="2" name="fDepartmentId" id="unitwisedivisionList">
+											 <option value="">Choose a Work Division</option>
+											<?php /*?> <?php
+											  $aDivisionList = $oMaster->getDivisionList();
+											  foreach($aDivisionList as $aDivision)
+											  {
+											 ?>
+                                             <option value="<?php echo $aDivision['id_division']; ?>" <?php if($edit_result['id_department'] == $aDivision['id_division']) { echo 'selected=selected' ;}?>><?php echo $aDivision['division_name']; ?></option>
+                                             <?php
+											  }
+											 ?><?php */?>
+                                          </select>
+										    &nbsp;  &nbsp;
+										  <span><a href="#" class="division" title="Add New Division"><i class="icon-plus-sign" style="color:#009900;"></i></a></span>
+                                       </div>
+                                    </div>
+                                    </div>
+                                    </div>
+                                     <div class="control-group">
+                                      <label class="control-label">Select Vendor</label>
+                                       <div class="controls">
+                                       <select class="large m-wrap" tabindex="3" name="fVendorId" id="fVendorId">
+											 <?php
+											  $avendorList = $oAssetVendor->getAllVendorInfo();
+											 ?>
+                                             <option value="0">Choose the Supplier</option>
+                                             <?php  foreach($avendorList as $aVendor)
+											  {
+												  ?>
+                                             <option value="<?php echo $aVendor['id_vendor']; ?>"  <?php if($edit_result['id_vendor'] == $aVendor['id_vendor']) { echo 'selected=selected' ;}?>><?php echo $aVendor['vendor_name']; ?></option>
+                                             <?php
+											  }
+											 ?>
+                                          </select> 
+										   &nbsp;  &nbsp;
+										  <span><a href="#" class="vendor" title="Add New Vendor"><i class="icon-plus-sign" style="color:#009900;"></i></a></span>
+                                             </div>
+                                   		 </div>
+                                          <div class="control-group">
+                                       <label class="control-label">Select Requester Employee</label>
+                                       <div class="controls">
+                                        <select class="large m-wrap" tabindex="4" name="fEmployeeId" id="fEmployeeId">
+											<option value="0">Choose the Employee</option>
+											<?php
+											  $aEmployeeList = $oMaster->getEmployeeList();
+											  foreach($aEmployeeList as $aEmployee)
+											  {
+			  
+											 ?>
+                                             <option value="<?php echo $aEmployee['id_employee']; ?>" <?php if($edit_result['id_employee'] == $aEmployee['id_employee']) { echo 'selected=selected' ;}?>><?php echo $aEmployee['employee_name']; ?></option>
+                                             <?php
+											  }
+											 ?>
+                                          </select>
+										  &nbsp;  &nbsp;
+ <span><a href="#" class="employee" title="Add New Employee"><i class="icon-plus-sign" style="color:#009900;"></i></a></span>
+                                       </div>
+                                    </div>
+                                         <div class="control-group">
+                                             <label class="control-label">Required Date</label>
+                                               <div class="controls">
+												 <div class="input-append date date-picker" data-date="<?php echo date('d-m-Y');?>" data-date-format="dd-mm-yyyy">
+													<input class="m-wrap m-ctrl-small date-picker span8" size="10" tabindex="5" type="text" value="<?php if($edit_result['require_date']!='')
+													{ echo date('d-m-Y',strtotime($edit_result['require_date']));} else { echo date('d-m-Y'); }?>" name="fRequireDate"><span class="add-on"><i class="icon-calendar"></i></span>
+												 </div>
+											  </div>
+                                            
+                                          </div>
+										  
+										   <div class="row-fluid" style="width: 75%;margin-left: 180px;" >
+                                       <div class="span4 ">
+										   
+										   <select class="m-wrap fItemGroup1Id" tabindex="6" name="fGroup1" id="fGroupItem1" onChange="getGroup2ItemListing(this.value,this.id);">
+                                            <option value="0" selected="selected" >Choose the ItemGroup 1 </option>
+											 <?php
+											  $aItemGroup1List = $oMaster->getItemGroup1List();
+											  foreach($aItemGroup1List as $aItemGroup1)
+											  {
+											 ?>
+                                                
+                                             <option value="<?php echo $aItemGroup1['id_itemgroup1']; ?>" <?php if($itemInfo['id_itemgroup1'] == $aItemGroup1['id_itemgroup1']) { echo 'selected=selected' ;}?>><?php echo $aItemGroup1['itemgroup1_name']; ?></option>
+                                             <?php
+											  }
+											 ?>
+                                          </select>
+										   &nbsp;  &nbsp;
+ <span><a href="#" class="itemgroup1" title="Add New Item Group1"><i class="icon-plus-sign" style="color:#009900;"></i></a></span>
+										   </div>
+										    <div class="span4 ">
+										  
+										  <select class="m-wrap fItemGroup2Id" tabindex="7" name="fGroup2" id="Group2ItemList1" onChange="getItemListing(this.value,this.id);">
+                                               <option value="0" selected="selected" >Choose the ItemGroup 2 </option>
+                                          </select>
+										    &nbsp;  &nbsp;
+ <span><a href="#" class="itemgroup2" title="Add New Item Group2"><i class="icon-plus-sign" style="color:#009900;"></i></a></span>
+										   </div>
+										    <div class="span4 ">
+										  
+										  <select class=" m-wrap  nextRow fItem" tabindex="8" name="fItemName" id="ItemList1" onChange="ModalPopupsAlert(this.value);">
+                                    <option value="0" >Choose the Item</option>
+										  </select>
+										  &nbsp;  &nbsp;
+ <span><a href="#" class="fitems" title="Add New Item"><i class="icon-plus-sign" style="color:#009900;"></i></a></span>  	
+
+										  </div>
+										  
+										   </div>
+										   
+										<br>
+										<br>
+							  <?php if($aRequest['action'] == 'edit') { ?>
+                                                   <div class="row-fluid">               
+                                         <table id="purchaseItems" name="purchaseItems" class="table table-striped table-bordered table-hover">
+								<tr>
+											 <th>Item Group1</th>
+											<th>Brand / Make</th>
+                                             <th>Item </th>
+                                             <th>UOM</th>
+                                            <th>Quantity</th>
+                                           <th>Unit Price</th>
+                                           <th>Action</th>
+								</tr>
+                                
+                              		<?php 
+                              	  foreach( $aitemInfo['iteminfo'] as $itemInfo)
+	                              {
+	                             ?>
+	 <tr>
+	  <td><?php echo $itemInfo['itemgroup1_name'];?><input type="hidden" name="fGroup1[]" value="<?php echo $itemInfo['id_itemgroup1'];?>"/>
+	  <input type="hidden" class="items" name="fItemId[]" value="<?php echo $itemInfo['id_pr_item'];?>" />
+	  </td>
+	  <td><?php echo $itemInfo['itemgroup2_name'];?><input type="hidden" name="fGroup2[]" value="<?php echo $itemInfo['id_itemgroup2'];?>"/></td>
+	   <td><?php echo $itemInfo['item_name'];?><input type="hidden" name="fItemName[]" value="<?php echo $itemInfo['id_item'];?>"/></td>
+	  
+	    <td><select class="m-wrap" style="width:100px;" data-placeholder="Choose a UOM" name="fUOMId[]"  tabindex="9">
+                                               <option value="0">UOM</option>
+											 <?php
+											  $aUOMList= $oMaster->getUomList();
+											  foreach($aUOMList as $aUOM)
+											  {
+			  
+											 ?>
+                                             <option value="<?php echo $aUOM['id_uom']; ?>" <?php if($itemInfo['id_uom'] == $aUOM['id_uom']) { echo 'selected=selected' ;}?>><?php echo $aUOM['uom_name']; ?></option>
+                                             <?php
+											  }
+											 ?>
+                                          </select></td>
+	   
+	  <td><input type="text" name="fQuanity[]" tabindex="10" value="<?php echo $itemInfo['qty'];?>"/></td>
+	 <td><input type="text" name="fPrice[]" tabindex="11" value="<?php echo $itemInfo['unit_cost'];?>"/></td>
+	  <td><a href="#" id="RemoveItem" onClick="removeItem('<?php echo $itemInfo['id_item'];?>')">Remove Item</a></td>
+	  </tr>
+	 <?php } ?>					
+                                  </table>
+                                 
+                                 
+                                
+                                   </div>       
+                                    <?php  } else { ?>                
+                                  <div class="row-fluid"> 
+								          <div class="span12 ">       
+                                         <table id="purchaseItems" name="purchaseItems" class="table table-striped table-bordered table-hover">
+								<tr>
+											 <th>Item Group1</th>
+											<th>Brand / Make</th>
+                                             <th>Item </th>
+                                             <th>UOM</th>
+                                            <th>Quantity</th>
+                                           <th>Unit Price</th>
+                                           <th>Action</th>
+								</tr>
+                                
+								
+                                  </table>
+                                 
+                                  </div>
+                                
+                                   </div>     
+                                   <?php  }  ?>      
+                        
+                      
+										 <br><br>
+			 						<div class="row-fluid">
+									    <div class="span6 ">
+                                     
+                                       <div class="control-group">
+                                             <label class="control-label">Terms and conditions </label>
+                               <div class="controls">
+                                       
+                                       <select class="span12 chosen" data-placeholder="Choose a terms " tabindex="12" name="fTermsId" id="fTermsId" onChange="getTerms(this.id);">
+											    <option value="0">Choose the Terms and conditions</option>
+                                             
+											<?php
+											  $aTerms = $oMaster->getTermsConditions();
+											  foreach($aTerms as $Terms)
+											  {
+											 ?>
+                                                
+                                             <option value="<?php echo $Terms['id_terms_conditions']; ?>"><?php echo $Terms['name']; ?></option>
+                                             <?php
+											  }
+											 ?>
+                                          </select>
+                                         
+                                             </div>
+                                          </div>
+                                          
+                                       </div>
+                                      
+                                       
+                                      
+                                     
+                                      </div>
+                                    
+                                       <div class="row-fluid">                     
+                                   
+                                       <div class="control-group">
+                                        <div class="controls" >
+                                        <textarea class="span12 ckeditor m-wrap" tabindex="13" rows="6" name="fTerms" id="Terms"><?php echo $edit_result['terms_and_conditions']; ?></textarea>
+                                      
+                                    </div>
+                                         <!--/span-->
+                                    </div>
+									</div>
+			                        <div class="control-group">
+                                       <label class="control-label">Remarks</label>
+                                       <div class="controls">
+                                          <textarea class="large m-wrap" rows="3"  tabindex="14" cols="60" name="fRemarks"><?php echo  $edit_result['remarks'];?></textarea>
+                                       </div>
+                                    </div>
+<?php
+if($aRequest['action'] == 'edit' && $aRequest['submits']=='approval') {
+	
+	?>
+    
+    <div class="control-group">
+                                       <label class="control-label">Select Approval By</label>
+                                       <div class="controls">
+                                        <select class="large m-wrap" tabindex="15" name="fApprovalEmployeeId">
+											<option value="0">Choose the Approval By</option>
+											<?php
+											  $aEmployeeList = $oMaster->getEmployeeList();
+											  foreach($aEmployeeList as $aEmployee)
+											  {
+			  
+											 ?>
+                                             <option value="<?php echo $aEmployee['id_employee']; ?>" <?php if($edit_result['approved_by'] == $aEmployee['id_employee']) { echo 'selected=selected' ;}?>><?php echo $aEmployee['employee_name']; ?></option>
+                                             <?php
+											  }
+											 ?>
+                                          </select>
+                                       </div>
+                                    </div>
+    
+    <div class="control-group">
+                                       <label class="control-label">Status</label>
+                                       <div class="controls">
+                                       <label class="radio line">
+                                          <input type="radio" name="fStatus" value="1" tabindex="16" <?php if($edit_result['status'] == '1') { echo 'checked=checked' ;}?> />
+                                          Active
+                                          </label>
+                                          <label class="radio line">
+                                          <input type="radio" name="fStatus" value="0" tabindex="17" <?php if($edit_result['status'] == '0') { echo 'checked=checked' ;}?> />
+                                          In-Active
+                                          </label>  
+                                          <label class="radio line">
+                                          <input type="radio" name="fStatus" value="3" tabindex="18" <?php if($edit_result['status'] == '3') { echo 'checked=checked' ;}?> />
+                                          Approved
+                                          </label>
+                                          <label class="radio line">
+                                          <input type="radio" name="fStatus" value="4" tabindex="19" <?php if($edit_result['status'] == '4') { echo 'checked=checked' ;}?> />
+                                         UnApproved
+                                          </label>  
+                                          <label class="radio line">
+                                          <input type="radio" name="fStatus" value="17" tabindex="20" <?php if($edit_result['status'] == '17') { echo 'checked=checked' ;}?> />
+                                         Cancel
+                                          </label>  
+                                       </div>
+                                    </div>
+						<?php } 
+						?>
+                      
+                     
+						<div class="form-actions">
+						<?php if($aRequest['action'] == 'edit')
+						{
+						?>
+							<input type="hidden" name="fPurchaseRequestId" value="<?php echo $aRequest['id'];?>"/>
+                              <input type="hidden" name="fApproval" value="<?php echo $aRequest['submits'];?>"/>
+							<button type="submit" class="btn blue" tabindex="21" id="sends" name="Update"><i class="icon-ok"></i>Update Purchase Request</button>                   
+						<?php
+						} else {
+						?>
+							  <button type="submit" tabindex="21" class="btn blue" id="sends" name="send"><i class="icon-ok"></i>Create Purchase Request</button>       
+						<?php
+						} 
+						?>
+						<button type="button" tabindex="22" class="btn">Cancel</button>
+						</div>
+                       </form>
+                        <!-- END FORM-->           
+                     </div>
+                  </div>
+                  <!-- END SAMPLE FORM PORTLET-->
+                
+               </div>
+            </div>
+            <!-- END PAGE CONTENT-->         
+         </div>
+         <!-- END PAGE CONTAINER-->
+      </div>
+      <!-- END PAGE -->  
+   </div>
+   <!-- END CONTAINER -->
+	<?php include_once 'Footer1.php'; ?>
+    <link href="modalbox/SyntaxHighlighter.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="modalbox/shCore.js" language="javascript"></script>
+    <script type="text/javascript" src="modalbox/shBrushJScript.js" language="javascript"></script>
+    <script type="text/javascript" src="modalbox/ModalPopups.js" language="javascript"></script>
+    <script type="text/javascript">
+      
+ $(document).ready(function () {
+    $(document).on('click', '#purchaseItems .add', function () {
+       var row = $(this).closest('tr');
+        var clone = row.clone();
+        // clear the values
+		var tr = clone.closest('tr');
+        tr.find('input[type=text]').val('0');
+		
+		 clone.find('td').each(function(){
+            var el = $(this).find(':first-child');
+            var id = el.attr('id') || null;
+            if(id) {
+                var i = id.substr(id.length-1);
+                var prefix = id.substr(0, (id.length-1));
+		
+              el.attr('id', prefix+(+i+1));
+               
+            }
+        });
+			 clone.find('td').each(function(){
+            var el = $(this).find('.SpanPrice');
+            var id = el.attr('id') || null;
+            if(id) {
+                var i = id.substr(id.length-1);
+                var prefix = id.substr(0, (id.length-1));
+		
+              el.attr('id', prefix+(+i+1));
+               
+            }
+        });
+	
+	
+		$(this).closest('tr').after(clone);
+		
+		
+    });
+    $(document).on('keypress', '#purchaseItems .next', function (e) {
+        if (e.which == 13) {
+            var v = $(this).index('input:text');
+            var n = v + 1;
+            $('input:text').eq(n).focus();
+            //$(this).next().focus();
+        }
+    });
+    $(document).on('keypress', '#purchaseItems .nextRow', function (e) {
+        if (e.which == 13) {
+            $(this).closest('tr').find('.add').trigger('click');
+            $(this).closest('tr').next().find('input:first').focus();
+        }
+    });
+    $(document).on('click', '#purchaseItems .removeRow', function () {
+        if ($('#purchaseItems .add').length > 1) {
+            $(this).closest('tr').remove();
+        }
+    });
+});
+	 
+    </script>
+	<script type="text/javascript">
+	
+	function ModalPopupsAlert(value) {
+  var dataString = 'action=StockInfo&itemId='+value;
+ 			
+ $.ajax({
+			   type: "POST",
+			   url: "ajax/ajax.php",
+			   data: dataString,
+			   cache: false,
+			   success: function(result){
+				$("#StockReport").html(result);
+				
+				}
+			});
+	 ModalPopups.Confirm("idConfirm1",
+        "Stock Report",
+		   "<div id='StockReport'  style='overflow:auto; height:300px;padding: 10px;'></div><div style='padding: 25px;'><b>Do you want to continue to add this item ?</b></div>", 
+		           {
+					   
+            yesButtonText: "Yes",
+            noButtonText: "No",
+			width: 800,  
+            height: 300,
+			/*loadTextFile: "modalbox/TextFile.txt",*/
+            onYes: "ModalPopupsConfirmYes("+value+")",
+		    onNo: "ModalPopupsConfirmNo()"
+        }
+    );
+	 
+}
+function ModalPopupsConfirmYes(value) {
+ var group2Id = $("#Group2ItemList1").val();
+   var dataStr = 'action=addPRItem&ItemId='+value+'&group2Id='+group2Id;
+			
+		  $.ajax({
+			   type: 'POST',
+			   url: 'ajax/ajax.php',
+			   data: dataStr,
+			   cache: false,
+			   success: function(result) {
+				  $('#purchaseItems').append(result);
+				
+			   }
+          });
+    ModalPopups.Close("idConfirm1");
+}
+function ModalPopupsConfirmNo() {
+   ModalPopups.Cancel("idConfirm1");
+}   
+	</script>
+<script type="text/javascript">
+ function getGroup2ItemListing(value,id)
+		 {
+			
+			var dataStr = 'action=getGroup2ItemList&Group1Id='+value;
+			
+			  $.ajax({
+			   type: 'POST',
+			   url: 'ajax/ajax.php',
+			   data: dataStr,
+			   cache: false,
+			   success: function(result) {
+				   var ids = id.split("fGroupItem");
+				    $("#Group2ItemList"+ids[1]).html(result);
+				 
+			   }
+				 });
+				 	var dataStr = 'action=getItemListsByGroup1&Group1Id='+value;
+			
+			  $.ajax({
+			   type: 'POST',
+			   url: 'ajax/ajax.php',
+			   data: dataStr,
+			   cache: false,
+			   success: function(result) {
+				   var ids = id.split("fGroupItem");
+				    $("#ItemList"+ids[1]).html(result);
+				 
+			   }
+				 });
+		   
+		 }
+		 function getItemListing(value,id)
+		 {
+			
+			var dataStr = 'action=getItemLists&Group2Id='+value;
+			  $.ajax({
+			   type: 'POST',
+			   url: 'ajax/ajax.php',
+			   data: dataStr,
+			   cache: false,
+			   success: function(result) {
+				 var ids = id.split("Group2ItemList");
+				    $("#ItemList"+ids[1]).html(result);
+				 
+			   }
+         
+		  
+		 });
+		 }
+function getTerms(id)
+	  {
+	 
+		   var ids = $("#"+id).val();
+		   
+		   	var dataStr = 'action=getTerms&TCId='+ids;
+			
+		    $.ajax({
+			   type: 'POST',
+			   url: 'ajax/ajax.php',
+			   data: dataStr,
+			   cache: false,
+			   success: function(result) {
+				 
+				  CKEDITOR.instances['Terms'].setData(result);	  
+			
+			   }
+          });
+		
+		 
+		  
+	  }
+	  
+	   function getDivision(value,divisionid)
+	  {
+		    var dataStr = 'action=getDivisionPR&unitID='+value+'&divisionId='+divisionid;
+			 $.ajax({
+			   type: 'POST',
+			   url: 'ajax/ajax.php',
+			   data: dataStr,
+			   cache: false,
+			   success: function(result) {
+			    $("#unitwisedivisionList").html(result);
+						 
+			   }
+          });
+	  }
+</script>
+  <script type="text/javascript">
+function getParameterByName( name )
+{
+name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+var regexS = "[\\?&]"+name+"=([^&#]*)";
+var regex = new RegExp( regexS );
+var results = regex.exec( window.location.href );
+if( results == null )
+return "";
+else
+return decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+   
+   url = document.URL.split("?");
+   var action =getParameterByName("action",url);
+   
+   if(action == 'edit')
+   {
+	
+	 	
+	jQuery(document).ready(function() { 
+$(function () {
+	getDivision(<?php echo $edit_result['id_unit'];?>,<?php echo $edit_result['id_department'];?>);
+	});
+	});
+	
+   }
+    
+   
+   </script>
+<script type="text/javascript">
+   var itemtable = "<table id='purchaseItems' name='purchaseItems' class='table table-striped table-bordered table-hover'><tr> <th>Item Group1</th>	<th>Brand / Make </th><th>Item </th><th>UOM</th><th>Quantity</th><th>Unit Price</th><th>Action</th></tr> </table>";
+		 function AddItem(id)
+		 {
+			
+			var dataStr = 'action=addPRItem&ItemId='+id;
+			
+		  $.ajax({
+			   type: 'POST',
+			   url: 'ajax/ajax.php',
+			   data: dataStr,
+			   cache: false,
+			   success: function(result) {
+				  $('#purchaseItems').append(result);
+				
+			   }
+          });
+			
+			
+    
+		 }
+		 
+		 function removeItem(id)
+		 {
+			
+			 	   
+				var dataStr = 'action=removePR&removeId='+id;
+				 $.ajax({
+			   type: 'POST',
+			   url: 'ajax/ajax.php',
+			   data: dataStr,
+			   cache: false,
+			   success: function(result) {
+				
+				  $('#purchaseItems').html(itemtable);
+				  $('#purchaseItems').append(result);
+			   }
+          });
+		 }
+</script>
+</body>
+<!-- END BODY -->
+</html>

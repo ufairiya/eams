@@ -1,0 +1,202 @@
+@charset "utf-8";
+
+/* CSS Document */
+
+
+     .reportresulttable
+
+	  {
+
+		  width: 200px; height:auto;
+
+		  text-align:center;
+
+		
+
+	  }
+
+	   .reportresulttable tr td
+
+	  {
+
+		  padding-top:10px;
+
+		  padding-bottom:10px;
+
+		  text-align:center;
+
+		  border-bottom:none !important;
+
+		  border-left:none;
+
+		 
+
+		  
+
+		  
+
+	  }
+
+	  .reportresulttableoffpeak
+
+	  {
+
+		   width: 200px;; height:auto;
+
+		  text-align:center;
+
+	  }
+
+	  
+
+	  .reportresulttableoffpeak tr td
+
+	  {
+
+		  padding-top:10.5px;
+
+		  padding-bottom:11.2px;
+
+		  text-align:center;
+
+		  border-bottom:none !important;
+
+		  border-left:none;
+
+	  }
+
+	  #reporttablehaeding
+
+	  {
+
+		 width: 200px;
+
+         
+	background: linear-gradient(90DEG, #b3b3b3, #cccccc, #eaeaea, #b3b3b3 );
+         color: black;
+
+         font-weight: bold;
+
+         padding-top: 5px;
+
+         padding-bottom: 5px;
+
+         border: solid 1px black;
+
+         border-bottom: none;
+
+	  }
+
+	  #reporttablehaeding_periods
+
+	  {
+
+		  background: linear-gradient(90DEG, #b3b3b3, #cccccc, #eaeaea, #b3b3b3 );
+         color: black;
+
+          font-weight: bold;
+
+          padding-top: 5px;
+
+          width:auto;
+
+          padding-bottom: 5px;
+
+          text-align: center;
+
+		  border: solid 1px black;
+
+		  
+
+		   text-transform:uppercase;
+
+          border-bottom: none;
+
+	  }
+
+	  .circuit_name tr td
+
+	  {
+
+		   padding-top:7px;
+
+		   padding-bottom:10px;
+
+		   text-align:center;
+
+		  
+
+	  }
+
+	  th.priceandcost
+
+	  {
+
+		  background: #41db3b;
+
+          color: black;
+
+	  }
+
+	 td.circuit_total
+
+	  {
+
+		   background: #b3b3b3;
+
+          color: black;
+
+	  }
+
+	 th.circuit_heading
+
+	  {
+
+		   background: #b3b3b3;
+
+          color: black;
+
+	  }
+
+	  td.circuit_cost
+
+	  {
+
+		   background: #e6e6e6;
+
+          color: black;
+
+	  }
+
+	  #report1piechart
+
+	  {
+
+		  width:1000px; border:solid 1px red; margin-left:20px;
+
+		  margin-top:30px;
+
+	  }
+	  #bg_footer
+	  {
+		 
+		  
+		   background-image:url('MPDF56/bg_footer.jpg') no-repeat;
+    		border-radius:0px 0px 5px 5px;border:1px solid #bcbbbc;
+		   height:auto; width:100%;
+		   min-height:100px;
+	  }
+
+	 
+
+	  
+
+	  
+
+	  
+
+	  
+
+	  
+
+	  

@@ -1,0 +1,9 @@
+@charset "utf-8";
+/* CSS Document */
+@page {
+{
+	border-top-left-radius: 10em;
+border-top-right-radius: 4em;
+border-bottom-right-radius: 4em;
+border-bottom-left-radius: 4em;
+}
