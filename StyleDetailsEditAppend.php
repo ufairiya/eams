@@ -231,124 +231,51 @@
                                     </div>
                                     
        <!-- clone starts-->
-      
-       <div id="entry1" class="clonedInput">
-          <h2 id="reference" name="reference" class="heading-reference">Oper #1</h2>
-          <fieldset>
+       <h3 class="form-section">Purchase Item Info</h3>
+                                    <div class="row-fluid">
+                                      <table class="table table-striped table-bordered table-hover appendo">
+									<thead>
+										<tr>
+											<th>Item Name</th>
+											<th>Quantity/ UOM</th>
+                                            <th>Unit Price (<?php echo Currencycode;?>)</th>
+                                            <th>Total  (<?php echo Currencycode;?>)</th>
+                                         	<th>Delete</th>
+										</tr>
+									</thead>
+									<tbody>
+                                    
+                                    <tr>
+                                     <td><input type="text" class=" m-wrap"  placeholder="Enter the Item Remarks" name="fOperationName[]"/><br><br>
 
-        <div class="control-group">
-        
-         <!-- Text input-->
-        <div class="form-group">
-          <label class="label_fn control-label" for="first_name">First name:</label>
-          <input id="first_name" name="first_name" type="text" placeholder="" class="input_fn form-control" required>
-          <p class="help-block">This field is required.</p>
-        </div>
-        
-        
-        
-        <!-- Select Basic -->
-        <label class="control-label" for="title">Title:</label>
-        <div class="form-group controls">
-            <select class="select_ttl form-control" name="title" id="title">
-              <option value="" selected="selected" disabled="disabled">Select your title</option>
-              <option value="Dr.">Dr.</option>
-              <option value="Mr.">Mr.</option>
-              <option value="Mrs.">Mrs.</option>
-              <option value="Ms.">Ms.</option>
-              <option value="Sir">Sir</option>
-            </select> <!-- end .select_ttl -->
-          </div>
-          </div>
-
-        <!-- Text input-->
-        <div class="form-group">
-          <label class="label_fn control-label" for="first_name">First name:</label>
-          <input id="first_name" name="first_name" type="text" placeholder="" class="input_fn form-control" required>
-          <p class="help-block">This field is required.</p>
-        </div>
-
-        <!-- Text input-->
-        <div class="form-group">
-          <label class="label_ln control-label" for="last_name">Last name:</label>
-          <input id="last_name" name="last_name" type="text" placeholder="" class="input_ln form-control">
-        </div>
-
-        <!-- Prepended text-->
-        <label class="label_twt control-label" for="twitter_handle">Twitter:</label>
-        <div class="input-group form-group">
-          <span class="input-group-addon">@</span>
-          <input id="twitter_handle" name="twitter_handle" class="input_twt form-control" placeholder="" type="text">
-        </div>
-        <!-- Text input-->
-        <div class="form-group">
-          <label class="label_email control-label" for="email_address">Email:</label>
-          <input id="email_address" name="email_address" type="text" placeholder="like this: billybob@example.com" class="input_email form-control">
-        </div>
-
-        <!-- Multiple Checkboxes (inline) -->
-       <!-- <label class="label_checkboxitem control-label" for="checkboxitem">What flavors?</label>
-        <div class="input-group form-group">
-          <label class="checkbox-inline" for="checkboxitem-0">
-            <input class="input_checkboxitem" type="checkbox" name="checkboxitem" id="checkboxitem-0" value="Apple">
-            Apple
-          </label>
-          <label class="checkbox-inline" for="checkboxitem-1">
-            <input class="input_checkboxitem" type="checkbox" name="checkboxitem" id="checkboxitem-1" value="Berry">
-            Berry
-          </label>
-          <label class="checkbox-inline" for="checkboxitem-2">
-            <input class="input_checkboxitem" type="checkbox" name="checkboxitem" id="checkboxitem-2" value="Peach">
-            Peach
-          </label>
-          <label class="checkbox-inline" for="checkboxitem-3">
-            <input class="input_checkboxitem" type="checkbox" name="checkboxitem" id="checkboxitem-3" value="Grape">
-            Grape
-          </label>
-        </div>-->
-
-        <!-- Multiple Radios -->
-       <!-- <label class="label_radio control-label" for="radioitem">Do you skate?</label>
-        <div class="input-group form-group">
-          <label class="radio" for="radioitem-0">
-              <input class="input_radio" type="radio" name="radioitem" id="radioitem-0" value="Yes">
-              Yes
-            </label>
-            <label class="radio" for="radioitem-1">
-              <input class="input_radio" type="radio" name="radioitem" id="radioitem-1" value="No">
-              No
-            </label>
-        </div>-->
-        </div><!-- end #entry1 -->
-         <!-- clone ends -->
-        
-        
-        <!-- Button (Double) -->
-        <p>
-        <button type="button" id="btnAdd" name="btnAdd" class="btn btn-info">add section</button>
-          <button type="button" id="btnDel" name="btnDel" class="btn btn-danger">remove section above</button>
-        </p>
-
-        <!-- Textarea -->
-        <label class="control-label" for="notes">Notes:</label>
-        <textarea id="notes" name="notes" class="form-control">Do you want to add a message?</textarea>
-
-        <!-- Multiple Checkboxes (inline) -->
-        <div class="checkbox">
-          <label>
-            <input type="checkbox" value="">Yes, I accept the terms of service.</label>
-        </div>
-
-        <!-- Button -->
-       <!-- <p>
-          <button id="submit_button" name="submit_button" class="btn btn-primary">Submit</button>
-        </p>-->
-
-        </fieldset>
+                                     <select name="s_type[]">
+                                       <option value="">--Select ISO--</option>
+                                       <option value="iso1">iso1</option>
+                                       <option value="iso2">iso2</option>
+                                       <option value="iso3">iso3</option>
+                                     </select>
+                                     </td>
+                                     <td><input type="text" class=" m-wrap"  placeholder="Enter the Item Remarks" name="fSPI[]"/><br><br>
+                                         <select name="t_type[]">
+                                       <option value="">--Select T--</option>
+                                       <option value="t1">t1</option>
+                                       <option value="t2">t2</option>
+                                       <option value="t3">t3</option>
+                                     </select>
+                                     </td>
+                                     <td><input type="text" class=" m-wrap"  placeholder="Enter the Item Remarks" name="fRemark[]"/></td>
+                                     <td><input type="text" class=" m-wrap"  placeholder="Enter the Item Remarks" name="fRemark[]"/></td>
+                                     <td><input type="text" class=" m-wrap"  placeholder="Enter the Item Remarks" name="fRemark[]"/></td>
+                                     
+                                    </tr>
+                                    </tbody>
+                                    </table>
+                                    
+ 
                                     
                                    
                                     
-                                    
+        <!-- clone ends -->                            
                                     
                                   
 									
@@ -385,6 +312,22 @@
    <!-- END CONTAINER -->
 	<?php include_once 'Footer1.php'; ?>
     <script language="javascript" src="js/clone-form-td.js"></script>
+    <script src="js/jquery.appendo.js"></script>
+    <script>
+	jQuery(function() { 
+	jQuery('#demo4').appendo({ onDel: confirm_filled });
+});
+
+function confirm_filled($row)
+{
+	var filled = 0;
+	$row.find('input,select').each(function() {
+		if (jQuery(this).val()) filled++;
+	});
+	if (filled) return confirm('Do you really want to remove this row?');
+	return true;
+};
+	</script>
 </body>
 <!-- END BODY -->
 </html>
