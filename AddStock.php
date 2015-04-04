@@ -14,7 +14,10 @@
   $id_stock = $aRequest['id'];
   $aStockItem =$oMaster->getStockInfo($id_stock,'asset');
 
-  $asset_no = $oMaster->assetCount();
+/*echo '<pre>';
+print_r($aStockItem);
+echo '</pre>';
+*/  $asset_no = $oMaster->assetCount();
   
  if(isset($aRequest['Update']))
   {
@@ -175,44 +178,36 @@ getItemLising('itemgroup1','<?php echo $aStockItem['id_itemgroup2'];?>','<?php e
                               You have some form errors. Please check below.
                            </div>
                            
-                           
-								 <?php if(isset($aRequest['id'])){?>
-                                 
-                                <table id="purchaseItems" name="purchaseItems" class="table table-striped table-bordered table-hover">
-								<tr>
-									 <th>Item</th>
-                                     <th>Qty (Nos)</th>
-                                     <th>Supplier</th>
-                                     <th>Machine Number</th>
-                                     <th>Asset Number</th>
-                                     <th>Current Unit</th>
-									
-								</tr>
-                                
-								<tr>
-                                
-									<td>
+                           <div class="control-group">		 
+						           <label class="control-label">Item Group I<span class="required">*</span></label>
+                                   <div class="controls"> 
                                    
-                                          <select class="m-wrap" tabindex="2" name="fGroup1" id="group1"  onChange="getGroup2ItemListing(this.id,this.value,'<?php echo $aStockItem['id_itemgroup2'];?>');">
+                                   <?php $aItemGroup1List = $oMaster->getItemGroup1List(); ?>
+                                                           
+								<select class="m-wrap" tabindex="2" name="fGroup1" id="group1" onChange="getGroup2ItemListing(this.id,this.value);">
                                             <option value="0" selected="selected" >Choose the ItemGroup 1 </option>
 											 <?php
-											  $aItemGroup1List = $oMaster->getItemGroup1List();
-											  foreach($aItemGroup1List as $aItemGroup1)
+											 foreach($aItemGroup1List as $aItemGroup1)
 											  {
 											 ?>
-                                                
-                                             <option value="<?php echo $aItemGroup1['id_itemgroup1']; ?>" <?php if($aStockItem['id_itemgroup1'] == $aItemGroup1['id_itemgroup1']) { echo 'selected=selected' ;}?>><?php echo $aItemGroup1['itemgroup1_name']; ?></option>
+                                                <option value="<?php echo $aItemGroup1['id_itemgroup1']; ?>" <?php if($aStockItem['id_itemgroup1'] == $aItemGroup1['id_itemgroup1']) { echo 'selected=selected' ;}?>><?php echo $aItemGroup1['itemgroup1_name']; ?></option>
+                                            
                                              <?php
 											  }
 											 ?>
                                           </select>
+                                          </div>
+                                          </div>
                                           
-                                           <br><br>
-                                           
+                                         <div class="control-group">
+                                         <label class="control-label">Brand/Make<span class="required">*</span></label>
+                                         
+                                         <?php $aItemGroup2List = $oMaster->getItemGroup2List(); ?>
+                                         
+                                         <div class="controls"> 
                                           <select class="m-wrap group2" tabindex="3" name="fGroup2" id="itemgroup1" onChange="getItemLising(this.id,this.value);">
                                                <option value="0" selected="selected" >Choose the ItemGroup 2 </option>
-											<?php /*?> <?php
-											  $aItemGroup2List = $oMaster->getItemGroup2List();
+											 <?php
 											  foreach($aItemGroup2List as $aItemGroup2)
 											  {
 											 ?>
@@ -220,46 +215,59 @@ getItemLising('itemgroup1','<?php echo $aStockItem['id_itemgroup2'];?>','<?php e
                                              <option value="<?php echo $aItemGroup2['id_itemgroup2']; ?>" <?php if($aStockItem['id_itemgroup2'] == $aItemGroup2['id_itemgroup2']) { echo 'selected=selected' ;}?>><?php echo $aItemGroup2['itemgroup2_name']; ?></option>
                                              <?php
 											  }
-											 ?><?php */?>
+											 ?>
                                           </select>
-                                           <br><br>
-                                           <select class="m-wrap nextRow items" tabindex="1" name="fItemName"   id="fItemName1" onChange="getAsset(this.value,this.id);">
-                                    <option value="0" >Choose the Item</option>
-											<?php /*?> <?php
-											  $aItemList = $oMaster->getItemList();
+                                          </div>
+                                          </div>
+										 
+                                            <div class="control-group">
+                                            
+                                            <?php 
+											
+											$aItemList = $oMaster->getItemList(); ?>
+                                            
+                                            <label class="control-label">Item Name<span class="required">*</span></label>
+                                            <div class="controls">
+                                          <select class="m-wrap nextRow items" tabindex="1" id="fItemName1" name="fItemName">
+                                    	  <option value="0">Choose the Item</option>
+											 <?php
 											  foreach($aItemList as $aItem)
 											  {
 											 ?>
-                                             <option value="<?php echo $aItem['id_item']; ?>" <?php if($aStockItem['asset_name'] == $aItem['id_item']) { echo 'selected=selected' ;}?>><?php echo $aItem['item_name']; ?></option>
-                                             <?php
-											  }
-											 ?><?php */?>
-                                          </select>
-                                    
-                                   </td>
-									
-                                
-                                          <td><input type="text" class="m-wrap  nextRow xsmall"  name="fQuanity" value="<?php echo $aStockItem['quantity'];?>">
-                                          <br><br>
-                                          
-                                          <select class="m-wrap" style="width:100px;" data-placeholder="Choose a UOM" name="fUOMId" >
-                                               <option value="0">UOM</option>
-											 <?php
-											  $aUOMList= $oMaster->getUomList();
-											  foreach($aUOMList as $aUOM)
-											  {
-			  											 ?>
-                                             <option value="<?php echo $aUOM['id_uom']; ?>" <?php if($aUOM['id_uom']== '1') { echo 'selected=selected' ;} ?>><?php echo $aUOM['uom_name']; ?></option>
+                               <option value="<?php echo $aItem['id_item']; ?>" <?php if($aStockItem['id_item'] == $aItem['id_item']) { echo 'selected="selected"';
+											 } else echo 'hello'; ?>><?php echo $aItem['item_name']; ?></option>
                                              <?php
 											  }
 											 ?>
                                           </select>
-                                          </td>
-                                          
-                                 
-                                 
-                                    <td>
-                                    <select class=" m-wrap small" tabindex="3" name="fvendorId">
+									</div>
+                                    </div>
+                                    <div class="control-group">
+                                    <label class="control-label">Item Quantity<span class="required">*</span></label>
+                                    <div class="controls">
+                                    
+                                    <?php $aUOMList= $oMaster->getUomList(); ?>
+                                              
+                                    <input type="text" class="m-wrap  nextRow xsmall"  name="fQuanity" value="<?php if($aRequest['action'] == 'edit') { echo $aStockItem['quantity'];} else { echo 1; }?>">
+                                    <select class="m-wrap" style="width:150px;" data-placeholder="Choose a UOM" name="fUOMId" >
+                                    <option value="0">UOM</option>
+											 <?php
+											  foreach($aUOMList as $aUOM)
+											  {
+			  
+											 ?>
+                                             <option value="<?php echo $aUOM['id_uom']; ?>" <?php if($aStockItem['id_uom'] == $aUOM['id_uom']) { echo 'selected=selected' ;} else if($aUOM['id_uom']== '1') {echo 'selected=selected';}?>><?php echo $aUOM['uom_name']; ?></option>
+                                             <?php
+											  }
+											 ?>
+                                          </select>
+                                         </div>
+                                         </div>
+                                         
+                                         <div class="control-group">
+                                         <label class="control-label">Supplier<span class="required">*</span></label>
+                                    	<div class="controls">
+                                    	<select class=" m-wrap nextRow" tabindex="3" name="fvendorId">
 											 <?php
 											  $avendorList = $oAssetVendor->getAllVendorInfo();
 											 ?>
@@ -267,13 +275,17 @@ getItemLising('itemgroup1','<?php echo $aStockItem['id_itemgroup2'];?>','<?php e
                                              <?php  foreach($avendorList as $aVendor)
 											  {
 												  ?>
-                                             <option value="<?php echo $aVendor['id_vendor']; ?>"<?php if($aStockItem['id_vendor'] == $aVendor['id_vendor']) { echo 'selected=selected' ;}?>><?php echo $aVendor['vendor_name']; ?></option>
+                                             <option value="<?php echo $aVendor['id_vendor']; ?>" <?php if($aStockItem['id_vendor'] == $aVendor['id_vendor']) { echo 'selected=selected' ;}?>><?php echo $aVendor['vendor_name']; ?></option>
                                              <?php
 											  }
 											 ?>
                                           </select>
-                                          <br><br>
-                                          <select class=" m-wrap small" tabindex="1" name="fManufactureId">
+                                          </div></div>
+                                         
+                                          <div class="control-group">
+                                         <label class="control-label">Manufacturer<span class="required">*</span></label>
+                                    	<div class="controls"> 
+                                          <select class=" m-wrap nextRow" tabindex="1" name="fManufactureId">
                                     <option value="0">Choose the Manufacturer</option>
 											 <?php
 											  $aManufacturerList = $oMaster->getManufacturerList();
@@ -286,31 +298,58 @@ getItemLising('itemgroup1','<?php echo $aStockItem['id_itemgroup2'];?>','<?php e
 											  }
 											 ?>
                                           </select>
-                                    </td>
-                                    <td><input type="text" class="m-wrap small nextRow "  name="fMachineNo" value="<?php echo $aStockItem['machine_no'];?>">
-                                    <br><br>
-                                    <div class="input-append date date-picker" data-date="<?php echo date('d-m-Y');?>" data-date-format="dd-mm-yyyy">
-	<input class="m-wrap m-ctrl-small date-picker span10" placeholder="Machine Purchase Date" size="10" type="text" name="fMachineDate" value="<?php
-	 echo date('d-m-Y',strtotime($aStockItem['machine_date']));?>" ><span class="add-on"><i class="icon-calendar"></i></span>
-												 </div>
-                                                 
-                                           <br><br>
+                                   			 </div></div>
+                                             
+                                   <div class="control-group">
+                                   <label class="control-label">Machine Number<span class="required">*</span></label>
+                                   <div class="controls"> 
+                                   <input type="text" class="m-wrap nextRow " placeholder="Machine Number" name="fMachineNo" value="<?php echo $aStockItem['machine_no'];?>">
+                                   </div></div>
+                                     
+                             <div class="control-group input-append date date-picker" data-date="<?php echo date('d-m-Y');?>" data-date-format="dd-mm-yyyy">
+                             <label class="control-label">Machine Purchased Date<span class="required">*</span></label>
+                             <div class="controls">
+                             <input class="m-wrap m-ctrl-small date-picker nextRow" style="float:left;" placeholder="Machine Purchased Date" type="text"  name="fMachineDate" value="<?php if($aStockItem['machine_date'] == '1970-01-01' || $aStockItem['machine_date'] == '' )
+							 {
+								 echo  date('d-m-Y');
+							 }
+							 else
+							 {
+								 echo date('d-m-Y',strtotime($aStockItem['machine_date']));}?>">
+                                 
+                                 </div></div>
                                            
-                                           <input type="text" class="m-wrap small nextRow "  placeholder="Machine Life" name="fMachineLife" value="<?php echo $aStockItem['machine_life'];?>"> 
-										   
-										    <input type="text" class="m-wrap small nextRow "  placeholder="Machine Price" name="fMachinePrice" value="<?php echo $aStockItem['machine_price'];?>">         
-                                    </td>
-                                    <td><input type="text" class="m-wrap small nextRow "  id="fAssetNo1" name="fAssetNo" value="<?php echo $aStockItem['asset_no'];?>">
-                                    <br><br>
-                                    <input type="text" class="m-wrap small nextRow " id="fAssetNo1" name="fRefAssetNo" value="<?php echo $aStockItem['ref_asset_no'];?>" placeholder="Ref.AssetNumber">
-                             <br><br>    
-                                <label>Depreciation</label>
+                                   <div class="control-group">
+                                   <label class="control-label">Machine Life<span class="required">*</span></label>
+                                   <div class="controls">
+                                           
+                                     <input type="text" class="m-wrap nextRow "  placeholder="Machine Life" name="fMachineLife" value="<?php echo $aStockItem['machine_life'];?>">  
+										   </div></div>
+                                           
+                                   <div class="control-group">
+                                   <label class="control-label">Machine Price<span class="required">*</span></label>
+                                   <div class="controls">
+								<input type="text" class="m-wrap nextRow "  placeholder="Machine Price" name="fMachinePrice" value="<?php echo $aStockItem['machine_price'];?>">  
+                                    </div></div>
+                                    
+                                    <div class="control-group">
+                                   <label class="control-label">Asset Number<span class="required">*</span></label>
+                                   <div class="controls">
+                                   <input type="text" class="m-wrap small nextRow "  id="fAssetNo1" name="fAssetNo" value="<?php echo $aStockItem['asset_no'];?>" placeholder="AssetNumber">
+                                   <!--<input type="text" class="m-wrap nextRow " id="fAssetNo1" name="fRefAssetNo" value="<?php //echo $aStockItem['ref_asset_no'];?>" placeholder="Ref.AssetNumber">-->
+                            </div></div>
+                             
+                                <div class="control-group">
+                                <label class="control-label">Depreciation</label>
+								<div class="controls">
                                  <div class="input-prepend">
-                             <span class="add-on">%</span> <input type="text" class="m-wrap span4 price input-prepend" name="fDepressation" value="<?php echo $aStockItem['depressation_percent'];?>" /> 
-                                 </div>
-                           <br><br>  
-                           <label> Date Of Install  </label>
-                             <input class="m-wrap m-ctrl-small date-picker span12" style="float:left;" placeholder="Machine Date of Install" size="10" type="text"  name="fDateofInstall" value="<?php if($aStockItem['date_of_install'] == '1970-01-01' || $aStockItem['date_of_install'] == '' )
+                             	<span class="add-on">%</span> <input type="text" class="m-wrap span4 price input-prepend" name="fDepressation" value="<?php echo $aStockItem['depressation_percent'];?>" /> 
+                                 </div></div></div>
+                                 
+                                 <div class="control-group input-append date date-picker" data-date="<?php echo date('d-m-Y');?>" data-date-format="dd-mm-yyyy">
+                                   <label class="control-label">Date of Install<span class="required">*</span></label>
+                                   <div class="controls">
+                           <input class="m-wrap m-ctrl-small date-picker nextRow" style="float:left;" placeholder="Machine Date of Install" type="text"  name="fDateofInstall" value="<?php if($aStockItem['date_of_install'] == '1970-01-01' || $aStockItem['date_of_install'] == '' )
 							 {
 								 echo  date('d-m-Y');
 							 }
@@ -318,227 +357,14 @@ getItemLising('itemgroup1','<?php echo $aStockItem['id_itemgroup2'];?>','<?php e
 							 {
 							
 								echo date('d-m-Y',strtotime( $aStockItem['date_of_install']));
-							 }?>"  />
-                                    </td>
-                                    <td>
-                                    <select class="m-wrap" data-placeholder="Choose a Store"  name="fStoreId" id="fStoreId">
-                                          
-                                          <option value="0">Choose a Store</option>
-                                          <?php
-											  $aUnitList = $oAssetUnit->getAllAssetUnitInfo();
-											  foreach($aUnitList as $aUnit)
-											  {
-											 ?>
-                                              <optgroup label="<?php echo  $aUnit['unit_name'];?>">
-                                              
-                                          <?php
-											  $aStoreList = $oMaster->getStoreListInfo($aUnit['id_unit'],'unit');
-											  foreach($aStoreList as $aStore)
-											  {
-											 ?>
-                                             
-                                             
-                                             <option value="<?php echo $aStore['id_store']; ?>/<?php echo $aUnit['id_unit'];?>" <?php if($aStockItem['id_store'] == $aStore['id_store']) { echo 'selected=selected' ;}?>><?php echo $aStore['store_name']; ?></option>
-                                           
-                                             <?php
-											  }
-											 ?>
-                                           </optgroup>
-                                            <?php
-											  }
-											 ?>
-                                             </select>
-									
-									<br><br>
-                                    <div class="input-append date date-picker" data-date="<?php echo date('d-m-Y');?>" data-date-format="dd-mm-yyyy">
-	<input class="m-wrap m-ctrl-small date-picker span10" placeholder="Warranty Start date" size="10" type="text" name="fWarrantyStartDate" value="<?php
-	 if($aStockItem['warranty_start_date'] == '1970-01-01' || $aStockItem['warranty_start_date'] == '')
-							 {
-								 echo  date('d-m-Y');
-							 }
-							 else
-							 { echo date('d-m-Y',strtotime($aStockItem['warranty_start_date']));
-							 }?>" ><span class="add-on"><i class="icon-calendar"></i></span>
-												 </div>
-												 <br><br>
-                                    <div class="input-append date date-picker" data-date="<?php echo date('d-m-Y');?>" data-date-format="dd-mm-yyyy">
-	<input class="m-wrap m-ctrl-small date-picker span10" placeholder="Warranty End date" size="10" type="text" name="fWarrantyEndDate" value="<?php
-	  if($aStockItem['warranty_end_date'] == '1970-01-01' || $aStockItem['warranty_end_date'] == '')
-							 {
-								 echo  date('d-m-Y');
-							 }
-							 else
-							 { 
-							 echo date('d-m-Y',strtotime($aStockItem['warranty_end_date']));
-							 }?>" ><span class="add-on"><i class="icon-calendar"></i></span>
-								
-                             </div>
-                             
-                             </td>
-							 </tr>
-                             </table>
-                               
-                                 <?php } else { ?>
-                                 <div class="control-group">		 
-						           <label class="control-label">Item Group I<span class="required">*</span></label>
-                                   <div class="controls">                         
-								<select class="m-wrap" tabindex="2" name="fGroup1[]" id="group1" onChange="getGroup2ItemListing(this.id,this.value);">
-                                            <option value="0" selected="selected" >Choose the ItemGroup 1 </option>
-											 <?php
-											  $aItemGroup1List = $oMaster->getItemGroup1List();
-											  foreach($aItemGroup1List as $aItemGroup1)
-											  {
-											 ?>
-                                                
-                                             <option value="<?php echo $aItemGroup1['id_itemgroup1']; ?>" <?php if($edit_result['id_itemgroup1'] == $aItemGroup1['id_itemgroup1']) { echo 'selected=selected' ;}?>><?php echo $aItemGroup1['itemgroup1_name']; ?></option>
-                                             <?php
-											  }
-											 ?>
-                                          </select>
-                                          </div>
-                                          </div>
-                                          
-                                         <div class="control-group">
-                                         <label class="control-label">Brand/Make<span class="required">*</span></label>
-                                         <div class="controls"> 
-                                          <select class="m-wrap group2" tabindex="3" name="fGroup2[]" id="itemgroup1" onChange="getItemLising(this.id,this.value);">
-                                               <option value="0" selected="selected" >Choose the ItemGroup 2 </option>
-											 <?php
-											  $aItemGroup2List = $oMaster->getItemGroup2List();
-											  foreach($aItemGroup2List as $aItemGroup2)
-											  {
-											 ?>
-                                                
-                                             <option value="<?php echo $aItemGroup2['id_itemgroup2']; ?>" <?php if($edit_result['id_itemgroup2'] == $aItemGroup2['id_itemgroup2']) { echo 'selected=selected' ;}?>><?php echo $aItemGroup2['itemgroup2_name']; ?></option>
-                                             <?php
-											  }
-											 ?>
-                                          </select>
-                                          </div>
-                                          </div>
-										 
-                                            <div class="control-group">
-                                            <label class="control-label">Item Name<span class="required">*</span></label>
-                                            <div class="controls">
-                                          <select class="m-wrap nextRow items" tabindex="1" id="fItemName1" name="fItemName[]">
-                                    <option value="0" >Choose the Item</option>
-											 <?php
-											  $aItemList = $oMaster->getItemList();
-											  foreach($aItemList as $aItem)
-											  {
-											 ?>
-                                             <option value="<?php echo $aItem['id_item']; ?>" <?php if($edit_result['id_item'] == $aItem['id_item']) { echo 'selected=selected' ;}?>><?php echo $aItem['item_name']; ?></option>
-                                             <?php
-											  }
-											 ?>
-                                          </select>
-									</div>
-                                    </div>
-                                    <div class="control-group">
-                                    <label class="control-label">Item Quantity<span class="required">*</span></label>
-                                    <div class="controls">
-                                    <input type="text" class="m-wrap  nextRow xsmall"  name="fQuanity[]" value="1">
-                                    <select class="m-wrap" style="width:150px;" data-placeholder="Choose a UOM" name="fUOMId[]" >
-                                    <option value="0">UOM</option>
-											 <?php
-											  $aUOMList= $oMaster->getUomList();
-											  foreach($aUOMList as $aUOM)
-											  {
-			  
-											 ?>
-                                             <option value="<?php echo $aUOM['id_uom']; ?>" <?php if($edit_result['id_uom'] == $aUOM['id_uom']) { echo 'selected=selected' ;} else if($aUOM['id_uom']== '1') {echo 'selected=selected';}?>><?php echo $aUOM['uom_name']; ?></option>
-                                             <?php
-											  }
-											 ?>
-                                          </select>
-                                         </div>
-                                         </div>
-                                         
-                                         <div class="control-group">
-                                         <label class="control-label">Supplier<span class="required">*</span></label>
-                                    	<div class="controls">
-                                    	<select class=" m-wrap nextRow" tabindex="3" name="fvendorId[]">
-											 <?php
-											  $avendorList = $oAssetVendor->getAllVendorInfo();
-											 ?>
-                                            <option value="0">Choose the Supplier</option>
-                                             <?php  foreach($avendorList as $aVendor)
-											  {
-												  ?>
-                                             <option value="<?php echo $aVendor['id_vendor']; ?>"><?php echo $aVendor['vendor_name']; ?></option>
-                                             <?php
-											  }
-											 ?>
-                                          </select>
-                                          </div></div>
-                                         
-                                          <div class="control-group">
-                                         <label class="control-label">Manufacturer<span class="required">*</span></label>
-                                    	<div class="controls"> 
-                                          <select class=" m-wrap nextRow" tabindex="1" name="fManufactureId[]">
-                                    <option value="0">Choose the Manufacturer</option>
-											 <?php
-											  $aManufacturerList = $oMaster->getManufacturerList();
-											  foreach($aManufacturerList as $aManufacturer)
-											  {
-											 ?>
-                                                
-                                             <option value="<?php echo $aManufacturer['id_manufacturer']; ?>" <?php if($edit_result['id_manufacturer'] == $aManufacturer['id_manufacturer']) { echo 'selected=selected' ;}?>><?php echo $aManufacturer['manufacturer_name']; ?></option>
-                                             <?php
-											  }
-											 ?>
-                                          </select>
-                                   			 </div></div>
-                                             
-                                   <div class="control-group">
-                                   <label class="control-label">Machine Number<span class="required">*</span></label>
-                                   <div class="controls"> 
-                                   <input type="text" class="m-wrap nextRow " placeholder="Machine Number" name="fMachineNo[]">
-                                   </div></div>
-                                     
-                             <div class="control-group">
-                             <label class="control-label">Machine Purchased Date<span class="required">*</span></label>
-                             <div class="controls">
-                             <input class="m-wrap m-ctrl-small date-picker nextRow" style="float:left;" placeholder="Machine Purchased Date" type="text"  name="fMachineDate[]"  />
-                                         </div></div>
-                                           
-                                   <div class="control-group">
-                                   <label class="control-label">Machine Life<span class="required">*</span></label>
-                                   <div class="controls">
-                                           
-                                           <input type="text" class="m-wrap nextRow "  placeholder="Machine Life" name="fMachineLife[]" value="<?php echo $aStockItem['machine_life'];?>">  
-										   </div></div>
-                                           
-                                   <div class="control-group">
-                                   <label class="control-label">Machine Price<span class="required">*</span></label>
-                                   <div class="controls">
-									<input type="text" class="m-wrap nextRow "  placeholder="Machine Price" name="fMachinePrice[]" value="<?php echo $aStockItem['machine_price'];?>">  
-                                    </div></div>
-                                    
-                                    <div class="control-group">
-                                   <label class="control-label">Asset Number<span class="required">*</span></label>
-                                   <div class="controls">
-                                   <input type="text" class="m-wrap nextRow " id="fAssetNo1" name="fRefAssetNo[]" value="" placeholder="Ref.AssetNumber">
-                            </div></div>
-                             
-                                <div class="control-group">
-                                <label class="control-label">Depreciation</label>
-								<div class="controls">
-                                 <div class="input-prepend">
-                             	<span class="add-on">%</span> <input type="text" class="m-wrap span4 price input-prepend" name="fDepressation[]" value="0" /> 
-                                 </div></div></div>
-                                 
-                                 <div class="control-group">
-                                   <label class="control-label">Date of Install<span class="required">*</span></label>
-                                   <div class="controls">
-                           <input class="m-wrap m-ctrl-small date-picker nextRow" style="float:left;" placeholder="Machine Date of Install" type="text"  name="fDateofInstall[]"/>
+							 }?>" />
                                         </div></div>
                                         
                                         <div class="control-group">
                                    <label class="control-label">Store<span class="required">*</span></label>
                                    <div class="controls">
                                         
-                                     <select class="m-wrap" data-placeholder="Choose a Store"  name="fStoreId[]" id="fStoreId">
+                                     <select class="m-wrap" data-placeholder="Choose a Store"  name="fStoreId" id="fStoreId">
                                           
                                           <option value="0">Choose a Store</option>
                                           <?php
@@ -553,9 +379,8 @@ getItemLising('itemgroup1','<?php echo $aStockItem['id_itemgroup2'];?>','<?php e
 											  foreach($aStoreList as $aStore)
 											  {
 											 ?>
+                                             <option value="<?php echo $aStore['id_store']; ?>/<?php echo $aUnit['id_unit'];?>" <?php if($aStockItem['id_store'] == $aStore['id_store']) { echo 'selected=selected' ;}?>><?php echo $aStore['store_name']; ?></option>
                                              
-                                             <option value="<?php echo $aStore['id_store']; ?>/<?php echo $aUnit['id_unit'];?>" <?php if($edit_result['id_store'] == $aStore['id_store']) { echo 'selected=selected' ;}?>><?php echo $aStore['store_name']; ?></option>
-                                           
                                              <?php
 											  }
 											 ?>
@@ -569,25 +394,38 @@ getItemLising('itemgroup1','<?php echo $aStockItem['id_itemgroup2'];?>','<?php e
                                    <label class="control-label">Warranty Start Date<span class="required">*</span></label>
                                    <div class="controls">
                                     
-	<input class="m-wrap m-ctrl-small date-picker span10" placeholder="Warranty Start date" size="10" type="text" name="fWarrantyStartDate[]" ><span class="add-on"><i class="icon-calendar"></i></span>
+	<input class="m-wrap m-ctrl-small date-picker span10" placeholder="Warranty Start date" size="10" type="text" name="fWarrantyStartDate" value="<?php
+	 if($aStockItem['warranty_start_date'] == '1970-01-01' || $aStockItem['warranty_start_date'] == '')
+							 {
+								 echo  date('d-m-Y');
+							 }
+							 else
+							 { echo date('d-m-Y',strtotime($aStockItem['warranty_start_date']));
+							 }?>"><span class="add-on"><i class="icon-calendar"></i></span>
 												 </div></div>
 												
                                     <div class="control-group input-append date date-picker" data-date="<?php echo date('d-m-Y');?>" data-date-format="dd-mm-yyyy">
                                     <label class="control-label">Warranty End Date<span class="required">*</span></label>
                                    <div class="controls">
-	<input class="m-wrap m-ctrl-small date-picker span10" placeholder="Warranty End date" size="10" type="text" name="fWarrantyEndDate[]" ><span class="add-on"><i class="icon-calendar"></i></span>
+	<input class="m-wrap m-ctrl-small date-picker span10" placeholder="Warranty End date" size="10" type="text" name="fWarrantyEndDate" value="<?php
+	  if($aStockItem['warranty_end_date'] == '1970-01-01' || $aStockItem['warranty_end_date'] == '')
+							 {
+								 echo  date('d-m-Y');
+							 }
+							 else
+							 { 
+							 echo date('d-m-Y',strtotime($aStockItem['warranty_end_date']));
+							 }?>" ><span class="add-on"><i class="icon-calendar"></i></span>
 												 
                                                  </div></div>
                                     
-								
-			 					<?php } ?>
-			                        
 									
 						<div class="form-actions">
 						<?php if($aRequest['action'] == 'edit')
 						{
 						?>
-							<button type="submit" class="btn blue" id="sends" name="Update"><i class="icon-ok"></i>Update Stock</button>                   			<input type="hidden" name="fAssetStockId" value="<?php echo $aRequest['id'];?>"/>
+							<button type="submit" class="btn blue" id="sends" name="Update"><i class="icon-ok"></i>Update Stock</button>                   			
+                            <input type="hidden" name="fAssetStockId" value="<?php echo $aRequest['id'];?>"/>
 							<input type="hidden" name="fUrl" value="<?php echo $aRequest['fReturnUrl'];?>"/>
 							
 						<?php

@@ -49,14 +49,14 @@ select:focus{outline:none !important;}
 .btn.yellow.active,
 .btn.yellow.disabled,
 .btn.yellow[disabled]{background-color:#eca22e !important;color:#fff !important;}
-.btn.black{color:white;text-shadow:none;background-color:#555555;}
+.btn.black{color:white;text-shadow:none;background-color:#555555;margin-top: 5px;}
 .btn.black:hover,
 .btn.black:focus,
 .btn.black:active,
 .btn.black.active,
 .btn.black.disabled,
 .btn.black[disabled]{background-color:#222222 !important;color:#fff !important;}
-.mini{height:13px;font-size:11px !important;line-height:13px;padding:4px 10px;}
+.mini{height:24px;font-size:11px !important;line-height:13px;padding:4px 10px;}
 .big{height:38px;font-size:18px;line-height:38px;padding:8px 16px;}
 .label-return,
 .badge-return{background-color:#EDC62A;background-image:none !important;text-shadow:none !important;}

@@ -249,8 +249,9 @@ parse_str($query_str, $aOutQueryStr);
  }
  else
  {
- $msg = 'Your are not able to view this page';
- header("Location: index.php");
+	 $allowRight['right'] = 1;
+ //$msg = 'Your are not able to view this page';
+ //header("Location: index.php");
 
  }
  }

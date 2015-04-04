@@ -6,6 +6,11 @@
   }
   $aCustomerInfo = $oSession->getSession('sesCustomerInfo');
   $aRequest = $_REQUEST;
+ /* echo '<pre>';
+  print_r($aRequest);
+  print_r($_SESSION);
+  echo '</pre>'; */
+
   
   $oAssetType = &Singleton::getInstance('AssetType');
   $oAssetType->setDb($oDb);
@@ -20,6 +25,7 @@
 		}
 		
 		$sesReportItemList = $aRequest;
+		
 		$oSession->setSession('ses_ReportItemlist',$sesReportItemList);
 		}
 
@@ -226,7 +232,10 @@
 								<div class="portlet-body">
                                 <div style="float:left";>
                                 <a href="StockReport.php">BACK TO FORM</a>
-                                <div >SEARCH FOR :&nbsp;<b><?php echo $aSearchList;?></b></div>
+                                <div >SEARCH FOR :&nbsp;<b><?php echo $aSearchList;?></b>
+                                <br>
+                                <a href="StockReportListPDF.php">Print PDF</a>
+                                </div>
                                 </div>
                                <div style="float:right";>
                                 <div class="pagination pagination-right">
@@ -249,7 +258,7 @@
                                                 <th class="hidden-phone"> <a href="?field=itemgroup1.itemgroup1_name&sort=<?php echo $sort;?>" class="titleLink">Machine Number</a></th>
                                                 <th><a href="?field= asset_item.asset_no&sort=<?php echo $sort;?>" class="titleLink"> Asset Number</a></th>
                                                 <th class="hidden-phone">Image</th>
-												 <th class="hidden-phone"> <a href="?field=asset_stock.id_division&sort=<?php echo $sort;?>" class="titleLink">Division Name</a></th>
+												 <!--<th class="hidden-phone"> <a href="?field=asset_stock.id_division&sort=<?php //echo $sort;?>" class="titleLink">Division Name</a></th>-->
                                                 <th class="hidden-phone"> <a href="?field=asset_item.machine_no&sort=<?php echo $sort;?>" class="titleLink">Store Name</a></th>
                                                 <th > <a href="?field= asset_unit.unit_name&sort=<?php echo $sort;?>" class="titleLink">Unit Name</a></th>
                                                 <th><a href="?field=asset_item.status&sort=<?php echo $sort;?>" class="titleLink">Status</a></th>
@@ -257,7 +266,7 @@
 											</tr>
 										</thead>
 										<tbody>
-    <tr><td colspan="10" style="text-align:center">No Result Found.</td></tr>
+    <tr><td colspan="12" style="text-align:center">No Result Found.</td></tr>
 	</table>
   
   <?php
@@ -273,7 +282,7 @@
                                                 <th><a href="?field=itemgroup1.itemgroup1_name&sort=<?php echo $sort;?>" class="titleLink">Machine Number</a></th>
                                                 <th><a href="?field= asset_item.asset_no&sort=<?php echo $sort;?>" class="titleLink"> Asset Number</a></th>
                                                 <th>Image</th>
-												<th><a href="?field=asset_stock.id_division&sort=<?php echo $sort;?>" class="titleLink">Division Name</a></th>
+												<!--<th><a href="?field=asset_stock.id_division&sort=<?php //echo $sort;?>" class="titleLink">Division Name</a></th>-->
                                                 <th><a href="?field=asset_item.machine_no&sort=<?php echo $sort;?>" class="titleLink">Store Name</a></th>
                                                 <th><a href="?field= asset_unit.unit_name&sort=<?php echo $sort;?>" class="titleLink">Unit Name</a></th>
                                                 <th><a href="?field=asset_item.status&sort=<?php echo $sort;?>" class="titleLink">Status</a></th>
@@ -307,7 +316,7 @@
                                                 
                                                 
                                                 </td>
-												<td class="hidden-phone"><?php echo $stockReport['division_name'];?></td>
+												<!--<td class="hidden-phone"><?php //echo $stockReport['division_name'];?></td>-->
                                                 <td class="hidden-phone"><?php echo $stockReport['store_name'];?></td>
                                                 <td><?php echo $stockReport['unit_name'];?></td>
                                                 <td><?php echo $oUtil->AssetItemStatus($stockReport['status']);?></td>

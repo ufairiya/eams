@@ -134,13 +134,14 @@ FROM
         ON (asset_item.asset_name = item.id_item)
 		INNER JOIN store 
         ON (asset_stock.id_store = store.id_store)
-WHERE 
+ 
     ";
 	$id_unit = $aRequest['fUnitId'];
 	$id_store = $aRequest['fStoreId'];
 	$id_itemGtoup1 = $aRequest['fGroup1'];
 	$id_itemGtoup2 = $aRequest['fGroup2'];
 	$id_item = $aRequest['fItemName'];
+	
 	if($aRequest['fStartDate'] !='' || $aRequest['fEndDate'] !='')
 	{
 	$start_date =date('Y-m-d',strtotime($aRequest['fStartDate']));
@@ -191,6 +192,12 @@ WHERE
 		}
 		$filter.= "   asset_item.machine_date between '".$start_date."' and '".$end_date."'";
 	}
+	if($filter != '')
+	{
+		$filter = " WHERE ".$filter;
+	}
+	
+	
 	if(!empty($rowsPerPage))
 		{
 			$limit 	= "LIMIT $offset, $rowsPerPage";
@@ -268,7 +275,7 @@ WHERE
     , asset_item.id_inventory_item
      , itemgroup1.itemgroup1_name
      , asset_item.status,store.store_name,
-	asset_item. machine_date,
+	asset_item.machine_date,
 	asset_stock.id_division
 FROM
     asset_item
@@ -1602,4 +1609,174 @@ FROM
 	  	 $results = $this->oDb->get_row($query);
 		 return $results->vendor_name;
 	}
+	
+	/*new functions added 31.3.2015*/
+	public function assetStockReportList($aRequest,$type='', $offset='', $rowsPerPage='', $field='', $sort='' )
+	{
+	
+		$condition = ''; $limit = ''; $orderBy = '';
+	$qry = "SELECT
+    item.item_name
+    , itemgroup2.itemgroup2_name
+    , itemgroup1.id_itemgroup1
+    , asset_unit.unit_name
+    , asset_item.machine_no
+	, asset_item.warranty_start_date
+	, asset_item.warranty_end_date
+	, asset_item.ref_asset_no
+    , asset_item.asset_no
+	, asset_item.asset_amount
+	, asset_item.depressation_percent
+	, asset_item.date_of_install
+		
+    , asset_item.id_asset_item
+    , asset_item.id_inventory_item
+     , itemgroup1.itemgroup1_name
+     , asset_item.status,store.store_name,
+	asset_item.machine_date,
+	asset_item.machine_life,
+	asset_stock.id_division
+FROM
+    asset_item
+    INNER JOIN asset_stock 
+        ON (asset_item.id_asset_item = asset_stock.id_asset_item)
+    INNER JOIN itemgroup1 
+        ON (asset_item.id_itemgroup1 = itemgroup1.id_itemgroup1)
+    INNER JOIN asset_unit 
+        ON (asset_item.id_unit = asset_unit.id_unit)
+    INNER JOIN itemgroup2 
+        ON (asset_item.id_itemgroup2 = itemgroup2.id_itemgroup2)
+    INNER JOIN item 
+        ON (asset_item.asset_name = item.id_item)
+		INNER JOIN store 
+        ON (asset_stock.id_store = store.id_store)
+ 
+    ";
+	$id_unit = $aRequest['fUnitId'];
+	$id_store = $aRequest['fStoreId'];
+	$id_itemGtoup1 = $aRequest['fGroup1'];
+	$id_itemGtoup2 = $aRequest['fGroup2'];
+	$id_item = $aRequest['fItemName'];
+	if($aRequest['fStartDate'] !='' || $aRequest['fEndDate'] !='')
+	{
+	$start_date =date('Y-m-d',strtotime($aRequest['fStartDate']));
+	$end_date = date('Y-m-d',strtotime($aRequest['fEndDate']));
+	}
+	$filter = '';
+	if($id_unit != null)
+	{
+		$filter.= "  asset_stock.id_unit=".$id_unit;
+	}
+	if($id_store != null)
+	{
+		if($id_unit != null)
+		{
+			$filter.= ' AND ';
+		}
+		$filter.= "  asset_stock.id_store =".$id_store;
+	}
+	if($id_itemGtoup1 != null )
+	{
+		if($id_store != null || $id_unit !=null )
+		{
+			$filter.= ' AND ';
+		}
+		$filter.= "  itemgroup1.id_itemgroup1 =".$id_itemGtoup1;
+	}
+	if($id_itemGtoup2 != null )
+	{
+		if($id_store != null || $id_unit !=null || $id_itemGtoup1 != null )
+		{
+			$filter.= ' AND ';
+		}
+		$filter.= "  itemgroup2.id_itemgroup2 =".$id_itemGtoup2;
+	}
+		if($id_item != null )
+	{
+		if($id_store != null || $id_unit !=null || $id_itemGtoup1 != null || $id_itemGtoup2 != null )
+		{
+			$filter.= ' AND ';
+		}
+		$filter.= "   asset_item.asset_name =".$id_item;
+	}
+	if($start_date != null && $end_date !=null)
+	{
+		if($id_store != null || $id_unit !=null || $id_itemGtoup1 != null || $id_itemGtoup2 != null || $id_item != null)
+		{
+			$filter.= ' AND ';
+		}
+		$filter.= "   asset_item.machine_date between '".$start_date."' and '".$end_date."'";
+	}
+	if($filter != '')
+	{
+		$filter = " WHERE ".$filter;
+	}
+	
+	
+	if(!empty($rowsPerPage))
+		{
+			$limit 	= " LIMIT $offset, $rowsPerPage";
+		}
+		if(!empty($field))
+		{
+			$orderBy 		= " ORDER BY ".$field." ".$sort." ";
+		}
+		else $orderBy = " GROUP BY asset_item.id_asset_item ASC ";
+	$query = $qry.$filter.$orderBy.$limit;
+	
+	 if($type =='count')
+	 {
+		
+		if($this->oDb->query($query))
+		{
+		
+		$num_rows = $this->oDb->num_rows;
+		}
+		return $num_rows;
+	 }
+	 else {
+	$aStockReportList = array();
+		if($result = $this->oDb->get_results($query))
+		{
+			foreach($result as $row)
+			{
+				$aStockReport = array();
+				$aStockReport['id_itemgroup1'] = $row->id_itemgroup1;
+				$aStockReport['itemgroup1_name']   = $row->itemgroup1_name;
+				$aStockReport['itemgroup2_name'] = $row->itemgroup2_name;
+				$aStockReport['item_name']    =$row->item_name;
+				$aStockReport['machine_no']  = strtoupper($row->machine_no);
+				$aStockReport['asset_no']    = $row->asset_no;
+				$aStockReport['date_of_install'] = date('d-m-Y',strtotime($row->date_of_install));
+				$aStockReport['machine_life'] = $row->machine_life;
+				$aStockReport['machine_price'] = $row->machine_price;
+				$aStockReport['unit_name']    = $row->unit_name;
+				$aStockReport['id_division']    = $row->id_division;
+				$aStockReport['division_name']    =$this->getDivisionName($row->id_division);
+				$aStockReport['store_name']    = $row->store_name;
+				$aStockReport['stock_quantity']    = $row->stock_quantity;
+				if($row->id_inventory_item > 0)
+				{
+				$aAssetItems =$this->getAssetImage($row->id_inventory_item);
+				$aStockReport['asset_image'] = $aAssetItems['image'];
+				$aStockReport['id_image'] = $aAssetItems['id_image'];
+				}
+
+				else
+				{
+				$aAssetItems =$this->getAssetImage($row->id_asset_item,'assetid');
+				$aStockReport['asset_image'] = $aAssetItems['image'];
+				$aStockReport['id_image'] = $aAssetItems['id_image'];
+				}
+				$aStockReport['machine_date']    =date('d-m-Y',strtotime($row->machine_date));			
+				$aStockReport['status']    = $row->status;
+				$aStockReportList[]        = $aStockReport;
+			}
+		}
+		return $aStockReportList;	
+		}
+	}
+	
+	
+	
 }

@@ -8,9 +8,10 @@
   $aRequest = $_REQUEST;
   $aUnitReport = $oReport->getUnitWiseTotalStock();
   $aStoreReport = $oReport->getStoreWiseStockCount();
- $aStoreWiseReport = $oReport->StorewiseReport();
- $array_store =array();
-	$array_stock =array();
+  $aStoreWiseReport = $oReport->StorewiseReport();
+  $array_store =array();
+  $array_stock =array();
+  
     foreach($aStoreWiseReport as $storewise) { 
        foreach($aStoreReport as $aStoreReports)
 	   {
@@ -198,7 +199,7 @@
 			
 			
                 </div><?php */?>
-               <?php if($aRequest['report'] == 'storewise')
+            <?php if($aRequest['report'] == 'storewise')
 			{
 			?>
 			  	<div >SEARCH FOR :&nbsp;<b>Store Wise Report</b></div>
@@ -313,32 +314,25 @@
 			 
                 </div>
 				<?php } ?>	
-				 <?php if($aRequest['report'] == 'item')
+			<?php if($aRequest['report'] == 'item')
 			{
 			?>
 				<div >SEARCH FOR :&nbsp;<b>Item Detail Report</b></div>
 				<br>
-             <div class="row-fluid profile">
-			 <?php 
-			 foreach($aItemDetailReport as $aItemDetail)
-			{
-			
-			
-			?>
-			<b><?php echo $aItemDetail['store_name'];?></b>
-			
-			
-           <?php 
-		  
-		    foreach($aItemDetail['name'] as $key => $aname) { 
+                <div class="row-fluid profile">
+			   <?php 
+			    foreach($aItemDetailReport as $aItemDetail)
+			    {
+			   ?>
+			       <b><?php echo $aItemDetail['store_name'];?></b>
+			  <?php 
+		  	       foreach($aItemDetail['name'] as $key => $aname) { 
 				?>
-			
-			 
-			 <?php 
-		   }
-		    foreach($aItemDetail['stock'] as  $IG1Key => $aItemDetails) {
+		    	<?php 
+		           }
+		           foreach($aItemDetail['stock'] as  $IG1Key => $aItemDetails) {
 				?>
-				 <br>
+				    <br>
 			<font color="#FF0000"> <b><?php echo $aItemDetail['name'][$IG1Key]; ?></b></font>
 		   <table class="table table-striped table-hover">
 			<thead>
@@ -378,7 +372,66 @@
 			 
                 </div>
 				
-				<?php } ?>	
+				<?php } ?>
+                
+                   <?php
+						if($aRequest['report'] == 'assetlist')
+						{
+							//echo 'assetlist';$aStockReportList
+							$result = $oReport->assetStockReportList($aRequest);
+							/*echo '<pre>';
+							print_r($result);
+							echo '</pre>';*/
+					?>
+                            <div >SEARCH FOR :&nbsp;<b>All Asset Stock List</b></div>
+                            <br>
+                            <div class="row-fluid profile">
+                            <table class="table table-striped table-hover">
+                            <thead>
+                            <tr>
+                            <th>Item Group 1</th>
+                            <th>Brand / Make</th>
+                            <th>Item</th>
+                            <th>Machine No</th>
+                            <th>Asset no</th>
+                            <th>Installed Date</th>
+                            <th>Value</th>
+                            <th>Depreciation %</th>
+                            <th>Current Value</th>
+                            </tr>
+                            </thead>
+                    <?php 
+							foreach($result as $aItem)
+							{
+					?>
+                                <tr>
+                                <td><?php echo $aItem['itemgroup1_name'];?> </td>
+                                <td><?php echo $aItem['itemgroup2_name'];?> </td>
+                                <td><?php echo $aItem['item_name'];?></td> 
+                                <td><?php echo $aItem['machine_no'];?></td>
+                                <td><?php echo $aItem['asset_no'];?></td>
+                                <td><?php echo $aItem['date_of_install'];?></td>
+                                <td><?php echo $aItem['machine_price'];?></td>
+                                <td><?php echo $aItem['machine_price'];?></td>
+                                <td><?php echo $aItem['machine_price'];?></td>
+                                </tr>
+                    <?php			
+								
+							}
+			         ?>
+                           </table>
+                     <?php
+					   
+					   
+					   
+					   
+					   
+				      }//end if assetlist
+				?>
+                
+                
+                
+                	
          <!-- END PAGE CONTAINER-->
       </div>
       </div>

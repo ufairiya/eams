@@ -12,7 +12,7 @@
    <script src="assets/breakpoints/breakpoints.js"></script>
    <script type="text/javascript" src="assets/ckeditor/ckeditor.js"></script>        
    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-      <script type="text/javascript" src="assets/bootstrap-fileupload/bootstrap-fileupload.js"></script>
+   <script type="text/javascript" src="assets/bootstrap-fileupload/bootstrap-fileupload.js"></script>
    <script src="assets/js/jquery.blockui.js"></script>
    <script src="assets/js/jquery.cookie.js"></script>
    <!-- ie8 fixes -->

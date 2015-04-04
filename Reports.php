@@ -98,6 +98,9 @@
 				<td><a href="ViewReport.php?report=groupwise"  >
 				Storewise - Item Group Count  <i class="m-icon-swapright m-icon-black"></i>
 				</a></td>
+                <td><a href="ViewReport.php?report=assetlist"  >
+				Asset List  <i class="m-icon-swapright m-icon-black"></i>
+				</a></td>
 				
 				</tr>
 				

@@ -133,7 +133,7 @@
 							<div class="portlet-body">
 								<div class="clearfix">
                                 <div class="btn-group">
-                                <a href="AddStock.php?action=Add"  role="button" class="btn green" data-toggle="modal">Add New <i class="icon-plus"></i></a>								
+                                <a href="AddStock.php?action=Add" role="button" class="btn green" data-toggle="modal">Add New <i class="icon-plus"></i></a>								
 									</div>
 								</div>
 								<table class="table table-striped table-bordered table-hover" id="sample_1">
@@ -174,7 +174,7 @@
                                            
                                           	<td>
                                             <div class="flash" id="flash_<?php echo  $item['id_asset_item']; ?>"></div>
-                                      <a href="AddStock.php?id=<?php echo  $item['id_asset_item']; ?>&action=edit" class="btn mini purple"><i class="icon-edit"></i>Edit</a> &nbsp; &nbsp;
+                                      <a href="AddStock.php?id=<?php echo  $item['id_asset_item']; ?>&action=edit" class="btn mini purple"><i class="icon-edit"></i>Edit</a>
                                             
                                             <?php if($item['status']!=2)
 											{
