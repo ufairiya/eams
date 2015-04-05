@@ -36,9 +36,10 @@
     echo '<pre>';
 	 echo 'Add:<br>';
 	print_r($aRequest);
+	print_r($_FILES);
 	echo '</pre>';
 	exit();
-    if($oStyle->addStyle($aRequest))
+    if($oStyle->addStyle($aRequest, $_FILES))
 	{ 
 	   $msg = "New Order Style Added.";
 	  echo '<script type="text/javascript">window.location.href="StyleDetails.php?msg=success";</script>';
@@ -153,7 +154,7 @@
                      <div class="portlet-body form">
                         <!-- BEGIN FORM-->
                        
-                           <form action="<?php echo $_SERVER['PHP_SELF']; ?>" class="form-horizontal" id="" method="post">
+                           <form action="<?php echo $_SERVER['PHP_SELF']; ?>" class="form-horizontal" id="" method="post" enctype="multipart/form-data">
 							  <div class="alert alert-error hide">
                                  <button class="close" data-dismiss="alert"></button>
                                   You have some form errors. Please check below.
@@ -215,6 +216,20 @@
 										  <span>Current Order Colors are: <strong><?php echo implode(', ',$aColorName); ?></strong></span>
                                        </div>
                                     </div>
+                                    	<div class="control-group">
+                                       <label class="control-label">Upload Image</label>
+                                       <div class="controls">
+                                     <input type="file" class="input-xlarge" tabindex="16" id="fStyleImage" name="fStyleImage">
+                                     <br>
+                                     <?php if($edit_result['style_images']!='')
+									 {
+										 ?>
+                                     <img src="<?php echo "uploads/styleimages/".$edit_result['style_images'];?>" height="100" width="100"/>
+                                     <?php } ?>
+                                        </div>
+                                    </div>
+                                    
+                                    
 																										
 									 <div class="control-group">
                                        <label class="control-label">Status</label>

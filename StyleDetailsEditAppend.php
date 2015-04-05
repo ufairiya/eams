@@ -15,8 +15,11 @@
   
   $oThreadCal = &Singleton::getInstance('ThreadCalculation');
   $oThreadCal->setDb($oDb);
-     
-	
+  
+  $oThreadType =  &Singleton::getInstance('ThreadType');
+  $oThreadType->setDb($oDb);
+  $aThreadTypeInfo = $oThreadType->getAllThreadTypeInfo();	
+  //print_r($aThreadTypeInfo);
     
   if(isset($aRequest['Update']))
   {    echo '<pre>';
@@ -233,39 +236,64 @@
        <!-- clone starts-->
        <h3 class="form-section">Purchase Item Info</h3>
                                     <div class="row-fluid">
-                                      <table class="table table-striped table-bordered table-hover appendo">
+                                    <table class="table table-striped table-bordered table-hover"><tbody><tr><td align="right">
+                                    <div class="control-group">
+                                       <label class="control-label">Thickness</label>
+                                       <div class="controls">
+                                          <input type="text" placeholder="in MM" class="m-wrap xsmall" name="fThickness" data-required="1" value="1.2" /><span class="help-inline">in MM</span>
+                                       </div>
+                                    </div>
+                                    </td>
+                                    <td align="right">
+                                    <div class="control-group">
+                                       <label class="control-label">Percent Waste</label>
+                                       <div class="controls">
+                                          <input type="text" placeholder="in %" class="m-wrap xsmall" name="fWastagePercent" data-required="1" value="10" /><span class="help-inline">%</span>
+                                       </div>
+                                    </div>
+                                    </td>
+                                    
+                                    
+                                    </tr></tbody></table>
+                                    
+                                    <table class="table table-striped table-bordered table-hover appendo">
 									<thead>
 										<tr>
-											<th>Item Name</th>
+											<th>Operation Name</th>
 											<th>Quantity/ UOM</th>
-                                            <th>Unit Price (<?php echo Currencycode;?>)</th>
-                                            <th>Total  (<?php echo Currencycode;?>)</th>
-                                         	<th>Delete</th>
+                                            <th>Needle Thread (<?php echo "Mtrs";?>)</th>
+                                            <th>Looper Thread (<?php echo "Mtrs";?>)</th>
+                                         	<th>Total Length (Mtrs)</th>
 										</tr>
 									</thead>
 									<tbody>
                                     
                                     <tr>
-                                     <td><input type="text" class=" m-wrap"  placeholder="Enter the Item Remarks" name="fOperationName[]"/><br><br>
+                                     <td><input type="text" class=" m-wrap"  placeholder="Enter Operation" name="fOperationName[]"/><br><br>
 
                                      <select name="s_type[]">
                                        <option value="">--Select ISO--</option>
-                                       <option value="iso1">iso1</option>
-                                       <option value="iso2">iso2</option>
-                                       <option value="iso3">iso3</option>
-                                     </select>
+                                       <option value="iso1">104</option>
+                                       <option value="iso2">301</option>
+                                       <option value="iso3">302</option>
+                                     </select><br><br>
+                                     <input type="text" class=" m-wrap"  placeholder="SPI" name="fSPI[]"/>
                                      </td>
-                                     <td><input type="text" class=" m-wrap"  placeholder="Enter the Item Remarks" name="fSPI[]"/><br><br>
+                                     <td><input type="text" class=" m-wrap"  placeholder="Seam Length" name="fSeamLength[]"/><br><br>
                                          <select name="t_type[]">
                                        <option value="">--Select T--</option>
                                        <option value="t1">t1</option>
                                        <option value="t2">t2</option>
                                        <option value="t3">t3</option>
-                                     </select>
+                                     </select><br><br>
+                                     <input type="text" class="small m-wrap"  placeholder="Num Rows" name="fNumRows[]"/>
                                      </td>
-                                     <td><input type="text" class=" m-wrap"  placeholder="Enter the Item Remarks" name="fRemark[]"/></td>
-                                     <td><input type="text" class=" m-wrap"  placeholder="Enter the Item Remarks" name="fRemark[]"/></td>
-                                     <td><input type="text" class=" m-wrap"  placeholder="Enter the Item Remarks" name="fRemark[]"/></td>
+                                     <td><input type="text" class=" m-wrap"  placeholder="Num Rows" name="fNeedleThread[]"/>
+                                     
+                               
+                                     </td>
+                                     <td><input type="text" class=" m-wrap"  placeholder="Enter the Item Remarks" name="fLooperThread[]"/></td>
+                                     <td><input type="text" class=" m-wrap"  placeholder="Enter the Item Remarks" name="fTotalThread[]"/></td>
                                      
                                     </tr>
                                     </tbody>
