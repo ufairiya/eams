@@ -6,7 +6,7 @@
   }
   $aCustomerInfo = $oSession->getSession('sesCustomerInfo');
   $aRequest = $_REQUEST;
-  $allResult = $oMaster->getInventoryList();
+  $allResult = $oMaster->getInventoryList('inspection');
    $item_id = $aRequest['grnId'];
   $ItemList = $oMaster->getPrintPurchaseGoodsInfoList($item_id,'id','');
 /*echo '<pre>';

@@ -234,11 +234,12 @@ align="right">
    $i=1;
    foreach($aPrint['DeliveryItem'] as $aDeliveryItem)
    {
+	   $display_asset_no = ($aDeliveryItem['machine_no'] != '') ? $aDeliveryItem['asset_no'].' / '.$aDeliveryItem['machine_no'] :  $aDeliveryItem['asset_no'];
 	   $net_total +=$aDeliveryItem['issue_quantitiy']; 
 	   ?>
    <TR>
    <TD align="left"><?php echo $i;?></TD>
-   <TD align="left"><?php echo $aDeliveryItem['itemgroup1_name'].'-'.$aDeliveryItem['itemgroup2_name'].'-'.$aDeliveryItem['item_name'].'('.$aDeliveryItem['asset_no'].')';?></TD>
+   <TD align="left"><?php echo $aDeliveryItem['itemgroup1_name'].'-'.$aDeliveryItem['itemgroup2_name'].'-'.$aDeliveryItem['item_name'].'('.$display_asset_no.')';?></TD>
    <TD align="left"><?php echo $aDeliveryItem['issue_quantitiy'];?></TD>
    <TD align="right" ><?php echo $aDeliveryItem['uom_name'];?></TD>
    </TR>

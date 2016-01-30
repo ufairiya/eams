@@ -164,13 +164,13 @@
 											{?>
                                              <a href="SalesInvoice.php?id=<?php echo  $item['id_asset_delivery']; ?>&action=edit"  class="btn mini purple icn-only"><i class="icon-edit"></i></a> &nbsp; &nbsp;
                                             
-                                            <a  href="javascript:void()" onclick=deleteBox(<?php echo  $item['id_asset_delivery']; ?>) class="btn mini red icn-only"><i class="icon-remove icon-white"></i></a> &nbsp;&nbsp;
+                                            <a  href="javascript:void()" onclick=deleteBox(<?php echo  $item['id_asset_sales_invoice']; ?>) class="btn mini red icn-only"><i class="icon-remove icon-white"></i></a> &nbsp;&nbsp;
                                             <?php /*?> <a href="ConfirmDelivery.php?id=<?php echo  $item['id_asset_delivery']; ?>"  class="btn mini purple"><i class="icon-edit"></i>Confirm Delivery</a> &nbsp; &nbsp;<?php */?>
                                            
                                             <?php } ?>
                                             <a href="?id=<?php echo  $item['id_asset_delivery']; ?>" class="btn mini purple"><i class="icon-edit"></i>View</a>
                                             
-                                            <a href="SalesInvoiceView.php?id=<?php echo  $item['id_asset_delivery']; ?>" class="btn mini purple">Print</a>
+                                            <a href="SalesInvoiceView.php?id=<?php echo  $item['id_asset_sales_invoice']; ?>" class="btn mini purple">Print</a>
                                             
                                             <!--<form action='SalesInvoiceView.php' target="_blank" method='post' enctype='multipart/form-data'><input type='hidden' name='AssetDeliveryId' value="<?php //echo $item['id_asset_delivery']; ?>"/>
                                               <button type='submit' class="btn mini purple" style="height: 20px; margin-top:10px;" >Print</button></form>-->   
@@ -223,7 +223,7 @@
 			   url: "delete.php",
 			   data: dataString,
 			   cache: false,
-			   success: function(result){
+			   success: function(result){				  
 					if(result){
 					
 					url = document.URL.split("?")[0];

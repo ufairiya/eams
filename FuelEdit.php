@@ -4,31 +4,31 @@
   {
 	header("Location: login.php");
   }
-  $aCustomerInfo = $oSession->getSession('sesCustomerInfo');
-  $aRequest = $_REQUEST;
- $oAssetUnit = &Singleton::getInstance('AssetUnit');
-  $oAssetUnit->setDb($oDb);
-  
-   $id_fuel = $aRequest['fFuelId'];
-  $aFuelInfo =$oMaster->getFuelInfo($id_fuel,'id');
+	$aCustomerInfo = $oSession->getSession('sesCustomerInfo');
+	$aRequest = $_REQUEST;
+	$oAssetUnit = &Singleton::getInstance('AssetUnit');
+	$oAssetUnit->setDb($oDb);
+	
+	$id_fuel = $aRequest['fFuelId'];
+	$aFuelInfo =$oMaster->getFuelInfo($id_fuel,'id');
 /*  echo '<pre>';
   print_r($aFuelInfo);
   exit();*/
  if(isset($aRequest['send']))
-  {
-   $oFormValidator->setField("ALLTEXT", "Bill Number", $aRequest['fBillNumber'], 1, '', '', '', '');
-$oFormValidator->setField("ALLTEXT", " Bill Amount", $aRequest['fBillAmount'], 1, '', '', '', '');
-$oFormValidator->setField("ALLTEXT", " Token Number", $aRequest['fTkNumber'], 1, '', '', '', '');
-$oFormValidator->setField("LIST", " Vendor", $aRequest['fVendorId'], 1, '', '', '', '');
-$oFormValidator->setField("LIST", " Item Group 1", $aRequest['fGroup1'], 1, '', '', '', '');
-$oFormValidator->setField("LIST", " Brand / Make", $aRequest['fItemGroup2'], 1, '', '', '', '');
-$oFormValidator->setField("LIST", " Item Name", $aRequest['fItemName'], 1, '', '', '', '');
-$oFormValidator->setField("LIST", " Employee Name", $aRequest['fEmployeeId'], 1, '', '', '', '');
-$oFormValidator->setField("LIST", " Fuel Type", $aRequest['fFuelType'], 1, '', '', '', '');
-$oFormValidator->setField("LIST", " UOM", $aRequest['fUOMId'], 1, '', '', '', '');
-$oFormValidator->setField("ALLTEXT", " CMR", $aRequest['fCMR'], 1, '', '', '', '');
-$oFormValidator->setField("ALLTEXT", " Quantity", $aRequest['fQuantity'], 1, '', '', '', '');
-$oFormValidator->setField("ALLTEXT", " Total Amount", $aRequest['fTotalPrice'], 1, '', '', '', '');		
+  {	
+    //$oFormValidator->setField("ALLTEXT", "Bill Number", $aRequest['fBillNumber'], 1, '', '', '', '');
+	//$oFormValidator->setField("ALLTEXT", " Bill Amount", $aRequest['fBillAmount'], 1, '', '', '', '');
+	$oFormValidator->setField("ALLTEXT", " Token Number", $aRequest['fTkNumber'], 1, '', '', '', '');
+	$oFormValidator->setField("LIST", " Vendor", $aRequest['fVendorId'], 1, '', '', '', '');
+	$oFormValidator->setField("LIST", " Item Group 1", $aRequest['fGroup1'], 1, '', '', '', '');
+	$oFormValidator->setField("LIST", " Brand / Make", $aRequest['fItemGroup2'], 1, '', '', '', '');
+	$oFormValidator->setField("LIST", " Item Name", $aRequest['fItemName'], 1, '', '', '', '');
+	$oFormValidator->setField("LIST", " Employee Name", $aRequest['fEmployeeId'], 1, '', '', '', '');
+	$oFormValidator->setField("LIST", " Fuel Type", $aRequest['fFuelType'], 1, '', '', '', '');
+	//$oFormValidator->setField("LIST", " UOM", $aRequest['fUOMId'], 1, '', '', '', '');
+	//$oFormValidator->setField("ALLTEXT", " CMR", $aRequest['fCMR'], 1, '', '', '', '');
+	$oFormValidator->setField("ALLTEXT", " Quantity", $aRequest['fQuantity'], 1, '', '', '', '');
+	$oFormValidator->setField("ALLTEXT", " Total Amount", $aRequest['fTotalPrice'], 1, '', '', '', '');		
 	  if($oFormValidator->validation())
 	  {
   
@@ -192,7 +192,7 @@ $oFormValidator->setField("ALLTEXT", " Total Amount", $aRequest['fTotalPrice'], 
                                       <div class="row-fluid">
                                        <div class="span6 ">
                                           <div class="control-group">
-                                              <label class="control-label">Bill Number <span class="required">*</span></label>
+                                              <label class="control-label">Bill Number </label>
                                              <div class="controls">
                                                 <input type="text" class="m-wrap " tabindex="1" placeholder="Bill Number" name="fBillNumber" value="<?php echo (!empty($aFuelInfo['bill_no'])? $aFuelInfo['bill_no']:$aRequest['fBillNumber']);?>">
                                                 <!--<span class="help-block">Auto created</span>-->
@@ -214,7 +214,7 @@ $oFormValidator->setField("ALLTEXT", " Total Amount", $aRequest['fTotalPrice'], 
                                          	<div class="row-fluid">
                                        <div class="span6">
                                           <div class="control-group">
-                                              <label class="control-label">Bill Amount <span class="required">*</span></label>
+                                              <label class="control-label">Bill Amount </label>
                                              <div class="controls">
                                                 <input type="text" class="m-wrap " tabindex="3"  placeholder="Bill Amount" name="fBillAmount" value="<?php echo (!empty($aFuelInfo['bill_amount'])? $aFuelInfo['bill_amount']:$aRequest['fBillAmount']);?>" >
                                                 <!--<span class="help-block">Auto created</span>-->
@@ -260,7 +260,7 @@ $oFormValidator->setField("ALLTEXT", " Total Amount", $aRequest['fTotalPrice'], 
 									    <div class="control-group">
                                         <label class="control-label">Vendor / Supplier<span class="required">*</span></label>
                                           <div class="controls">
-                                             <select class="span3 m-wrap" data-placeholder="Choose a Vendor" tabindex="6" name="fVendorId" id="fVendorId" onChange="getVendorItemGroup(this.value);">
+                                             <select class="span3 m-wrap chosen" data-placeholder="Choose a Vendor" tabindex="6" name="fVendorId" id="fVendorId" onChange="getVendorItemGroup(this.value);">
      										    <option value="0">Choose a Vendor</option>
 												  <?php
 													 $aItemGroup = $oMaster->getDistIgroup();
@@ -293,7 +293,7 @@ $oFormValidator->setField("ALLTEXT", " Total Amount", $aRequest['fTotalPrice'], 
 									    <div class="control-group">
                                         <label class="control-label">Item Group1<span class="required">*</span></label>
                                           <div class="controls">
-                                             <select class="m-wrap margin" tabindex="7" name="fGroup1" id="group1" onChange="getGroup2ItemListing(this.value);" >
+                                             <select class="m-wrap margin chosen" tabindex="7" name="fGroup1" id="fGroup1" onChange="getGroup2ItemListing(this.value);" >
                                             <option value="0" selected="selected" >Choose the ItemGroup 1 </option>
 											 <?php
 											  $aItemGroup1List = $oMaster->getItemGroup1List();
@@ -316,7 +316,7 @@ $oFormValidator->setField("ALLTEXT", " Total Amount", $aRequest['fTotalPrice'], 
 									    <div class="control-group">
                                         <label class="control-label">Brand / Make<span class="required">*</span></label>
                                           <div class="controls" id="Group2ItemList">
-                                             <select class="m-wrap" tabindex="8" name="fGroup2">
+                                             <select class="m-wrap chosen" tabindex="8" name="fGroup2">
                                                <option value="0" selected="selected" >Choose the ItemGroup 2 </option>
 											 <?php
 											  $aItemGroup2List = $oMaster->getItemGroup2List();
@@ -340,7 +340,7 @@ $oFormValidator->setField("ALLTEXT", " Total Amount", $aRequest['fTotalPrice'], 
 									    <div class="control-group" >
                                         <label class="control-label">Item<span class="required">*</span></label>
                                           <div class="controls" id="ItemsList">
-                                             <select class="m-wrap  nextRow margin" tabindex="9" name="fItemName" onChange="getCMR(this.value);getUsedFuelcount(this.value);">
+                                             <select class="m-wrap  nextRow margin  chosen" tabindex="9" name="fItemName" onChange="getCMR(this.value);getUsedFuelcount(this.value);">
                                     <option value="0" >Choose the Item</option>
 											 <?php
 											  $aItemList = $oMaster->getItemList();
@@ -362,7 +362,7 @@ $oFormValidator->setField("ALLTEXT", " Total Amount", $aRequest['fTotalPrice'], 
                                       	<div class="control-group">
                                        <label class="control-label">Select Employee Name<span class="required">*</span></label>
                                        <div class="controls">
-                                        <select class="m-wrap" tabindex="10" name="fEmployeeId">
+                                        <select class="m-wrap chosen" tabindex="10" name="fEmployeeId">
 											<option value="0">Choose Employee Name</option>
 											<?php
 											  $aEmployeeList = $oMaster->getEmployeeList();
@@ -381,37 +381,7 @@ $oFormValidator->setField("ALLTEXT", " Total Amount", $aRequest['fTotalPrice'], 
 									</div>
                                         <div class="row-fluid">
                                       
-                                      <div class="span12 ">
-									    <div class="control-group" >
-                                        <label class="control-label">Fuel Type<span class="required">*</span></label>
-                                          <div class="controls" id="ItemsList">
-                                             <select class="m-wrap  nextRow margin" tabindex="11" name="fFuelType">
-                                    <option value=" " selected="selected">Choose  Fuel Type </option>
-											 <?php
-											  $aItemList =$oUtil->getFuelType();;
-											  foreach($aItemList as $key => $value)
-											  {
-											 ?>
-                                             <option value="<?php echo $key; ?>" <?php if((!empty($aFuelInfo['id_fuel_type'])? $aFuelInfo['id_fuel_type']:$aRequest['fFuelType']) == $key) { echo 'selected=selected' ;}?>><?php echo $value; ?></option>
-                                             <?php
-											  }
-											 ?>
-                                          </select>
-                                           </div>
-                                         </div>
-									  </div>
-                                      </div>
-									  
-									         <div class="row-fluid">
-										<div class="span12 ">
-                                          <div class="control-group">
-                                             <label class="control-label" >Fuel Used This Month:</label>
-                                             <div class="controls" >
-                                              <b><span id="fuelcount"><?php echo $oMaster->FuelUsedCount($aFuelInfo['id_asset_item']);?> </span> Lit</b>
-                                                
-                                             </div>
-                                          </div>
-                                       </div>
+                                     
                                       
                                       </div>                             <!--/row-->
 									   <h3 class="form-section">Enter Milage Posting Details</h3>
@@ -427,25 +397,67 @@ $oFormValidator->setField("ALLTEXT", " Total Amount", $aRequest['fTotalPrice'], 
 									    </div>
 										<div class="span6 ">
 									  <div class="control-group">
-                                       <label class="control-label">CMR<span class="required">*</span></label>
+                                       <label class="control-label">CMR</label>
                                        <div class="controls">
 									    <input type="text" name="fCMR" tabindex="13" value="<?php echo  (!empty($aFuelInfo['cmr'])? $aFuelInfo['cmr']:$aRequest['fCMR']);?>"/>
 									  </div>
 									  </div>
 									    </div>
 									  </div>
+                                      
+                                       <div class="row-fluid">
+										<div class="span12 ">
+                                          <div class="control-group">
+                                             <label class="control-label" >Fuel Used This Month:</label>
+                                             <div class="controls" >
+                                              <b><span id="fuelcount"><?php echo $oMaster->FuelUsedCount($aFuelInfo['id_asset_item']);?> </span> Lit</b>
+                                                
+                                             </div>
+                                          </div>
+                                       </div>
 								
 								<h3 class="form-section">Enter Fuel Details</h3>
 								  <div class="row-fluid">
+                                      
+                                      
+                                       <div class="span12 ">
+									    <div class="control-group" >
+                                        <label class="control-label">Fuel Type<span class="required">*</span></label>
+                                          <div class="controls" id="ItemsList">
+                                             <select class="m-wrap  nextRow margin" tabindex="11" name="fFuelType">
+                                    <option value=" " selected="selected">Choose  Fuel Type </option>
+											 <?php
+											  $aItemList =$oUtil->getFuelType();
+											  foreach($aItemList as $key => $value)
+											  {
+											 ?>
+                                             <option value="<?php echo $key; ?>" <?php if((!empty($aFuelInfo['id_fuel_type'])? $aFuelInfo['id_fuel_type']:$aRequest['fFuelType']) == $key) { echo 'selected=selected' ;}?>><?php echo $value; ?></option>
+                                             <?php
+											  }
+											 ?>
+                                          </select>
+                                           </div>
+                                         </div>
+									  </div>
+                                      </div>
+									  
+									  
+                                      
+                                      
+                                      
+                                      
+                                      
+                                      
                                       
                                       <div class="span12 ">
 									  <div class="control-group">
                                        <label class="control-label">Quantity/ UOM<span class="required">*</span></label>
                                        <div class="controls">
-									     <input type="text" class="m-wrap xsmall" tabindex="14" value="<?php echo (!empty($aFuelInfo['qty'])? $aFuelInfo['qty']:$aRequest['fQuantity']);?>"  placeholder="Quantity" style=" float:left;" name="fQuantity">
+									     <input type="text" class="m-wrap xsmall" tabindex="14" value="<?php echo (!empty($aFuelInfo['qty'])? $aFuelInfo['qty']:$aRequest['fQuantity']);?>"  placeholder="Quantity" style=" float:left;" name="fQuantity"> &nbsp;&nbsp;
+											  <span>Liters</span>
 									 <?php /*?>  <input type="text" class="m-wrap xsmall" value="<?php echo $aFuelInfo['qty'];?>"  placeholder="Quantity" style="text-align:right; float:left;" name="fQuantity" onKeyUp="qtytotalpricecalc(this.id);"id="qty1"><?php */?>
 									   
-									    <select class="m-wrap small chosen"  tabindex="15" data-placeholder="Choose a UOM" name="fUOMId">
+									   <?php /*?><select class="m-wrap small chosen"  tabindex="15" data-placeholder="Choose a UOM" name="fUOMId">
                                                <option value=""></option>
 											 <?php
 											  $aUOMList= $oMaster->getUomList();
@@ -457,7 +469,7 @@ $oFormValidator->setField("ALLTEXT", " Total Amount", $aRequest['fTotalPrice'], 
                                              <?php
 											  }
 											 ?>
-                                          </select>
+                                          </select><?php */?>
                                                
 									  </div>
 									  </div>
@@ -479,9 +491,9 @@ $oFormValidator->setField("ALLTEXT", " Total Amount", $aRequest['fTotalPrice'], 
 								  <div class="row-fluid">
 										<div class="span12 ">
 									  <div class="control-group">
-                                       <label class="control-label">Total (<?php echo Currencycode;?>) <span class="required">*</span></label>
+                                       <label class="control-label">Total (<?php echo Currencycode;?>) </label>
                                        <div class="controls">
-						  <input type="text" class="m-wrap " tabindex="17" placeholder="Total Proce"  name="fTotalPrice" value="<?php echo (!empty($aFuelInfo['total_price'])? $aFuelInfo['total_price']:$aRequest['fTotalPrice']);?>" id="unittotal1" >
+						  <input type="text" class="m-wrap " tabindex="17" placeholder="Total Price"  name="fTotalPrice" value="<?php echo (!empty($aFuelInfo['total_price'])? $aFuelInfo['total_price']:$aRequest['fTotalPrice']);?>" id="unittotal1" >
 									  </div>
 									  </div>
 									    </div>
@@ -764,10 +776,24 @@ $(function () {
          
 		  
 		 });
-		
-		  
-		 
-		 }				
+	 
+		 }//	
+		 function getItemLising(id)
+		 {
+		 	var group1 = $('#fGroup1').val();
+			var dataStr = 'action=getItemList2&Group2Id='+id+'&Group1Id='+group1;
+			//alert(dataStr);
+			 $.ajax({
+			   type: 'POST',
+			   url: 'ajax/dropdown.php',
+			   data: dataStr,
+			   cache: false,
+			   success: function(result) {
+			          $("#ItemsList").html(result);
+			   }
+ 
+		 });
+		 }//						
 			
 			
 			function getCMR(value)

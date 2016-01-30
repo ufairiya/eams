@@ -965,7 +965,12 @@ class Util
 	
 	public function getFuelType()
 	{
-		$__aFuelType = array('Diesel','Petrol','Compressed Natural Gas','Others/Don\'t Know');
+		$__aFuelType = array('Diesel', 'Super Diesel','Petrol', 'Xtra.Pre.Petrol','Compressed Natural Gas','Others/Don\'t Know');
+		return $__aFuelType;
+	}
+	public function getFuelType1()
+	{
+		$__aFuelType = array('1' => 'Diesel', '2' => 'Super Diesel','3' => 'Petrol', '4' => 'Xtra.Pre.Petrol','5' => 'Compressed Natural Gas','6' => 'Others/Don\'t Know');
 		return $__aFuelType;
 	}
 	
@@ -1173,6 +1178,10 @@ class Util
 				break;	
 			case 22:
 			    $status = "Expired";	
+				$label ="label-warning";
+				break;
+			case 23:
+			    $status = "No Return";	
 				$label ="label-warning";
 				break;			
 			default:

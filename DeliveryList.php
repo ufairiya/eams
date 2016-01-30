@@ -7,6 +7,16 @@
   $aCustomerInfo = $oSession->getSession('sesCustomerInfo');
   $aRequest = $_REQUEST;
   $allResult = $oMaster->getDeliveryList();
+  $edit_result = $oMaster->getDeliveryItemInfoList($item_id,'delivery');
+  //echo '<pre>';
+  //print_r($allResult);
+ /* foreach($allResult as $item)
+  {
+	  $edit_result = $oMaster->getDeliveryItemInfoList($item['id_asset_delivery'],'delivery');
+	   print_r($edit_result);
+  }*/
+ 
+  //echo '</pre>';
   $id_delivery_item = $aRequest['id'];
   $ItemList  = $oMaster->getDeliveryItemInfoList($id_delivery_item,'delivery');
  
@@ -132,8 +142,7 @@
 											<th>SLNO</th>
                                             <th>Issue Number</th>
                                             <th>Issue Date</th>
-                                          	<th>From Store</th>
-                                            <th>To store</th>
+                                          	<th>Asset Item</th>
                                              <th>To Vendor</th>
                                             <th>Delivery Type </th>
                                             <th>Status</th>
@@ -149,14 +158,26 @@
 											<td><?php echo $a; ?></td>
                                            <td><?php echo $item['issue_no']; ?></td>
                                             <td><?php echo date('d/m/Y',strtotime($item['issue_date'])); ?></td>
-                                           	<td><?php echo $item['from_storename']; ?></td>
-                                           <td><?php echo $item['to_storename']; ?></td>
+                                            <td>
+                                              <?php
+											    
+												  foreach($item['delivery_items'] as $ed)
+												  {
+													  echo $ed['itemgroup1_name']." : ".$ed['itemgroup2_name']." : ".$ed['item_name'].'<br>';  
+												  }
+												
+											  
+											  ?>
+                                            
+                                            </td>
+                                          <!-- 	<td><?php //echo $item['from_storename']; ?></td>
+                                           <td><?php //echo $item['to_storename']; ?></td>-->
                                              <td><?php echo $item['vendor_name']; ?></td>
                                             <td><?php echo $item['delivery_type']; ?></td>
                                             <td><?php echo $oUtil->AssetItemStatus($item['status']);?></td>
                                           	<td>
                                             
-                                            <?php if($item['status'] =='1')
+                                            <?php if($item['status'] =='1' || $item['status'] =='23' )
 											{?>
                                              <a href="StoreDelivery.php?id=<?php echo  $item['id_asset_delivery']; ?>&action=edit"  class="btn mini purple icn-only"><i class="icon-edit"></i></a> &nbsp; &nbsp;
                                             
@@ -164,7 +185,8 @@
                                             <?php /*?> <a href="ConfirmDelivery.php?id=<?php echo  $item['id_asset_delivery']; ?>"  class="btn mini purple"><i class="icon-edit"></i>Confirm Delivery</a> &nbsp; &nbsp;<?php */?>
                                            
                                             <?php } ?>
-											<?php if($item['delivery_type'] == 'ESD' && $item['bill_count'] > 0)
+											<?php if($item['delivery_type'] == 'ESD' && $item['bill_count'] > 0 && 
+											$item['status'] !='23')
 											{
 											
 											?>
@@ -262,7 +284,7 @@
    </div>
    <!-- END CONTAINER -->
    </div>
-	<?php //include_once 'Footer1.php'; ?>
+	<?php include_once 'Footer1.php'; ?>
 	<link href="modalbox/SyntaxHighlighter.css" rel="stylesheet" type="text/css" />
     <script type="text/javascript" src="modalbox/shCore.js" language="javascript"></script>
     <script type="text/javascript" src="modalbox/shBrushJScript.js" language="javascript"></script>
@@ -327,7 +349,7 @@ function ModalPopupsConfirmNo() {
 	{
 	  if (confirm("Are you sure you want to delete this record?"))
 	  {
-		var dataString = 'deliverydata=Deliverylist&Did='+ id;
+		var dataString = 'data=Deliverylist&Did='+ id;
 		$("#flash_"+id).show();
 		$("#flash_"+id).fadeIn(400).html('<img src="assets/img/loading.gif"/>');
 		$.ajax({
@@ -335,7 +357,7 @@ function ModalPopupsConfirmNo() {
 			   url: "delete.php",
 			   data: dataString,
 			   cache: false,
-			   success: function(result){
+			   success: function(result){				  
 					if(result){
 					
 					url = document.URL.split("?")[0];

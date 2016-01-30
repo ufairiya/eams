@@ -9,49 +9,26 @@
  
   $oAssetUnit = &Singleton::getInstance('AssetUnit');
   $oAssetUnit->setDb($oDb);
-  
-  $oSpi = &Singleton::getInstance('Spi');
-  $oSpi->setDb($oDb);
-  $oColor = &Singleton::getInstance('Color');
-  $oColor->setDb($oDb);
 
 
  $aRequest = $_REQUEST;
- $action = $aRequest['data'];
+
+if($_REQUEST['data']=='Deliverylist')
+{
+	$delete_id = $_REQUEST['Did']; 
+	echo $oMaster->deleteAssetDelivery($delete_id);	
+}
+if($_REQUEST['deliverydata']=='Deliverylist')
+{
+	$delete_id = $_REQUEST['Did'];
+	echo $oMaster->deleteSalesInvoice($delete_id);	
+}
+
 if($_REQUEST['data']=='delete')
 {
 	$item_id =  $_REQUEST['id'];
 	$oItemCategory->deleteItemCategory($item_id);
 }
-
-if($_REQUEST['data']=='spidelete')
-{
-	$id =  $_REQUEST['id'];
-	if($oSpi->deleteSpi($id))
-	{
-		echo $result = '1';
-	}
-	else
-	{
-		echo $result = '0';
-	}
-	 
-}
-
-if($_REQUEST['data']=='colordelete')
-{
-	$id =  $_REQUEST['id'];
-	if($oColor->deleteColor($id))
-	{
-		echo $result = '1';
-	}
-	else
-	{
-		echo $result = '0';
-	}
-	 
-}
-
 if($_REQUEST['data']=='Unitdelete')
 {
 	$unit_id =  $_REQUEST['id'];
@@ -802,7 +779,7 @@ $tablename = 'asset_stock';
 $field = 'id_asset_item';
  $value = $aRequest['did'];
 $type =  $aRequest['msg'];
-  $aChecktab = array(
+ /* $aChecktab = array(
 		array('table' =>'asset_delivery_item','field' => $field,'value' =>$value),
 		array('table' =>'pr_item','field' => $field,'value' =>$value),
 		array('table' =>'asset_item','field' => $field,'value' =>$value),
@@ -813,24 +790,25 @@ $type =  $aRequest['msg'];
 		array('table' =>'trip','field' => $field,'value' =>$value),
 		array('table' =>'fuel_limit','field' => $field,'value' =>$value),
 		);
- 
- if(!$oMaster->checkExistsMultiple($aChecktab))
-	   {
-if($result =$oMaster->delete($tablename,$field,$value,$type))
-	{
-		 echo $result ;
-	}
+ */
+ /*if(!$oMaster->checkExistsMultiple($aChecktab))
+	   {*/
+	if($result =$oMaster->delete($tablename,$field,$value,$type))
+		{
+			 $oMaster->delete('asset_item',$field,$value,$type);
+			 echo $result ;
+		}
+		else
+		{
+			
+			echo $result;
+		}
+	 /* }
 	else
 	{
-		
-		echo $result;
-	}
-	}
-			else
-			{
-			echo $result = '2';
-	
-			}
+	echo $result = '2';
+
+	}*/
 }
 
 if($_REQUEST['data']=='companydelete')
@@ -950,6 +928,5 @@ if($result =$oMaster->delete($tablename,$field,$value,$type))
 	
 			}
 }
-
 
 ?>

@@ -47,8 +47,9 @@ echo '</pre>';*/
 	if($oMaster->addAssetItem($aRequest,$_FILES))
 	{
 	  $msg = "New Asset Added.";
+	  header("Location: AssetList.php?msg=success");
 	 /* echo '<script type="text/javascript">window.location.href="AssetDetails.php?assetId='.$result['asset_no'].'&id='.$result['id_vendor'].'&tab=2";</script>';*/
-	 echo '<script type="text/javascript">window.location.href="AssetList.php?msg=success";</script>';
+	 //echo '<script type="text/javascript">window.location.href="AssetList.php?msg=success";</script>';
 	}
 	else $msg = "Sorry";
 	}
@@ -69,7 +70,8 @@ echo '</pre>';*/
 	if( $oMaster->addContract($aRequest,$_FILES))
 	{
 	   $msg = "New Contract Added.";
-	  echo '<script type="text/javascript">window.location.href="AssetList.php?msg=updatesucess";</script>';
+	   header("Location: AssetList.php?msg=updatesucess");
+	  //echo '<script type="text/javascript">window.location.href="AssetList.php?msg=updatesucess";</script>';
 	}
 	else $msg = "Sorry";
 	}
@@ -1125,6 +1127,12 @@ function deleteBox(id){
         }
     });
 });
+jQuery('form#form_sample_3').one('submit',function(e) {
+    e.preventDefault();
+   amsPopup();
+    var form = jQuery(this);
+    form.submit();
+  });
     </script>
 </body>
 <!-- END BODY -->

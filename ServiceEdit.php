@@ -198,7 +198,7 @@ $oFormValidator->setField("ALLTEXT", " Current Mileage", $aRequest['fOMR'], 1, '
 								<div class="control-group">
 								<label class="control-label">Item Group1 <span class="required">*</span></label>
 								<div class="controls">
-								<select class="m-wrap margin" tabindex="1" name="fGroup1" onChange="getGroup2ItemListing(this.value);" >
+								<select class="m-wrap margin" tabindex="1" id="fGroup1" name="fGroup1" onChange="getGroup2ItemListing(this.value);" >
 								<option value="0" selected="selected" >Choose the ItemGroup 1 </option>
 								<?php
 								$aItemGroup1List = $oMaster->getItemGroup1List();
@@ -593,7 +593,7 @@ $oFormValidator->setField("ALLTEXT", " Current Mileage", $aRequest['fOMR'], 1, '
    <!-- END CONTAINER -->
 	<?php include_once 'Footer1.php'; ?>
 <script type="text/javascript">
- function getGroup2ItemListing(id,group2id,itemid)
+    function getGroup2ItemListing(id,group2id,itemid)
 		 {
 			 
 			var dataStr = 'action=getGroupsItemList&Group1Id='+id+'&group2Id='+group2id;
@@ -610,7 +610,7 @@ $oFormValidator->setField("ALLTEXT", " Current Mileage", $aRequest['fOMR'], 1, '
 		  
 		 });
 		 
-		 	var dataStr = 'action=getGroupsItemList2&Group1Id='+id+'&itemId='+itemid;
+		 	var dataStr = 'action=getGroupsItemList1&Group1Id='+id+'&itemId='+itemid;
 			  $.ajax({
 			   type: 'POST',
 			   url: 'ajax/dropdown.php',
@@ -626,6 +626,27 @@ $oFormValidator->setField("ALLTEXT", " Current Mileage", $aRequest['fOMR'], 1, '
 		
 		  
 		 
+		 }	
+		 
+		 function getItemLising(id)
+		 {
+		 	var group1 = $('#fGroup1').val();
+			var dataStr = 'action=getItemList2&Group2Id='+id+'&Group1Id='+group1;
+			//alert(dataStr);
+			 $.ajax({
+			   type: 'POST',
+			   url: 'ajax/dropdown.php',
+			   data: dataStr,
+			   cache: false,
+			   success: function(result) {
+			          $("#ItemsList").html(result);
+				 
+			   }
+         
+		  
+		 });
+		
+		  
 		 }				
 			
 </script>

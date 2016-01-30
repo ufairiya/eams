@@ -3021,7 +3021,7 @@ return true;
 					required: true,
 					},
 					fDepartmentId:{
-					required: true,
+					required: false,
 					},
 					
 					fvendorId:{
@@ -3067,7 +3067,8 @@ return true;
 	        submitHandler: function(form) {
              poaddnewsuccess.show();
              poaddnewerror.hide();
-			    form.submit();
+			 amsPopup();
+			 form.submit();
             }
 	
 	  }); 
@@ -3133,6 +3134,7 @@ return true;
 	        submitHandler: function(form) {
              assetitemaddnewsuccess.show();
              assetitemaddnewerror.hide();
+			 amsPopup();
 			 form.submit();
             }
 	
@@ -4804,8 +4806,7 @@ return true;
         $('.chosen, .chosen-with-diselect', register).change(function() {
             register.validate().element($(this));
         });
-        
-		var register1 = $('#register1');
+        var register1 = $('#register1');
         var register1error = $('.alert-error', register1);
         var register1success = $('.alert-success', register1);
         register1.validate({
@@ -4871,75 +4872,6 @@ return true;
         $('.chosen, .chosen-with-diselect', register1).change(function() {
             register1.validate().element($(this));
         });
-		
-		var addstock = $('#form_addstock');
-        var addstockerror = $('.alert-error', addstock);
-        var addstocksuccess = $('.alert-success', addstock);
-        addstock.validate({
-            errorElement: 'span',
-            errorClass: 'help-inline',
-            focusInvalid: false,
-            ignore: "",
-            rules: {
-                fLoginName: {
-                    required: true,
-                    minlength: 2
-                },
-                fPassword: {
-                    required: true
-                },
-                fConfirmPassword: {
-                    equalTo: "#register_password"
-                }
-            },
-            messages: {
-                fLoginName: {
-                    required: "Please Enter the User Login Name"
-                }
-            },
-            errorPlacement: function(error, element) {
-                if (element.attr("name") == "education") {
-                    error.insertAfter("#form_2_education_chzn");
-                } else if (element.attr("name") == "membership") {
-                    error.addClass("no-left-padding").insertAfter("#form_2_membership_error");
-                } else if (element.attr("name") == "service") {
-                    error.addClass("no-left-padding").insertAfter("#form_2_service_error");
-                } else {
-                    error.insertAfter(element);
-                }
-            },
-            invalidHandler: function(event, validator) {
-                alert("hai");
-                register1success.hide();
-                register1error.show();
-                App.scrollTo(register1error, -200);
-            },
-            highlight: function(element) {
-                $(element).closest('.help-inline').removeClass('ok');
-                $(element).closest('.control-group').removeClass('success').addClass('error');
-            },
-            unhighlight: function(element) {
-                $(element).closest('.control-group').removeClass('error');
-            },
-            success: function(label) {
-                if (label.attr("for") == "service" || label.attr("for") == "membership") {
-                    label.closest('.control-group').removeClass('error').addClass('success');
-                    label.remove();
-                } else {
-                    label.addClass('valid').addClass('help-inline ok').closest('.control-group').removeClass('error').addClass('success');
-                }
-            },
-            submitHandler: function(form) {
-                register1success.hide();
-                register1error.show();
-                form.submit();
-            }
-        });
-        $('.chosen, .chosen-with-diselect', register1).change(function() {
-            register1.validate().element($(this));
-        });
-		
-		
         var form4 = $('#form_sample_4');
         var error4 = $('.alert-error', form4);
         var success4 = $('.alert-success', form4);

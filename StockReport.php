@@ -100,7 +100,19 @@
                      <div class="portlet-body form">
                         <!-- BEGIN FORM-->
                        
-                                 <form action="StockReportList.php" class="form-horizontal" id="form_sample_3" method="post">
+                              <?php
+							   if(isset($aRequest['report']))
+							   {
+							  ?>
+                              <form action="ViewReport.php" class="form-horizontal" id="form_sample_3" method="post">
+                              <input type="hidden" name="report" value="<?php echo $aRequest['report']; ?>">
+                              <?php
+							   } else {
+							    ?>	   
+                              <form action="StockReportList.php" class="form-horizontal" id="form_sample_3" method="post">
+                              <?php
+							   }
+							  ?>
 									    <div class="alert alert-error hide">
                               <button class="close" data-dismiss="alert"></button>
                               You have some form errors. Please check below.
@@ -234,9 +246,45 @@
                                           </div>
                                           
                                            </div>
+                                           
+                                           
+                                              <div class="row-fluid">
+                                       <div class="span4 ">
+									<div class="control-group">
+                                             <label class="control-label">Installed Start Date</label>
+                                               <div class="controls">
+												 <div class="input-append date date-picker" data-date="<?php echo date('d-m-Y');?>" data-date-format="dd-mm-yyyy">
+													<input class="m-wrap m-ctrl-small date-picker span8" size="10" type="text"  name="fInstStartDate"><span class="add-on"><i class="icon-calendar"></i></span>
+												 </div>
+											  </div>
+                                            
+                                          </div>
+                                          </div>
+                                           <div class="span4 ">
+                                          <div class="control-group">
+                                             <label class="control-label">Installed End Date</label>
+                                               <div class="controls">
+												 <div class="input-append date date-picker" data-date="<?php echo date('d-m-Y');?>" data-date-format="dd-mm-yyyy">
+													<input class="m-wrap m-ctrl-small date-picker span8" size="10"  type="text" name="fInstEndDate"><span class="add-on"><i class="icon-calendar"></i></span>
+												 </div>
+											  </div>
+                                            
+                                          </div>
+                                          </div>
+                                          
+                                           </div>
+                                           
+                                           
                                           </div>
                                     <div class="form-actions">
-                                  
+                                    <?php
+									if(isset($aRequest['report']))
+									{
+									?>
+                                    
+                                    <?php
+									}
+									?>
                                    <button type="submit" class="btn blue" name="send"><i class="icon-ok"></i>Search</button>                          
 								  
                                     </div>

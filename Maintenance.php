@@ -7,7 +7,7 @@
   $aCustomerInfo = $oSession->getSession('sesCustomerInfo');
   $aRequest = $_REQUEST;
   $allResult = $oMaster->getMaintenanceList();
-?>
+ ?>
 <!DOCTYPE html>
 <!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
 <!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->
@@ -21,6 +21,7 @@
    <meta content="" name="author" />
    <meta http-equiv="Cache-control" content="No-Cache">
   <?php include('Stylesheets.php');?>
+  
 </head>
 <!-- END HEAD -->
 <!-- BEGIN BODY -->
@@ -122,15 +123,7 @@
                                 <div class="btn-group">
                                 <a href="MaintenanceEdit.php?action=Add"  role="button" class="btn green" data-toggle="modal">Add New <i class="icon-plus"></i></a>								
 									</div>
-									<div class="btn-group pull-right">
-										<button class="btn dropdown-toggle" data-toggle="dropdown">Tools <i class="icon-angle-down"></i>
-										</button>
-										<ul class="dropdown-menu">
-											<li><a href="#">Print</a></li>
-											<li><a href="#">Save as PDF</a></li>
-											<li><a href="#">Export to Excel</a></li>
-										</ul>
-									</div>
+									
 								</div>
 								<table class="table table-striped table-bordered table-hover" id="sample_1">
 									<thead>
@@ -138,10 +131,14 @@
 											
 											<th>SL NO</th>
 											<th>Asset Number</th>
+											<th>Created Date</th>
+                                            <th>Asset Item</th>
 											<th>From Store</th>
 											<th>To Vendor</th>
+											<th>Bill Number</th> 
+                                            <th>Bill Info</th>                                           
 											<th>Status</th>
-											<th>Action</th>	
+											<th>Action</th>											
 										</tr>
 									</thead>
 									<tbody>
@@ -151,11 +148,21 @@
                                        
 										<tr class="odd gradeX">
 										    <td><?php echo $a; ?></td>
-											<td><?php echo $item['asset_no']; ?></td>
+											<td style="width: 12%;"><?php echo $item['asset_no']; ?></td>
+											<td style="width: 12%;"> <?php echo date('d/m/Y H:i:s',strtotime($item['created_on']));?></td>
+                                            <td><?php echo $item['asset_name']; ?></td>
 											<td><?php echo $item['store_name']; ?></td>
 											<td><?php echo $item['vendor_name']; ?></td>
+											<td><?php 
+												foreach ($item['maintenance_billinfo'] as $billinfo) 
+												{
+													echo $billinfo['bill_number'].'<br>';
+												}
+
+											?></td>
+                                            <td style="width: 7%;"><a href="MaintenanceBillInfo.php?fassetid=<?php echo  urlencode($item['id_asset_item']); ?>&action=billinfo" ><i class="icon-edit"></i>view Bill info </a></td>
 											<td><?php echo $oUtil->AssetItemStatus($item['status']);?></td>
-                                            <td>
+                                            <td style="width: 10%;">
                                             <div class="flash" id="flash_<?php echo  $item['id_asset_maintenance']; ?>"></div>
 											<?php if($item['status']!=1)
 											{?>
@@ -163,7 +170,7 @@
                                             
                                             <a  class="delete btn mini black" href="javascript:void()" onclick=deleteBox(<?php echo  $item['id_asset_maintenance']; ?>)><i class="icon-trash"></i>Delete</a>   
                                            <?php } ?>
-                                            </td>
+                                            </td>                            
                                           
 										</tr>
                                         <?php $a++; endforeach; ?>
@@ -241,6 +248,7 @@
 		 }
 	} //
 </script>
+
 </body>
 <!-- END BODY -->
 </html>

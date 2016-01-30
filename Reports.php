@@ -120,7 +120,24 @@
 				<td><a href="TransportReport.php"  >
 				Transport Search  <i class="m-icon-swapright m-icon-black"></i>
 				</a></td>
+                 <td><a href="StockReport.php?report=assetlist"  >
+				Asset List 1 <i class="m-icon-swapright m-icon-black"></i>
+				</a></td>
 				</tr>
+				<tr>
+				  <td>&nbsp;</td>
+				  <td>&nbsp;</td>
+				  <td>&nbsp;</td>
+				  <td><a href="ViewReport.php?report=fuel">Fuel Allocation List <i class="m-icon-swapright m-icon-black"></i></a></td>
+				  <td>&nbsp;</td>
+				  </tr>
+                  <tr>
+				  <td>&nbsp;</td>
+				  <td>&nbsp;</td>
+				  <td>&nbsp;</td>
+				  <td><a href="TransportReport.php?report=fueltoken">Fuel Token List <i class="m-icon-swapright m-icon-black"></i></a></td>
+				  <td>&nbsp;</td>
+				  </tr>
 				</table>
 				
 				

@@ -25,7 +25,8 @@
     if($result = $oMaster->addInventory($aRequest,$_FILES))
 	{
 	  $msg = "New GRN Added.";
-	   echo '<script type="text/javascript">window.location.href="AssetItemEdit.php?tab=1&fGrnId='.$result.'";</script>';
+	  header("Location: AssetItemEdit.php?tab=1&fGrnId=".$result);
+	   //echo '<script type="text/javascript">window.location.href="AssetItemEdit.php?tab=1&fGrnId='.$result.'";</script>';
 	}
 	else $msg = $_aErrorMsg['Duplicate']; //"Sorry could not add..";
 	 }
@@ -1819,6 +1820,19 @@ $(function () {
 	 return false;
 }
 		  }
+jQuery('form#form_asset_item').one('submit',function(e) {
+    e.preventDefault();
+   amsPopup();
+    var form = jQuery(this);
+    form.submit();
+  }); 
+  
+  jQuery('form#form_sample_3').one('submit',function(e) {
+    e.preventDefault();
+   amsPopup();
+    var form = jQuery(this);
+    form.submit();
+  }); 
 	</script>
 </body>
 <!-- END BODY -->

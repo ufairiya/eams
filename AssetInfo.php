@@ -832,7 +832,7 @@ echo '</pre>';
 															
 															   <th colspan="5">Asset Purchase Price</th>
 															
-															   <th><?php echo $purchasePrice; ?></th>
+															   <th><?php echo number_format($purchasePrice,2); ?></th>
 															
 															 </tr>
 															
@@ -840,7 +840,7 @@ echo '</pre>';
 															
 															   <th colspan="5">LifeTime</th>
 															
-															   <th><?php echo $lifeTime; ?></th>
+															   <th><?php echo $lifeTime; ?> Years</th>
 															
 															 </tr>
 															
@@ -858,14 +858,12 @@ echo '</pre>';
 															
 															 <tr>
 															
-															   <th>Financial Year</th>
+															  <th>Financial Year</th>
 															  <th>Additional Amount </th>
-															   <th>Depreciable Basis</th>
-															
-															   <th>Depreciation Expense</th>
-																
-															   <th>Accumulated Depreciation</th>
-														       <th>Written Down Value</th>
+															  <th>Depreciable Basis</th>
+															  <th>Depreciation Expense</th>
+															  <th>Accumulated Depreciation</th>
+														      <th>Written Down Value</th>
 															 </tr>
 															
 															 <?php
@@ -880,12 +878,12 @@ echo '</pre>';
 															
 															   <td><?php echo $aDep['Year']; ?></td>
 															   <td><?php echo $aDep['AdditionalDepreciable_Basis'];?></td>
-															   <td><?php echo $aDep['Depreciable_Basis']; ?></td>
+															   <td style="text-align:right;"><?php echo number_format($aDep['Depreciable_Basis'],2); ?></td>
 															
-															   <td><?php echo $aDep['Dep_Expense']; ?></td>
+															   <td style="text-align:right;"><?php echo number_format($aDep['Dep_Expense'],2); ?></td>
 																
-															   <td><?php echo $aDep['Accumulated_Dep']; ?></td>
-															    <td><?php echo $aDep['Written_Down_Value']; ?></td>
+															   <td style="text-align:right;"><?php echo number_format($aDep['Accumulated_Dep'],2); ?></td>
+															    <td style="text-align:right;"><?php echo number_format($aDep['Written_Down_Value'],2); ?></td>
 															
 															   </tr>
 															
@@ -1173,14 +1171,14 @@ echo '</pre>';
 														<table class="table table-striped table-bordered table-advance table-hover">
 															<thead>
 																<tr>
-																	<th> Start Date</th>
-																	<th>  Return Date </th>
-																	<th> Bill Number</th>
+																	<th>Start Date</th>
+																	<th>Return Date </th>
+																	<th>Bill Number</th>
 																	<th>Bill Amount</th>
-																	<th> Bill Date</th>
-																	<th> Service Invoice Date</th>
-																	<th> Add to Depriceation</th>
-																	<th> Document</th>
+																	<th>Bill Date</th>
+																	<th>Service Invoice Date</th>
+																	<th>Add to Depriceation</th>
+																	<th>Document</th>
 																</tr>
 															</thead>
 															<tbody>
@@ -1345,17 +1343,17 @@ echo '</pre>';
 												<table class="table table-striped table-bordered table-advance table-hover">
 												<thead>
 												<tr>
-												<th> Date </th>
-												<th> Transaction Type </th>
-												<th> Transaction Description </th>
+												<th>Date</th>
+												<th>Transaction Type</th>
+												<th>Transaction Description</th>
 												
 												</tr>
 												</thead>
 												<?php foreach($aPOTrans as $POTran) {?>
 												<tr>
-												<td><?php echo $POTran['created_on'];?>	</td>
+												<td><?php echo $POTran['created_on'];?></td>
 												<td><?php echo $POTran['trans_type'];?></td>			
-												<td><?php echo $POTran['trans_disc'];?>	</td>
+												<td><?php echo $POTran['trans_disc'];?></td>
 												</tr>
 												<?php } ?>
 												</table>		

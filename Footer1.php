@@ -12,7 +12,7 @@
    <script src="assets/breakpoints/breakpoints.js"></script>
    <script type="text/javascript" src="assets/ckeditor/ckeditor.js"></script>        
    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-   <script type="text/javascript" src="assets/bootstrap-fileupload/bootstrap-fileupload.js"></script>
+      <script type="text/javascript" src="assets/bootstrap-fileupload/bootstrap-fileupload.js"></script>
    <script src="assets/js/jquery.blockui.js"></script>
    <script src="assets/js/jquery.cookie.js"></script>
    <!-- ie8 fixes -->
@@ -54,6 +54,29 @@
 		<script src="js/itemgroup2.js"></script>
 		<script src="js/item.js"></script>
 		<script src="js/store.js"></script>
+				
+		<link href="modalbox/SyntaxHighlighter.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="modalbox/shCore.js" language="javascript"></script>
+    <script type="text/javascript" src="modalbox/shBrushJScript.js" language="javascript"></script>
+    <script type="text/javascript" src="modalbox/ModalPopups.js" language="javascript"></script>
+    <script type="text/javascript">
+
+    function amsPopup() {  
+    ModalPopups.Indicator("amspopup",  
+        "Please wait",  
+        "<div style=''>" +   
+        "<div style='float:left; padding-left:10px;'>" +   
+        "Saving information... <br/>" +   
+          "</div>",   
+        {  
+            width: 300,  
+            height: 100  
+        }  
+    );  
+              
+    //setTimeout('ModalPopups.Close(\"amspopup\");', 3000);  
+} 
+    </script>
  <script>
       jQuery(document).ready(function() {   
          // initiate layout and plugins

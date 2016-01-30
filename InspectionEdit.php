@@ -8,6 +8,9 @@
   $aRequest = $_REQUEST;
     $item_id = $aRequest['fGrnId'];
   $allResult = $oMaster->getPrintPurchaseGoodsInfoList($item_id,'id','');
+/*  echo '<pre>';
+print_r($allResult);
+echo '</pre>';*/
  if(isset($aRequest['send']))
   {
     $oFormValidator->setField("ALLTEXT", " Employee Name", $aRequest['fEmployeeId'], 1, '', '', '', '');
@@ -21,7 +24,8 @@
 			{
 			  
 				$msg = "New Image Added.";
-			   echo '<script type="text/javascript">window.location.href="InspectionEdit.php?msg=success&fGrnId='.$result.'";</script>';
+				 header("Location: InspectionEdit.php?msg=success&fGrnId=".$result);
+			   //echo '<script type="text/javascript">window.location.href="InspectionEdit.php?msg=success&fGrnId='.$result.'";</script>';
 			}
 			else $msg = "Sorry could not add..";
 	
@@ -37,7 +41,8 @@
 	{
 	  
 	    $msg = "Inventory Item Details Updated Successfully.";
-	   echo '<script type="text/javascript">window.location.href="InspectionEdit.php?msg=updatesucess&fGrnId='.$result.'";</script>';
+		 header("Location: InspectionEdit.php?msg=updatesucess&fGrnId=".$result);
+	   //echo '<script type="text/javascript">window.location.href="InspectionEdit.php?msg=updatesucess&fGrnId='.$result.'";</script>';
 	}
 	else $msg = "Sorry could not add..";
   } 
@@ -47,7 +52,8 @@
 	{
 	  
 	    $msg = "New Purchase Return Created.";
- echo '<script type="text/javascript">window.location.href="PurchaseReturn.php?msg=success";</script>';
+		header("Location: PurchaseReturn.php?msg=success");
+ //echo '<script type="text/javascript">window.location.href="PurchaseReturn.php?msg=success";</script>';
 	}
 	else $msg = "Sorry could not add..";
   }
@@ -66,7 +72,7 @@ if($aRequest['action'] == 'edit')
 $aEditResult = $oMaster->getItemInspectionInfo($aRequest['fInventoryItemid']);
 /*echo '<pre>';
 print_r($aEditResult);
-echo '</pre>';*/
+echo '</pre>';
 /*exit();*/
 }
 ?>
@@ -77,7 +83,7 @@ echo '</pre>';*/
 <!-- BEGIN HEAD -->
 <head>
    <meta charset="utf-8" />
-   <title>EAMS| Inspection </title>
+   <title>EAMS|Inspection </title>
    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
    <meta content="" name="description" />
    <meta content="" name="author" />
@@ -739,6 +745,12 @@ echo '</pre>';*/
         }
     });
 });
+jQuery('form#form_sample_4').one('submit',function(e) {
+    e.preventDefault();
+   amsPopup();
+    var form = jQuery(this);
+    form.submit();
+  });
     </script>
 </body>
 <!-- END BODY -->

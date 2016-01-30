@@ -67,21 +67,28 @@ if($action == 'getOrdertype')
 }
 if($action =='checkQty')
 {
-   $valid = array();
+  $valid = array();
   $prid = $aRequest['Prid'];
   $pritemid = $aRequest['Pritemid'];
   $qty = $aRequest['qty'];
-  $availableqty = $oMaster->checkQty($prid,$pritemid);
-  if( $availableqty >= $qty )
+  if(empty($prid) && empty($pritemid))
   {
-  $valid['status'] = 1;
+	  $valid['status'] = 1;
   }
   else
   {
-  
-   $valid['avail_qty'] = $availableqty;
-   $valid['status'] = 0;
-     }
+  	  $availableqty = $oMaster->checkQty($prid,$pritemid);
+	  if( $availableqty >= $qty )
+	  {
+	  		$valid['status'] = 1;
+	  }
+	  else
+	  {
+	  
+	  	    $valid['avail_qty'] = $availableqty;
+	   		$valid['status'] = 0;
+	  }
+  }
   echo json_encode($valid);
 }
   if($action == 'getItemsList')

@@ -17,16 +17,29 @@
     $id_asset = $aRequest['fAssetNumber'];
 	}
    $aAssetItem = $oMaster->getAssetItemInfo($id_asset,'id'); 
-   $aAssetList = $oMaster->getStockList('asset');
-  /* echo '<pre>';
-   print_r($aAssetList);
-    echo '</pre>';
-   exit();*/
+   //$aAssetList = $oMaster->getStockList('asset');
+  // echo '<pre>';
+  // print_r($aAssetItem);
+  //  echo '</pre>';
+   //exit();
    
+  if($aRequest['action'] == 'edit')
+  {
+	 $edit_result = $oMaster->getFuelLimit($id_asset);
+	 //print_r($edit_result);
+	 //exit();
+	 
+  }
+  
   
   if(isset($aRequest['send']))
   {
-    if($oMaster->addFuelLimit($aRequest))
+   /* echo '<pre>';
+   print_r($aRequest);
+    echo '</pre>';
+  exit();*/
+	
+	if($oMaster->addFuelLimit($aRequest))
 	{
 	   $msg = "New Fuel Added.";
 	  echo '<script type="text/javascript">window.location.href="FuelLimit.php?msg=success";</script>';
@@ -159,7 +172,7 @@
                               <button class="close" data-dismiss="alert"></button>
                               You have some form errors. Please check below.
                            </div>
-                       				<div class="row-fluid">
+                       				<!--<div class="row-fluid">
 								<div class="span6 ">
                                           <div class="control-group">
                                              <label class="control-label">Select Asset</label>
@@ -187,6 +200,60 @@
                                              </div>
                                           </div>
                                        </div>
+								</div>-->
+                                
+                                
+                                
+                                 <div class="row-fluid">
+								<div class="span12 ">
+								<div class="control-group">
+								<label class="control-label">Item Group1</label>
+								<div class="controls">
+								<select class="m-wrap margin" tabindex="2" name="fGroup1" onChange="getGroup2ItemListing(this.value);" id="fGroup1" >
+								<option value="0" selected="selected" >Choose the ItemGroup 1 </option>
+								<?php
+								$aItemGroup1List = $oMaster->getItemGroup1List();
+								foreach($aItemGroup1List as $aItemGroup1)
+								{
+								?>
+								
+								<option value="<?php echo $aItemGroup1['id_itemgroup1']; ?>" <?php if($aServiceInfo['id_itemgroup1'] == $aItemGroup1['id_itemgroup1']) { echo 'selected=selected' ;}?>><?php echo $aItemGroup1['itemgroup1_name']; ?></option>
+								<?php
+								}
+								?>
+								</select>
+								</div>
+								</div>
+								</div>
+								</div>
+								
+								<div class="row-fluid">
+								<div class="span12 ">
+								<div class="control-group">
+								<label class="control-label">Brand / Make</label>
+								<div class="controls" id="Group2ItemList">
+								<select class="m-wrap" tabindex="3" name="fGroup2">
+								<option value="0" selected="selected" >Choose the Brand / Make </option>
+								
+								</select>
+								</div>
+								</div>
+								</div>
+								</div>
+								
+								<div class="row-fluid">
+								
+								<div class="span12 ">
+								<div class="control-group" >
+								<label class="control-label">Item</label>
+								<div class="controls" id="ItemsList">
+								<select class="m-wrap  nextRow margin" tabindex="1" name="fItemName">
+								<option value="0" >Choose the Item</option>
+								
+								</select>
+								</div>
+								</div>
+								</div>
 								</div>	
 													
 								<?php if(!empty($aAssetItem)  || !empty($id_asset))
@@ -270,7 +337,7 @@
                                           <div class="control-group">
                                              <label class="control-label">Remark</label>
                                              <div class="controls">
-                                                <textarea class="large m-wrap" tabindex="18" rows="3" name="fRemarks"><?php echo $aFuelInfo['remarks'];?></textarea>
+                                                <textarea class="large m-wrap" tabindex="18" rows="3" name="fRemarks"><?php echo $edit_result['remarks'];?></textarea>
                                              </div>
                                           </div>
                                        </div>
@@ -287,8 +354,7 @@
 								   } else if($aRequest['action'] == 'edit'){
 								   ?>
                                     <button type="submit" class="btn blue" name="send"><i class="icon-ok"></i>Edit Fuel</button> 
-										<?php /*?><input type="hidden" name="fAssetNumber"  value=""<?php echo  $id_asset;?>"/><?php */?>
-									
+                                    <input type="hidden" name="fAssetNumber" value="<?php echo $edit_result['id_asset_item']; ?>">
                                    <?php
 								   } 
 								   ?>
@@ -387,6 +453,65 @@
 			var dropresult = addParam(dropresult, "action",'Add');	
 			window.location.href = dropresult;
 			}
+			
+			
+			  
+   function getGroup2ItemListing(id,group2id,itemid)
+		 {
+			 
+			var dataStr = 'action=getGroupsItemList&Group1Id='+id+'&group2Id='+group2id;
+			  $.ajax({
+			   type: 'POST',
+			   url: 'ajax/ajax.php',
+			   data: dataStr,
+			   cache: false,
+			   success: function(result) {
+				          $("#Group2ItemList").html(result);
+				 
+			   }
+         
+		  
+		 });
+		 
+		 	var dataStr = 'action=getGroupsItemList1&Group1Id='+id+'&itemId='+itemid;
+			  $.ajax({
+			   type: 'POST',
+			   url: 'ajax/dropdown.php',
+			   data: dataStr,
+			   cache: false,
+			   success: function(result) {
+			        $("#ItemsList").html(result);
+				 
+			   }
+         
+		  
+		 });
+		
+		  
+		 
+		 }	
+		 
+		 function getItemLising(id)
+		 {
+		 	var group1 = $('#fGroup1').val();
+			var dataStr = 'action=getItemList2&Group2Id='+id+'&Group1Id='+group1;
+			 $.ajax({
+			   type: 'POST',
+			   url: 'ajax/dropdown.php',
+			   data: dataStr,
+			   cache: false,
+			   success: function(result) {
+			          $("#ItemsList").html(result);
+				 
+			   }
+         
+		  
+		 });
+		
+		  
+		 }			
+			
+			
 			</script>
 </body>
 <!-- END BODY -->

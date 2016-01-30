@@ -126,6 +126,9 @@
                                 <div class="btn-group">
                                 <a href="FuelEdit.php?action=Add"  role="button" class="btn green" data-toggle="modal">Add New <i class="icon-plus"></i></a>								
 									</div>
+                                    <div class="btn-group">
+                                <a href="TokenEdit.php?action=Add"  role="button" class="btn green" data-toggle="modal">Add Token <i class="icon-plus"></i></a>								
+									</div>
 								</div>
 								<table class="table table-striped table-bordered table-hover" id="sample_1">
 									<thead>

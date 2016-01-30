@@ -76,8 +76,6 @@ $mpdf=new mPDF('utf-8','A4-L','','','10','10','10','31','5','5','5');
                                                 <th>Item</th>
                                                 <th>Machine Number</th>
                                                 <th>Asset Number</th>
-                                               
-												
                                                 <th>Store</th>
                                                 <th>Unit Name</th>
                                                 <th>Status</th>

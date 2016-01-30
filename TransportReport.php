@@ -111,7 +111,15 @@
                      <div class="portlet-body form">
                         <!-- BEGIN FORM-->
                        
-                                 <form action="TransportReportList.php" class="form-horizontal" id="form_sample_3" method="post">
+                              <form action="TransportReportList.php" class="form-horizontal" id="form_sample_3" method="post">
+                              <?php
+							    if(isset($aRequest['report']))
+								{
+							  ?>
+                                   <input type="hidden" name="report" value="<?php echo $aRequest['report']; ?>">     
+                              <?php
+								}
+							  ?>
 									    <div class="alert alert-error hide">
                               <button class="close" data-dismiss="alert"></button>
                               You have some form errors. Please check below.

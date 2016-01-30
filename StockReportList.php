@@ -34,6 +34,7 @@
  $aSearchList =	$oMaster->getSearchLabel($sesReportItemList);
 
  $astockReportListcount = $oReport->stockReportList($sesReportItemList,'count');
+ 
 
 		if(isset($_REQUEST['sort']))
 		{

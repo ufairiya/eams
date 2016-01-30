@@ -11,3 +11,8 @@
 <br>
 <br>
 <a href="StockReport.php"> &lt; &lt; Go back to Stock Report page.</a>
+<br>
+<br>
+<br>
+<br>
+<a href="Reports.php"> &lt; &lt; Go back to Report List Page.</a>

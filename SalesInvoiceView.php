@@ -16,18 +16,16 @@
   
   $id_salesInvoice = $aRequest['id'];
   
-  $allResult = $oMaster->getSalesInvoiceList($id_salesInvoice);
+  $allResult = $oMaster->getSalesInvoiceList('Sales',$id_salesInvoice);
   
-  $allResultinvoice = $oMaster->getSalesInvoiceItemInfo($allResult[0]['id_asset_sales_invoice']);
+  $allResultinvoice = $oMaster->getSalesInvoiceItemList($allResult[0]['id_asset_sales_invoice']);
   
   $sal_addr = $oMaster->getPrintUnitAddress($allResult[0]['id_company']);
   
   $aVendorInfo = $oAssetVendor->getVendorInfo($allResult[0]['id_vendor']);
   
   $salvendor_addr = $oMaster->getPrintUnitAddress($aVendorInfo['id_vendor_address']);
-  /*print_r($salvendor_addr);
-  print_r($allResultinvoice);
-  print_r($aVendorInfo);*/
+  //echo '<pre>'; print_r($salvendor_addr);  print_r($allResultinvoice);  print_r($aVendorInfo);  exit();
   ?>
 <!DOCTYPE html>
 <!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
@@ -223,32 +221,46 @@ align="left" style="font-family:Arial, Helvetica, sans-serif;margin-left: 15px;"
   <TR align="center" bgColor="white">
     <TD width="3%"><B>SLNO</B></TD>
     <TD width="20%"><B>PARTICULARS</B></TD>
-    <TD width="5%"><B> + / - </B></TD>
-     <TD width="5%"><B>AMOUNT IN <?php echo Currencycode;?></B></TD>
+    <TD width="5%"><B>AMOUNT IN <?php echo Currencycode;?></B></TD>
    </TR>
  
   <?php 
    $sl_nos = 1;
+   $totalprice = 0;
  ?>
+ <?php foreach ($allResultinvoice as $row)
+ {
+	 $display_asset_no = ($row['machine_no'] != '') ? $row['asset_no'].' / '.$row['machine_no'] :  $row['asset_no'];
+	 $sold_price = $row['total_price'];
+	 $taxprice = $row['tax_price'];
+	 ?>
   <TR class="srow" bgColor="white">
     <TD align="center"><?php echo $sl_nos;?>&nbsp;&nbsp;</TD>
-    <TD align="left">&nbsp;&nbsp;<?php echo $allResultinvoice['itemgroup1_name'].'('.$allResultinvoice['itemgroup2_name'].')';?>&nbsp;&nbsp;</TD>
-    <TD  align="right"><?php echo '<b>Tax Price&nbsp;('.$allResultinvoice['tax_percentage'].'%)</b>';?> &nbsp;</TD>
-    
-    <TD noWrap align="right"><?php echo $oMaster->moneyFormat($allResultinvoice['tax_price']);?> &nbsp;</TD>
+    <TD align="left">&nbsp;&nbsp;<?php echo $row['itemgroup1_name'].'-'.$row['itemgroup2_name'].'-'.$row['item_name'].'('.$display_asset_no.')';?>&nbsp;&nbsp;</TD>
+      
+    <TD noWrap align="right"><?php echo $oMaster->moneyFormat($sold_price);?> &nbsp;</TD>
+      </TR>
+      <?php if($taxprice > 0) { ?>
+      <TR class="srow" bgColor="white">
+    <TD align="center"></TD>    
+    <TD  align="right"><?php echo '<b>Tax Price&nbsp;('.$row['tax_percentage'].'%)</b>';?> &nbsp;</TD>    
+    <TD noWrap align="right"><?php echo $oMaster->moneyFormat($taxprice);?> &nbsp;</TD>
       </TR>
       
-    <?php $sl_nos++; 
+    <?php 
+}
+    $totalprice = $totalprice + $sold_price + $taxprice;
+    $sl_nos++; 
+}
+    
 	  ?>
-      <TR class="srow" bgColor="white">
-    <TD colSpan="3" align="right">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Sold Price </b> &nbsp;&nbsp;
-      </TD>
-      <TD align="right"><B><?php echo $oMaster->moneyFormat($allResultinvoice['total_price']);?>&nbsp;&nbsp;</B></TD></TR>
-       
+             
     <TR class="srow" bgColor="white">
-    <TD colSpan="3" align="right">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Total Amount ( <?php echo Currencycode;?> )</b> &nbsp;&nbsp; </TD>
+    <TD colSpan="2" align="right">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Total Amount ( <?php echo Currencycode;?> )</b> &nbsp;&nbsp; </TD>
  
-    <TD align="right"><B><?php echo $total = $allResultinvoice['tax_price'] + $allResultinvoice['total_price'];?>&nbsp;&nbsp;</B></TD></TR>
+    <TD align="right"><B><?php echo $oMaster->moneyFormat($totalprice);?>&nbsp;&nbsp;</B></TD></TR>
+    <TR class="srow" bgColor="white">
+    <TD colSpan=20><B>TOTAL AMOUNT ( In <?php echo Currencycode;?> ) : <?php echo $oMaster->currencyText( $totalprice);?></B></TD></TR>
   
 </TBODY></TABLE>
 <BR><BR><BR><BR>

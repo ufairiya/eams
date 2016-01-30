@@ -7,12 +7,9 @@
   $aCustomerInfo = $oSession->getSession('sesCustomerInfo');
   $aRequest = $_REQUEST;
   $allResult = $oMaster->getItemGroup1List();
-  
   $oAssetType = &Singleton::getInstance('AssetType');
   $oAssetType->setDb($oDb);
-  /*echo '<pre>';
-  print_r($allResult);
-echo '</pre>';*/
+
 ?>
 <!DOCTYPE html>
 <!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
@@ -142,8 +139,8 @@ echo '</pre>';*/
 									<thead>
 										<tr>
 											<th>SLNO</th>
-											<th>Item Group1 Name</th>
-											<th>Asset Type</th>								
+								<th>Item Group1 Name</th>	
+<th>Asset Type</th>						
 											<th>Status</th>
 											<th>Action</th>	
 										</tr>
@@ -156,7 +153,7 @@ echo '</pre>';*/
 										<tr class="odd gradeX">
 											<td><?php echo $i; ?></td>
 											<td><?php echo $item['itemgroup1_name']; ?></td>
-											<td><?php echo $oAssetType->getAssetTypeName($item['id_asset_type']); ?></td>
+<td><?php echo $oAssetType->getAssetTypeName($item['id_asset_type']); ?></td>
 											<td><?php echo $oUtil->AssetItemStatus($item['status']);?> </td>
 											<td>
                                             <div class="flash" id="flash_<?php echo  $item['id_itemgroup1']; ?>"></div>

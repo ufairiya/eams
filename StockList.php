@@ -133,7 +133,7 @@
 							<div class="portlet-body">
 								<div class="clearfix">
                                 <div class="btn-group">
-                                <a href="AddStock.php?action=Add" role="button" class="btn green" data-toggle="modal">Add New <i class="icon-plus"></i></a>								
+                                <a href="AddStock.php?action=Add"  role="button" class="btn green" data-toggle="modal">Add New <i class="icon-plus"></i></a>								
 									</div>
 								</div>
 								<table class="table table-striped table-bordered table-hover" id="sample_1">
@@ -172,14 +172,15 @@
                                              <td><?php echo $item['store_name']; ?> <?php if($item['division_name']!='') {?><font size="1"> <b> (<?php echo $item['division_name'];?>)</b></font><?php } ?></td>
                                             <td><?php echo date('d/m/Y',strtotime($item['machine_date'])); ?></td>
                                            
-                                          	<td>
+                                          	<td width="12%">
                                             <div class="flash" id="flash_<?php echo  $item['id_asset_item']; ?>"></div>
-                                      <a href="AddStock.php?id=<?php echo  $item['id_asset_item']; ?>&action=edit" class="btn mini purple"><i class="icon-edit"></i>Edit</a>
+                                      <a href="AddStock.php?id=<?php echo  $item['id_asset_item']; ?>&action=edit" class="btn mini purple"><i class="icon-edit"></i>Edit</a> &nbsp; &nbsp;
                                             
                                             <?php if($item['status']!=2)
 											{
 											?>
-                                            <a  class="delete btn mini black" href="javascript:void()" onclick=deleteBox('<?php echo  $item['id_asset_item']; ?>','assetdelete','Move')><i class="icon-trash"></i>Delete</a>   
+                                            <a  class="delete btn mini black" href="javascript:void()" onclick=deleteBox('<?php echo  $item['id_asset_item']; ?>','assetdelete','Move')><i class="icon-trash"></i>Move to trash</a> 
+                                             <a  class="delete btn mini red" href="javascript:void()" onclick=deleteBox('<?php echo  $item['id_asset_item']; ?>','assetdelete','Permanent')><i class="icon-trash"></i>Delete</a>  
                                            <?php } else { ?>
 										      <a  class="delete btn mini red" href="javascript:void()" onclick=deleteBox('<?php echo  $item['id_asset_item']; ?>','assetdelete','Permanent')><i class="icon-trash"></i>Delete</a>   
 										   	<?php } ?>

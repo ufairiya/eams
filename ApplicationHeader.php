@@ -115,7 +115,7 @@
 	$oUtil = &Singleton::getInstance('Util');
 	$aEmptype = $oUtil->getEmployeeType();
 	$aCompany = $oMaster->getCompanyAddress(COMPANY,'id');
-	$_aFuelType =$oUtil->getFuelType();
+	$_aFuelType =$oUtil->getFuelType1();
 	$_aServiceType =$oUtil->getServiceType();
 //Account Type
   $aAccountType = array('--ALL--','BANK','CASH','CREDITORS','DEBTORS','EXPENDITURE','INCOME','OTHERS','PURCHASE','SALES','SUB-TAX','TAX &amp; DUTIES');
@@ -249,7 +249,7 @@ parse_str($query_str, $aOutQueryStr);
  }
  else
  {
-	 $allowRight['right'] = 1;
+$allowRight['right'] = 1;
  //$msg = 'Your are not able to view this page';
  //header("Location: index.php");
 

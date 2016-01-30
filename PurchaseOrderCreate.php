@@ -29,7 +29,7 @@
    if(isset($aRequest['send']))
   {
     $oFormValidator->setField("ALLTEXT", " Unit", $aRequest['fUnitId'], 1, '', '', '', '');
-	$oFormValidator->setField("ALLTEXT", " Division", $aRequest['fDepartmentId'], 1, '', '', '', '');	
+	//$oFormValidator->setField("ALLTEXT", " Division", $aRequest['fDepartmentId'], 1, '', '', '', '');	
 	$oFormValidator->setField("ALLTEXT", " Vendor", $aRequest['fvendorId'], 1, '', '', '', '');
 	$oFormValidator->setField("ALLTEXT", "Shipping place", $aRequest['fShippingId'], 1, '', '', '', '');	
 	$oFormValidator->setField("ALLTEXT", "Require Date", $aRequest['fDuedate'], 1, '', '', '', '');	
@@ -41,7 +41,8 @@
 			if($oMaster->addPurchaseOrder($aRequest))
 			{
 			   //$msg = "New Employee Added.";
-			  echo '<script type="text/javascript">window.location.href="PurchaseOrder.php?msg=success";</script>';
+			   header("Location: PurchaseOrder.php?msg=success");
+			  //echo '<script type="text/javascript">window.location.href="PurchaseOrder.php?msg=success";</script>';
 			}
 			else $msg = "Sorry could not add..";
 	 }
@@ -55,7 +56,8 @@
     if($oMaster->updatePurchaseOrder($aRequest, 'update'))
 	{
 	  $msg = "Purchase Order Updated.";
-	  echo '<script type="text/javascript">window.location.href="PurchaseOrder.php?msg=updatesucess";</script>';
+	   header("Location: PurchaseOrder.php?msg=updatesucess");
+	  //echo '<script type="text/javascript">window.location.href="PurchaseOrder.php?msg=updatesucess";</script>';
 	}
 	else 
 	  $msg = "Sorry";
@@ -554,7 +556,7 @@
                                           </select></td>
 									
                                     <td style="text-align:right;"><span id="addlesss<?php echo $i;?>"></span><input type="hidden" class="price xsmall" name="fAddLess[]" id="addless<?php echo $i;?>"/></td> <td><input type="text" class="price" name="fTaxTotal[]" id="taxprice<?php echo $i;?>" value="0"/>
-                                
+ <input type="hidden" class="testprice" name="fTaxTotals[]" id="taxprices<?php echo $i;?>" value="0"/>                              
                                     </td>
                                     
 									<td>
@@ -586,7 +588,7 @@
                                           </select></td>
 									
                                     <td style="text-align:right;"><span id="addlesss<?php echo $i;?>"></span><input type="hidden" class="price xsmall" name="fAddLess[]" id="addless<?php echo $i;?>"/></td> <td><input type="text" class="price" name="fTaxTotal[]" id="taxprice<?php echo $i;?>" value="0"/>
-                                
+  <input type="hidden" class="testprice" name="fTaxTotals[]" id="taxprices<?php echo $i;?>" value="0"/>                            
                                     </td>
                                     
 									<td>
@@ -614,7 +616,7 @@
                                      <td style="text-align:right;" colspan="3">NET AMOUNT (<?php echo Currencycode;?>) : </td>
                                     <td><input type="text" class="price" name="fNetTotal" id="nettotal"/>
                                     
-                                    <input type="button" class="m-btn btn-warning" name="recal"  value ="Recalculate" onClick="javascript:recalc();"/>
+                                    <input type="button" class="m-btn btn-warning" name="recal" id="Recalculation"  value ="Recalculate" onClick="javascript:recalc();"/>
                                     
                                     </td>
                                      <td></td>
@@ -781,7 +783,7 @@
 								</table>
                                        </div>
                                         <div class="row-fluid"> 
-                                      <table id="purchaseItems" name="purchaseItems" class="table table-striped table-bordered table-hover">
+                                      <table id="fAddLess" name="purchaseItems" class="table table-striped table-bordered table-hover">
 								<tr>
 											<th>SNO</th>
                                             <th>Tax</th>
@@ -808,7 +810,7 @@
                                           </select></td>
 									
                                     <td style="text-align:right;"><span id="addlesss<?php echo $i;?>"></span><input type="hidden" class="price xsmall" name="fAddLess[]" id="addless<?php echo $i;?>"/></td> <td><input type="text" class="price" name="fTaxTotal[]" id="taxprice<?php echo $i;?>" value="0"/>
-                                
+ <input type="hidden" class="testprice" name="fTaxTotals[]" id="taxprices<?php echo $i;?>" value="0"/>                       
                                     </td>
                                     
 									<td>
@@ -840,7 +842,7 @@
                                           </select></td>
 									
                                     <td style="text-align:right;"><span id="addlesss<?php echo $i;?>"></span><input type="hidden" class="price xsmall" name="fAddLess[]" id="addless<?php echo $i;?>"/></td> <td><input type="text" class="price" name="fTaxTotal[]" id="taxprice<?php echo $i;?>" value="0"/>
-                                
+                               <input type="hidden" class="testprice" name="fTaxTotals[]" id="taxprices<?php echo $i;?>" value="0"/>
                                     </td>
                                     
 									<td>
@@ -868,7 +870,7 @@
                                      <td style="text-align:right;" colspan="3">NET AMOUNT (<?php echo Currencycode;?>) : </td>
                                     <td><input type="text" class="price" name="fNetTotal" id="nettotal"/>
                                     
-                                    <input type="button" class="m-btn btn-warning" name="recal"  value ="Recalculate" onClick="javascript:recalc();"/>
+                                    <input type="button" class="m-btn btn-warning" name="recal"  id="Recalculation" value ="Recalculate" onClick="javascript:recalc();"/>
                                     
                                     </td>
                                      <td></td>
@@ -1026,7 +1028,9 @@
 											 ?>
                                           </select></td>
 									
-                                    <td style="text-align:right;"><span id="addlesss1"></span><input type="hidden" class="price xsmall" name="fAddLess[]" id="addless1"/></td> <td><input type="text" class="price" name="fTaxTotal[]" id="taxprice1" value="0"/>
+                                    <td style="text-align:right;"><span id="addlesss1"></span><input type="hidden" class="price addless xsmall" name="fAddLess[]" id="addless1"/></td> <td><input type="text" class="price" name="fTaxTotal[]" id="taxprice1" value="0"/>
+<input type="hidden" class="testprice" name="fTaxTotals[]" id="taxprices1" value="0"/>                                   
+
                                 
                                     </td>
                                     
@@ -1056,7 +1060,7 @@
                                      <td style="text-align:right;" colspan="3">NET AMOUNT (<?php echo Currencycode;?>) : </td>
                                     <td><input type="text" class="price" name="fNetTotal" id="nettotal"/>
                                     
-                                    <input type="button" class="m-btn btn-warning" name="recal"  value ="Recalculate" onClick="javascript:recalc();"/>
+                                    <input type="button" class="m-btn btn-warning" name="recal"  id="Recalculation" value ="Recalculate" onClick="javascript:recalc();"/>
                                     
                                     </td>
                                      <td></td>
@@ -1379,17 +1383,44 @@ if($aRequest['action'] == 'edit' && $aRequest['submits']=='approval') {
 					var taxvalues = tax.split("/");
 					var taxvalue = taxvalues[0];
 					var addless = taxvalues[1];
-					var taxtotal = parseFloat(unitprice)*parseFloat(tax);
+					var current = id.split("tax");
+					var currentid = current[1];
+					if(id =='tax1')
+					{
+						var granttotal = parseFloat(unitprice);
+					}
+					else
+					{						
+						var newid = currentid-1;
+						var granttotal = $('#taxprices'+newid).val();	
+					}
+					var taxtotal = parseFloat(granttotal)*parseFloat(tax);
 					var taxtotals = parseFloat(taxtotal)/100;
-				
+									
+						if(addless == '+')
+						{
+						var granttotal = parseFloat(granttotal) +  parseFloat(taxtotals);
+						
+						}
+						else
+						{
+						 var granttotal = parseFloat(granttotal) -  parseFloat(taxtotals);
+						}
+					
+					if(granttotal=='')
+					{
+						var granttotal = parseFloat(unitprice);
+					}					
 					var TAXtotal=0;
 					$("input[name='fTaxTotal[]']").each(function(){
 					TAXtotal+= parseFloat($(this).val());
 					});
-					var netamount = parseFloat(unitprice);
+					
+					var netamount = parseFloat(granttotal);
+					$('#taxprices'+currentid).val(netamount);
+					
 					if(parseFloat(TAXtotal)==0)
-					{
-						
+					{						
 					if(addless == '+')
 					{
 				    var netamount = parseFloat(netamount) +  parseFloat(taxtotals);
@@ -1419,8 +1450,7 @@ if($aRequest['action'] == 'edit' && $aRequest['submits']=='approval') {
 					$('#taxprice'+tax_spilt[1]).val(addless+taxtotals.toFixed(2));
 					$('#addless'+tax_spilt[1]).val(addless);
 					$('#addlesss'+tax_spilt[1]).html(addless);
-					var netamount= netamount.toFixed(2);
-			
+					var netamount= netamount.toFixed(2);			
 					recalc();
 				}
 			
@@ -1471,6 +1501,7 @@ if($aRequest['action'] == 'edit' && $aRequest['submits']=='approval') {
 			
 			function recalc()
 			{
+				
 				var grantunitprice=0;
 				$("input[name='fUnitTotal[]']").each(function(){
 					grantunitprice+=parseFloat($(this).val());
@@ -1484,72 +1515,68 @@ if($aRequest['action'] == 'edit' && $aRequest['submits']=='approval') {
 					});
 					
 					var netamount = parseFloat(TAXtotal) +parseFloat(grantunitprice);
-				$('#nettotal').val(netamount.toFixed(2));
-				
-				if(parseFloat(TAXtotal) == 0)
+				    $('#nettotal').val(netamount.toFixed(2));
+				 if(parseFloat(TAXtotal) == 0)
 				{
 					var netamounts = grantunitprice.toString();
-				   var roundoff = netamounts.split(".");
-				   var decimal = roundoff[1];
-				   var numbers = roundoff[0];
-				   
-				   
-				   var netamounts = grantunitprice.toString();
-				   var roundoff = netamounts.split(".");
-				   var decimal = roundoff[1];
-				   var numbers = roundoff[0];
-				  var RoundingVals = grantunitprice %10;
-				   var RoundingVals1 = RoundingVals.toFixed(2);
-				   	var RoundingVal = RoundingVals1.toString();
-				var RoundingVal1 = RoundingVal.split(".");
-				if(parseFloat(RoundingVal1[1])>49)
-				{
+					var roundoff = netamounts.split(".");
+					var decimal = roundoff[1];
+					var numbers = roundoff[0];
+					
+					
+					var netamounts = grantunitprice.toString();
+					var roundoff = netamounts.split(".");
+					var decimal = roundoff[1];
+					var numbers = roundoff[0];
+					var RoundingVals = grantunitprice %10;
+					var RoundingVals1 = RoundingVals.toFixed(2);
+					var RoundingVal = RoundingVals1.toString();
+					var RoundingVal1 = RoundingVal.split(".");
+					if(parseFloat(RoundingVal1[1])>49)
+					{
 					var string1 = 100 - parseInt(RoundingVal1[1]);
 					var Result1 = parseFloat(grantunitprice)+parseFloat(string1/100);
-						$('#nettotal').val(Result1.toFixed(2));
-						$('#roundoff').val("+"+ parseFloat(string1/100));
-				}
-				else
-				{
+					$('#nettotal').val(Result1.toFixed(2));
+					$('#roundoff').val("+"+ parseFloat(string1/100));
+					}
+					else
+					{
 					var string2 = 100 - parseInt(RoundingVal1[1]);
-					var Result2 = parseInt(grantunitprice);
-								
+					var Result2 = parseInt(grantunitprice);								
 					$('#nettotal').val(Result2.toFixed(2));
-						$('#roundoff').val("-"+ parseFloat((RoundingVal1[1])/100));
-				}
+					$('#roundoff').val("-"+ parseFloat((RoundingVal1[1])/100));
+					}
 					
-						$('#granttotal').val(grantunitprice.toFixed(2));
-								  
-								
-				
+					$('#granttotal').val(grantunitprice.toFixed(2));	
+					
 				}
 									
 				
-				  var netamounts = netamount.toString();
-				   var roundoff = netamounts.split(".");
-				   var decimal = roundoff[1];
-				   var numbers = roundoff[0];
-				  var RoundingVals = netamount %10;
-				   var RoundingVals1 = RoundingVals.toFixed(2);
-				   	var RoundingVal = RoundingVals1.toString();
+				var netamounts = netamount.toString();
+				var roundoff = netamounts.split(".");
+				var decimal = roundoff[1];
+				var numbers = roundoff[0];
+				var RoundingVals = netamount %10;
+				var RoundingVals1 = RoundingVals.toFixed(2);
+				var RoundingVal = RoundingVals1.toString();
 				var RoundingVal1 = RoundingVal.split(".");
 				if(parseFloat(RoundingVal1[1])>49)
 				{
-					var string1 = 100 - parseInt(RoundingVal1[1]);
-					var Result1 = parseFloat(netamount)+parseFloat(string1/100);
-						$('#nettotal').val(Result1.toFixed(2));
-						$('#roundoff').val("+"+ parseFloat(string1/100) );
+				var string1 = 100 - parseInt(RoundingVal1[1]);
+				var Result1 = parseFloat(netamount)+parseFloat(string1/100);
+				$('#nettotal').val(Result1.toFixed(2));
+				$('#roundoff').val("+"+ parseFloat(string1/100) );
 				}
 				else
 				{
-					var string2 = 100 - parseInt(RoundingVal1[1]);
-					var Result2 = parseInt(netamount);
-								
-					$('#nettotal').val(Result2.toFixed(2));
-						$('#roundoff').val("-"+parseFloat((RoundingVal1[1]/ 100 )));
+				var string2 = 100 - parseInt(RoundingVal1[1]);
+				var Result2 = parseInt(netamount);
+				
+				$('#nettotal').val(Result2.toFixed(2));
+				$('#roundoff').val("-"+parseFloat((RoundingVal1[1]/ 100 )));
 				}
-					
-						$('#granttotal').val(netamount.toFixed(2));
+				
+				$('#granttotal').val(netamount.toFixed(2));
 							  
 								
 					
@@ -1842,7 +1869,7 @@ if($aRequest['action'] == 'edit' && $aRequest['submits']=='approval') {
 		 }
  $(document).ready(function () {
     $(document).on('click', '#purchaseItems .add', function () {
-        var row = $(this).closest('tr');
+		var row = $(this).closest('tr');
         var clone = row.clone();
         // clear the values
 		var tr = clone.closest('tr');
@@ -1851,6 +1878,7 @@ if($aRequest['action'] == 'edit' && $aRequest['submits']=='approval') {
 		tr.find('input[name="fUnitTotal[]"]').val('0');
 			tr.find('input[name="fQuantity[]"]').val('1');
 			tr.find('input[name="fTaxTotal[]"]').val('0');
+		tr.find('input[name="fTaxTotals[]"]').val('0');
 		tr.find('input[name="fRequireDate[]"]').siblings('.ui-datepicker-trigger,.ui-datepicker-apply').remove();
 		tr.find('input[name="fRequireDate[]"]').removeClass('hasDatepicker');
 		tr.find('input[name="fRequireDate[]"]').removeData('datepicker');
@@ -1867,8 +1895,7 @@ if($aRequest['action'] == 'edit' && $aRequest['submits']=='approval') {
             var id = el.attr('id') || null;
             if(id) {
                 var i = id.substr(id.length-1);
-                var prefix = id.substr(0, (id.length-1));
-		
+                var prefix = id.substr(0, (id.length-1));		
               el.attr('id', prefix+(+i+1));
                
             }
@@ -1886,6 +1913,31 @@ if($aRequest['action'] == 'edit' && $aRequest['submits']=='approval') {
                
             }
         });
+		
+		 clone.find('td').each(function(){
+            var el = $(this).find('.testprice');
+            var id = el.attr('id') || null;
+            if(id) {
+                var i = id.substr(id.length-1);
+                var prefix = id.substr(0, (id.length-1));
+		
+              el.attr('id', prefix+(+i+1));
+               
+            }
+        });
+		
+			 clone.find('td').each(function(){
+            var el = $(this).find('.addless');
+            var id = el.attr('id') || null;
+            if(id) {
+                var i = id.substr(id.length-1);
+                var prefix = id.substr(0, (id.length-1));
+		
+              el.attr('id', prefix+(+i+1));
+               
+            }
+        });
+			
 						
 		 clone.find('td').each(function(){
             var el = $(this).find('.group2');

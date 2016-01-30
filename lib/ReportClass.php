@@ -11,6 +11,8 @@ class ReportClass {
 	public function __construct()
 	{
 		//$this->oDb = $oDb;
+		$asset_stock_not_in = array('8','21','23');
+	    $this->asset_stock_not_in = implode(',', $asset_stock_not_in);
 	}
 	public function setDb($oDb)
 	{
@@ -107,6 +109,35 @@ class ReportClass {
 	{
 	
 		$condition = ''; $limit = ''; $orderBy = '';
+		$id_unit = ''; $id_store = ''; $id_itemGtoup1 = ''; $id_itemGtoup2 = ''; $id_item = '';
+		$join_unit = ''; $join_store = ''; $join_itemgroup1 = ''; $join_itemgroup2 = ''; $join_item = '';
+		if($id_unit != '') {
+		$join_unit = "INNER JOIN asset_unit 
+        ON (asset_item.id_unit = asset_unit.id_unit) ";
+		}
+		
+		//if($id_store != '') {
+		$join_store = "INNER JOIN store 
+        ON (asset_stock.id_store = store.id_store) ";
+		//}
+		
+		//if($id_itemGtoup1 != '') {
+		$join_itemgroup1 = "INNER JOIN itemgroup1 
+        ON (asset_item.id_itemgroup1 = itemgroup1.id_itemgroup1) ";
+		//}
+		
+		//if($id_itemGtoup2 != '') {
+		$join_itemgroup2 = "INNER JOIN itemgroup2 
+        ON (asset_item.id_itemgroup2 = itemgroup2.id_itemgroup2) ";
+		//}
+		
+		//if($id_item != '') {
+		$join_item = "INNER JOIN item 
+        ON (asset_item.asset_name = item.id_item) ";
+		//}
+		
+		
+		
 	$qry = "SELECT
     item.item_name
     , itemgroup2.itemgroup2_name
@@ -119,85 +150,101 @@ class ReportClass {
      , itemgroup1.itemgroup1_name
      , asset_item.status,store.store_name,
 	asset_item. machine_date,
-	asset_stock.id_division
+	asset_item.date_of_install,
+	asset_stock.id_division,
+	asset_stock.id_unit
 FROM
     asset_item
     INNER JOIN asset_stock 
         ON (asset_item.id_asset_item = asset_stock.id_asset_item)
-    INNER JOIN itemgroup1 
-        ON (asset_item.id_itemgroup1 = itemgroup1.id_itemgroup1)
+    ".$join_itemgroup1."
     INNER JOIN asset_unit 
         ON (asset_item.id_unit = asset_unit.id_unit)
-    INNER JOIN itemgroup2 
-        ON (asset_item.id_itemgroup2 = itemgroup2.id_itemgroup2)
-    INNER JOIN item 
-        ON (asset_item.asset_name = item.id_item)
-		INNER JOIN store 
-        ON (asset_stock.id_store = store.id_store)
- 
-    ";
+    ".$join_itemgroup2.$join_item.$join_store;
+	
 	$id_unit = $aRequest['fUnitId'];
 	$id_store = $aRequest['fStoreId'];
 	$id_itemGtoup1 = $aRequest['fGroup1'];
 	$id_itemGtoup2 = $aRequest['fGroup2'];
 	$id_item = $aRequest['fItemName'];
+	//if($id_store == null || $id_store != '') {echo 'store is selected::::::<br>';}
 	
 	if($aRequest['fStartDate'] !='' || $aRequest['fEndDate'] !='')
 	{
 	$start_date =date('Y-m-d',strtotime($aRequest['fStartDate']));
 	$end_date = date('Y-m-d',strtotime($aRequest['fEndDate']));
 	}
-	$filter = '';
-	if($id_unit != null)
+	if($aRequest['fInstStartDate'] !='' || $aRequest['fInstEndDate'] !='')
+	{
+	  $inst_start_date = date('Y-m-d',strtotime($aRequest['fInstStartDate']));
+	  $inst_end_date   = date('Y-m-d',strtotime($aRequest['fInstEndDate']));
+	}
+	
+	$filter.=" asset_stock.status NOT IN (".$this->asset_stock_not_in.") AND  ";
+	if($id_unit != '')
 	{
 		$filter.= "  asset_stock.id_unit=".$id_unit;
+		//$filter.=" AND asset_stock.status NOT IN (".$this->asset_stock_not_in.") ";
 	}
-	if($id_store != null)
+	if($id_store != '')
 	{
-		if($id_unit != null)
+		if($id_unit != null || $id_unit != '')
 		{
 			$filter.= ' AND ';
 		}
 		$filter.= "  asset_stock.id_store =".$id_store;
+		//$filter.=" AND asset_stock.status NOT IN (".$this->asset_stock_not_in.") ";
 	}
-	if($id_itemGtoup1 != null )
+	if($id_itemGtoup1 != '' )
 	{
-		if($id_store != null || $id_unit !=null )
+		if($id_store != '' || $id_unit != '' )
 		{
 			$filter.= ' AND ';
 		}
 		$filter.= "  itemgroup1.id_itemgroup1 =".$id_itemGtoup1;
 	}
-	if($id_itemGtoup2 != null )
+	if($id_itemGtoup2 != '' )
 	{
-		if($id_store != null || $id_unit !=null || $id_itemGtoup1 != null )
+		if($id_store != '' || $id_unit != '' || $id_itemGtoup1 != '' )
 		{
 			$filter.= ' AND ';
 		}
 		$filter.= "  itemgroup2.id_itemgroup2 =".$id_itemGtoup2;
 	}
-		if($id_item != null )
+	if($id_item != '' )
 	{
-		if($id_store != null || $id_unit !=null || $id_itemGtoup1 != null || $id_itemGtoup2 != null )
+		if($id_store != '' || $id_unit != '' || $id_itemGtoup1 != '' || $id_itemGtoup2 != '' )
 		{
 			$filter.= ' AND ';
 		}
 		$filter.= "   asset_item.asset_name =".$id_item;
 	}
-	if($start_date != null && $end_date !=null)
+	if($start_date != null && $end_date != null)
 	{
-		if($id_store != null || $id_unit !=null || $id_itemGtoup1 != null || $id_itemGtoup2 != null || $id_item != null)
+		if($id_store != '' || $id_unit != '' || $id_itemGtoup1 != '' || $id_itemGtoup2 != '' || $id_item != '')
 		{
 			$filter.= ' AND ';
 		}
 		$filter.= "   asset_item.machine_date between '".$start_date."' and '".$end_date."'";
 	}
+	/*if($filter != '')
+	{
+		$filter = " WHERE ".$filter;
+	}*/
+	
+	if($inst_start_date != null && $inst_end_date != null)
+	{
+		if($id_store != null || $id_unit !=null || $id_itemGtoup1 != null || $id_itemGtoup2 != null || $id_item != null)
+		{
+			$filter.= ' AND ';
+		}
+		$filter.= "   asset_item.date_of_install between '".$inst_start_date."' and '".$inst_end_date."'";
+	}
 	if($filter != '')
 	{
 		$filter = " WHERE ".$filter;
 	}
-	
-	
+		
 	if(!empty($rowsPerPage))
 		{
 			$limit 	= "LIMIT $offset, $rowsPerPage";
@@ -207,8 +254,14 @@ FROM
 			$orderBy 		= " ORDER BY ".$field." ".$sort." ";
 		}
 		else $orderBy = " GROUP BY asset_item.id_asset_item ASC ";
+		
+		//echo $qry; echo '<br>';
+		//echo $filter; echo '<br>';
+		
+		
 	$query = $qry.$filter.$orderBy.$limit;
-	
+	//echo $query;
+	//echo '<br>';
 	 if($type =='count')
 	 {
 		
@@ -291,7 +344,7 @@ FROM
         ON (asset_item.asset_name = item.id_item)
 		INNER JOIN store 
         ON (asset_stock.id_store = store.id_store)
-WHERE asset_item.status!=2  
+WHERE asset_item.status!=2  AND asset_stock.status NOT IN (".$this->asset_stock_not_in.")
     ";
 	$criteria = $aRequest['fCriteria'];
 	$searchType = $aRequest['fSearchType'];
@@ -477,7 +530,7 @@ FROM
         ON (asset_item.id_asset_item = asset_stock.id_asset_item)
     INNER JOIN store 
         ON (asset_stock.id_store = store.id_store)
-WHERE  asset_stock.id_division = 0    ";
+WHERE  asset_stock.id_division = 0  AND asset_stock.status NOT IN (".$this->asset_stock_not_in.")  ";
 	$id_unit = $aRequest['fUnitId'];
 	$id_store = $aRequest['fStoreId'];
 	$id_itemGtoup1 = $aRequest['fGroup1'];
@@ -613,7 +666,7 @@ FROM
         ON (asset_item.id_asset_item = asset_stock.id_asset_item)
     INNER JOIN store 
         ON (asset_stock.id_store = store.id_store)
-WHERE  asset_stock.id_division = 0  ";
+WHERE  asset_stock.id_division = 0 AND asset_stock.status NOT IN (".$this->asset_stock_not_in.") ";
 	$id_unit = $aRequest['fUnitId'];
 	$id_store = $aRequest['fStoreId'];
 	$id_itemGtoup1 = $aRequest['fGroup1'];
@@ -825,7 +878,7 @@ FROM
         ON (asset_stock.id_store = store.id_store)
     INNER JOIN asset_unit 
         ON (asset_stock.id_unit = asset_unit.id_unit)
-   WHERE (asset_stock.id_division =0)
+   WHERE (asset_stock.id_division =0 AND asset_stock.status NOT IN (".$this->asset_stock_not_in."))
 GROUP BY item.item_name;
 	 ";
 	 $query = $qry;
@@ -877,7 +930,7 @@ FROM
         ON (asset_stock.id_store = store.id_store)
     INNER JOIN asset_unit 
         ON (asset_stock.id_unit = asset_unit.id_unit)
-   WHERE (asset_stock.id_division =0 AND item.id_item ='$lookup')
+   WHERE (asset_stock.id_division =0 AND item.id_item ='$lookup' AND asset_stock.status NOT IN (".$this->asset_stock_not_in."))
 GROUP BY item.item_name;
 	 ";
 	$query = $qry;
@@ -1119,7 +1172,7 @@ FROM
         ON (asset_stock.id_store = store.id_store)
     INNER JOIN asset_unit 
         ON (asset_stock.id_unit = asset_unit.id_unit)
-   WHERE (asset_stock.id_division =0 AND item.id_item ='$lookup')
+   WHERE (asset_stock.id_division =0 AND item.id_item ='$lookup' AND asset_stock.status NOT IN (".$this->asset_stock_not_in."))
 GROUP BY  itemgroup2.id_itemgroup2;
 	 ";
 	 $query = $qry;
@@ -1185,7 +1238,7 @@ GROUP BY  itemgroup2.id_itemgroup2;
 FROM asset_item
 RIGHT JOIN asset_stock ON ( asset_item.id_asset_item = asset_stock.id_asset_item ) 
 INNER JOIN store ON ( asset_stock.id_store = store.id_store ) 
-INNER JOIN asset_unit ON ( asset_stock.id_unit = asset_unit.id_unit ) 
+INNER JOIN asset_unit ON ( asset_stock.id_unit = asset_unit.id_unit ) WHERE asset_stock.status NOT IN (".$this->asset_stock_not_in.")
 GROUP BY asset_stock.id_unit
 	 ";
 	 $query = $qry;
@@ -1228,7 +1281,7 @@ FROM
         ON (asset_stock.id_store =store.id_store)
     INNER JOIN asset_unit 
         ON (store.id_unit =asset_unit.id_unit)
-       
+       WHERE asset_stock.status NOT IN (".$this->asset_stock_not_in.")
        GROUP BY store.id_store;
 	 ";
 	$query = $qry;
@@ -1405,6 +1458,7 @@ FROM
         ON (asset_stock.id_store =store.id_store)
      INNER JOIN asset_unit 
         ON (store.id_unit =asset_unit.id_unit)
+		WHERE asset_stock.status NOT IN (".$this->asset_stock_not_in.")
       GROUP BY asset_stock.id_store ,asset_item.id_itemgroup1  ,asset_item.id_itemgroup2  ,asset_item.asset_name";
 		 $query = $qry;
 	 $StorewiseReportList = array();
@@ -1452,6 +1506,7 @@ FROM
         ON (asset_stock.id_store =store.id_store)
      INNER JOIN asset_unit 
         ON (store.id_unit =asset_unit.id_unit)
+		WHERE asset_stock.status NOT IN ('.$this->asset_stock_not_in.')
       GROUP BY asset_stock.id_store ,asset_item.id_itemgroup1,asset_item.id_itemgroup2,asset_item.asset_name';
   $query = $qry;
 	 $itemwiseReportList = array();
@@ -1503,7 +1558,8 @@ FROM
         ON (asset_stock.id_store =store.id_store)
      INNER JOIN asset_unit 
         ON (store.id_unit =asset_unit.id_unit)
-      GROUP BY asset_stock.id_store ,asset_item.id_itemgroup1,asset_item.id_itemgroup2,asset_item.asset_name,asset_item.id_asset_item';
+		  WHERE asset_stock.status NOT IN ('.$this->asset_stock_not_in.')
+      GROUP BY asset_stock.id_store,asset_item.id_itemgroup1,asset_item.id_itemgroup2,asset_item.asset_name,asset_item.id_asset_item';
 	  
 	  $query = $qry;
 	 $itemDetailReportList = array();
@@ -1615,7 +1671,7 @@ FROM
 	{
 	
 		$condition = ''; $limit = ''; $orderBy = '';
-	$qry = "SELECT
+	$qry = " SELECT
     item.item_name
     , itemgroup2.itemgroup2_name
     , itemgroup1.id_itemgroup1
@@ -1635,7 +1691,8 @@ FROM
      , asset_item.status,store.store_name,
 	asset_item.machine_date,
 	asset_item.machine_life,
-	asset_stock.id_division
+	asset_stock.id_division,
+	asset_insurance.id_insurance
 FROM
     asset_item
     INNER JOIN asset_stock 
@@ -1650,8 +1707,10 @@ FROM
         ON (asset_item.asset_name = item.id_item)
 		INNER JOIN store 
         ON (asset_stock.id_store = store.id_store)
+		LEFT JOIN asset_insurance ON (asset_item.id_asset_item = asset_insurance.id_asset)
  
     ";
+	
 	$id_unit = $aRequest['fUnitId'];
 	$id_store = $aRequest['fStoreId'];
 	$id_itemGtoup1 = $aRequest['fGroup1'];
@@ -1662,7 +1721,224 @@ FROM
 	$start_date =date('Y-m-d',strtotime($aRequest['fStartDate']));
 	$end_date = date('Y-m-d',strtotime($aRequest['fEndDate']));
 	}
-	$filter = '';
+	
+	if($aRequest['fInstStartDate'] !='' || $aRequest['fInstEndDate'] !='')
+	{
+	$inst_start_date =date('Y-m-d',strtotime($aRequest['fInstStartDate']));
+	$inst_end_date = date('Y-m-d',strtotime($aRequest['fInstEndDate']));
+	}
+	
+	$filter = ' asset_stock.status NOT IN ('.$this->asset_stock_not_in.') AND ';
+	if($id_unit != null)
+	{
+		$filter.= "  asset_stock.id_unit=".$id_unit;
+	}
+	if($id_store != null)
+	{
+		if($id_unit != null)
+		{
+			$filter.= ' AND ';
+		}
+		$filter.= "  asset_stock.id_store =".$id_store;
+	}
+	if($id_itemGtoup1 != null )
+	{
+		if($id_store != null || $id_unit !=null )
+		{
+			$filter.= ' AND ';
+		}
+		$filter.= "  itemgroup1.id_itemgroup1 =".$id_itemGtoup1;
+	}
+	if($id_itemGtoup2 != null )
+	{
+		if($id_store != null || $id_unit !=null || $id_itemGtoup1 != null )
+		{
+			$filter.= ' AND ';
+		}
+		$filter.= "  itemgroup2.id_itemgroup2 =".$id_itemGtoup2;
+	}
+		if($id_item != null )
+	{
+		if($id_store != null || $id_unit !=null || $id_itemGtoup1 != null || $id_itemGtoup2 != null )
+		{
+			$filter.= ' AND ';
+		}
+		$filter.= "   asset_item.asset_name =".$id_item;
+	}
+	if($start_date != null && $end_date !=null)
+	{
+		if($id_store != null || $id_unit !=null || $id_itemGtoup1 != null || $id_itemGtoup2 != null || $id_item != null)
+		{
+			$filter.= ' AND ';
+		}
+		$filter.= "   asset_item.machine_date between '".$start_date."' and '".$end_date."'";
+	}
+	
+	if($inst_start_date != null && $inst_end_date !=null)
+	{
+		if($id_store != null || $id_unit !=null || $id_itemGtoup1 != null || $id_itemGtoup2 != null || $id_item != null)
+		{
+			$filter.= ' AND ';
+		}
+		$filter.= "   asset_item.date_of_install between '".$inst_start_date."' and '".$inst_end_date."'";
+	}
+	
+	if($filter != '')
+	{
+		$filter = " WHERE ".$filter;
+	}
+	
+	
+	if(!empty($rowsPerPage))
+		{
+			$limit 	= " LIMIT $offset, $rowsPerPage";
+		}
+		if(!empty($field))
+		{
+			$orderBy 		= " ORDER BY ".$field." ".$sort." ";
+		}
+		else $orderBy = " GROUP BY asset_item.id_asset_item ASC ";
+	$query = $qry.$filter.$orderBy.$limit;
+	//echo $query;
+	//exit();
+	 if($type =='count')
+	 {
+		
+		if($this->oDb->query($query))
+		{
+		
+		$num_rows = $this->oDb->num_rows;
+		}
+		return $num_rows;
+	 }
+	 else {
+	$aStockReportList = array();
+		if($result = $this->oDb->get_results($query))
+		{
+			foreach($result as $row)
+			{
+				$aStockReport = array();
+				$aStockReport['id_itemgroup1'] = $row->id_itemgroup1;
+				$aStockReport['itemgroup1_name']   = $row->itemgroup1_name;
+				$aStockReport['itemgroup2_name'] = $row->itemgroup2_name;
+				$aStockReport['item_name']    =$row->item_name;
+				$aStockReport['machine_no']  = strtoupper($row->machine_no);
+				$aStockReport['asset_no']    = $row->asset_no;
+				$aStockReport['date_of_install'] = date('d-m-Y',strtotime($row->date_of_install));
+				$aStockReport['machine_life'] = $row->machine_life;
+				$aStockReport['machine_price'] = $row->asset_amount;
+				$aStockReport['depressation_percent'] = $row->depressation_percent;
+				$aStockReport['unit_name']    = $row->unit_name;
+				$aStockReport['id_division']    = $row->id_division;
+				$aStockReport['division_name']    =$this->getDivisionName($row->id_division);
+				$aStockReport['store_name']    = $row->store_name;
+				$aStockReport['stock_quantity']    = $row->stock_quantity;
+				if($row->id_inventory_item > 0)
+				{
+				$aAssetItems =$this->getAssetImage($row->id_inventory_item);
+				$aStockReport['asset_image'] = $aAssetItems['image'];
+				$aStockReport['id_image'] = $aAssetItems['id_image'];
+				}
+
+				else
+				{
+				$aAssetItems =$this->getAssetImage($row->id_asset_item,'assetid');
+				$aStockReport['asset_image'] = $aAssetItems['image'];
+				$aStockReport['id_image'] = $aAssetItems['id_image'];
+				}
+				
+				if($row->id_insurance > 0)
+				{
+					$aInsInfo = $this->getInsuranceInfo($row->id_insurance);
+					$aStockReport['ins_start_date'] = $aInsInfo['ins_start_date'];
+					$aStockReport['ins_end_date'] = $aInsInfo['ins_end_date'];
+				}
+				
+				$aStockReport['machine_date']    =date('d-m-Y',strtotime($row->machine_date));			
+				$aStockReport['status']    = $row->status;
+				$aStockReportList[]        = $aStockReport;
+			}
+		}
+		return $aStockReportList;	
+		}
+	}
+	public function getInsuranceInfo($insId)
+	{
+		$qry = "SELECT id_insurance, id_vendor, policy_amount, premium_amount, insurance_policy_name, reference, DATE_FORMAT(ins_start_date,'%b %d %Y') as ins_start_date, DATE_FORMAT(ins_end_date,'%b %d %Y') as ins_end_date, remark, renewal_date, status FROM insurance WHERE id_insurance = ".$insId;
+		$aInsInfo = array();
+		if($row = $this->oDb->get_row($qry))
+		{
+			$aInsInfo['id_insurance'] = $row->id_insurance ;
+			$aInsInfo['id_vendor'] = $row->id_vendor ;
+			$aInsInfo['policy_amount'] = $row->policy_amount ;
+			$aInsInfo['premium_amount'] = $row->premium_amount ;
+			$aInsInfo['insurance_policy_name'] = $row->insurance_policy_name ;
+			$aInsInfo['reference'] = $row->reference ;
+			$aInsInfo['ins_start_date'] = $row->ins_start_date ;
+			$aInsInfo['ins_end_date'] = $row->ins_end_date ;
+			$aInsInfo['remark'] = $row->remark ;
+			$aInsInfo['renewal_date'] = $row->renewal_date ;
+			$aInsInfo['status'] = $row->status ;
+		}
+		return $aInsInfo;
+	}
+	
+	//stallioni. added new function on 27th april 2015
+	public function getFuelLimitInfo($aRequest,$type='', $offset='', $rowsPerPage='', $field='', $sort='' )
+	{
+	
+		$condition = ''; $limit = ''; $orderBy = '';
+	$qry = " SELECT
+    item.item_name
+    , itemgroup2.itemgroup2_name
+    , itemgroup1.id_itemgroup1
+    , asset_unit.unit_name
+    , asset_item.machine_no
+	, asset_item.warranty_start_date
+	, asset_item.warranty_end_date
+	, asset_item.ref_asset_no
+    , asset_item.asset_no
+	, asset_item.asset_amount
+	, asset_item.depressation_percent
+	, asset_item.date_of_install
+		
+    , asset_item.id_asset_item
+    , asset_item.id_inventory_item
+     , itemgroup1.itemgroup1_name
+     , asset_item.status,store.store_name,
+	asset_item.machine_date,
+	asset_item.machine_life,
+	asset_stock.id_division,
+	asset_insurance.id_insurance
+FROM
+    asset_item
+    INNER JOIN asset_stock 
+        ON (asset_item.id_asset_item = asset_stock.id_asset_item)
+    INNER JOIN itemgroup1 
+        ON (asset_item.id_itemgroup1 = itemgroup1.id_itemgroup1)
+    INNER JOIN asset_unit 
+        ON (asset_item.id_unit = asset_unit.id_unit)
+    INNER JOIN itemgroup2 
+        ON (asset_item.id_itemgroup2 = itemgroup2.id_itemgroup2)
+    INNER JOIN item 
+        ON (asset_item.asset_name = item.id_item)
+		INNER JOIN store 
+        ON (asset_stock.id_store = store.id_store)
+		LEFT JOIN asset_insurance ON (asset_item.id_asset_item = asset_insurance.id_asset)
+ 
+    ";
+	
+	$id_unit = $aRequest['fUnitId'];
+	$id_store = $aRequest['fStoreId'];
+	$id_itemGtoup1 = $aRequest['fGroup1'];
+	$id_itemGtoup2 = $aRequest['fGroup2'];
+	$id_item = $aRequest['fItemName'];
+	if($aRequest['fStartDate'] !='' || $aRequest['fEndDate'] !='')
+	{
+	$start_date =date('Y-m-d',strtotime($aRequest['fStartDate']));
+	$end_date = date('Y-m-d',strtotime($aRequest['fEndDate']));
+	}
+	$filter = ' asset_stock.status NOT IN ('.$this->asset_stock_not_in.') AND ';
 	if($id_unit != null)
 	{
 		$filter.= "  asset_stock.id_unit=".$id_unit;
@@ -1723,7 +1999,8 @@ FROM
 		}
 		else $orderBy = " GROUP BY asset_item.id_asset_item ASC ";
 	$query = $qry.$filter.$orderBy.$limit;
-	
+	//echo $query;
+	//exit();
 	 if($type =='count')
 	 {
 		
@@ -1749,7 +2026,8 @@ FROM
 				$aStockReport['asset_no']    = $row->asset_no;
 				$aStockReport['date_of_install'] = date('d-m-Y',strtotime($row->date_of_install));
 				$aStockReport['machine_life'] = $row->machine_life;
-				$aStockReport['machine_price'] = $row->machine_price;
+				$aStockReport['machine_price'] = $row->asset_amount;
+				$aStockReport['depressation_percent'] = $row->depressation_percent;
 				$aStockReport['unit_name']    = $row->unit_name;
 				$aStockReport['id_division']    = $row->id_division;
 				$aStockReport['division_name']    =$this->getDivisionName($row->id_division);
@@ -1768,6 +2046,14 @@ FROM
 				$aStockReport['asset_image'] = $aAssetItems['image'];
 				$aStockReport['id_image'] = $aAssetItems['id_image'];
 				}
+				
+				if($row->id_insurance > 0)
+				{
+					$aInsInfo = $this->getInsuranceInfo($row->id_insurance);
+					$aStockReport['ins_start_date'] = $aInsInfo['ins_start_date'];
+					$aStockReport['ins_end_date'] = $aInsInfo['ins_end_date'];
+				}
+				
 				$aStockReport['machine_date']    =date('d-m-Y',strtotime($row->machine_date));			
 				$aStockReport['status']    = $row->status;
 				$aStockReportList[]        = $aStockReport;

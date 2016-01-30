@@ -34,7 +34,7 @@
     if($oMaster->updateAssetDelivery($aRequest, 'update'))
 	{
 	  $msg = "Store Delivery Updated.";
-	  echo '<script type="text/javascript">window.location.href="DeliveryList.php?msg=updatesucess";</script>';
+	  header("Location: DeliveryList.php?msg=updatesucess");	  
 	}
 	else 
 	  $msg = "Sorry";
@@ -66,9 +66,8 @@
     if($oMaster->addAssetDelivery($aRequest))
 	{
 	   $msg = 'Store delivery Added';
-	    echo '<script type="text/javascript">window.location.href="DeliveryList.php?msg=success";</script>';
-	
-	}
+	   header("Location: DeliveryList.php?msg=success");
+	 }
 	else 
 	  $msg = "Sorry could not add..";
   } 
@@ -448,17 +447,23 @@
                                                  </div>
 												 
 												  <div class="row-fluid">
-                                    <div class="span6 ">
+                                    <div class="span4 ">
                                               <div class="control-group">
                                               <label class="control-label">Maintenance : </label>
                                              <div class="controls">
-                                              <input type="checkbox" name="fServiceType"/>
-                                                                                             
+                                              <input type="checkbox" name="fServiceType"/> 
                                              </div>
                                           </div>
-                                       </div>
-                                    
-                                        
+                                           </div>
+                                                                          
+                                         <div class="span4 ">
+                                              <div class="control-group">
+                                              <label class="control-label">No Return Asset Item : </label>
+                                             <div class="controls">
+                                              <input type="checkbox" name="fNoReturnItem"/> 
+                                             </div>
+                                          </div>
+                                           </div>
                                                  
                                                  </div>
 												 
@@ -482,7 +487,7 @@
 									 
 									 foreach($edit_result as $aDeliveryItem) 
 									 {		
-																				 
+										$display_asset_no = ($aDeliveryItem['machine_no'] != '') ? $aDeliveryItem['asset_no'].' / '.$aDeliveryItem['machine_no'] :  $aDeliveryItem['asset_no'];										 
 									  ?>
                                       <tr>
                                             <td><?php echo $aDeliveryItem['itemgroup1_name']; ?><input type="hidden" name="fItemGroup1Id[]" value="<?php echo $aDeliveryItem['id_itemgroup1']; ?>"/></td>
@@ -491,7 +496,7 @@
                                             <td><?php echo $aDeliveryItem['uom_name']; ?><input type="hidden" name="fUomId[]" value="<?php echo $aDeliveryItem['id_uom']; ?>"/></td>
                                             <td><?php echo $aDeliveryItem['current_stock_quantity']; ?><input type="hidden" name="fStockQuqntity[]" value="<?php echo $aDeliveryItem['current_stock_quantity']; ?>"/></td>
                                             <td><input type="text" name="fIssueQuantity[]" size="15" onKeyup="addQuanitity(<?php echo $aDeliveryItem['id_asset_item']; ?>)" value="<?php echo $aDeliveryItem['issue_quantitiy']; ?>"/></td>
-                                            <td><?php echo $aDeliveryItem['asset_no']; ?><input type="hidden" name="fAssetNumber[]" value="<?php echo $aDeliveryItem['asset_no']; ?>"/></td>
+                                            <td><?php echo $display_asset_no; ?><input type="hidden" name="fAssetNumber[]" value="<?php echo $aDeliveryItem['asset_no']; ?>"/></td>
                                             <td><a href="#" id="RemoveItem" onClick="removeItem(<?php echo $aDeliveryItem['id_asset_item']; ?>)">Remove Item</a><input type="hidden" name="fAssetItemId[]" value="<?php echo $aDeliveryItem['id_asset_item']; ?>"/></td>
                                          </tr>
                                  <?php  }  ?>
@@ -851,6 +856,14 @@ jQuery(document).ready(function() {
 
 		  
 		  
+   </script>
+   <script type="text/javascript">
+   jQuery('form#form_sample_3').one('submit',function(e) {
+    e.preventDefault();
+   amsPopup();
+    var form = jQuery(this);
+    form.submit();
+  });
    </script>
 </body>
 <!-- END BODY -->

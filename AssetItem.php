@@ -7,6 +7,9 @@
   $aCustomerInfo = $oSession->getSession('sesCustomerInfo');
   $aRequest = $_REQUEST;
   $allResult = $oMaster->getInventoryList();
+  /*echo '<pre>';
+  print_r($allResult);
+  echo '</pre>';*/
 ?>
 <!DOCTYPE html>
 <!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
@@ -137,6 +140,7 @@
 										<tr>
 											<th>SLNO</th>
                                             <th>GRN No</th>
+                                            <th>Date</th>
 											<th>Bill No</th>
 											<th>Vendor Name</th>
 											<th>PO</th>
@@ -154,6 +158,7 @@
 										<tr class="odd gradeX">
                                             <td><?php echo $a; ?></td>
 											<td><?php echo $item['grn_no']; ?></td>
+                                            <td><?php echo $item['grn_date']; ?></td>
 											<td><?php echo $item['bill_number']; ?></td>
 											<td><?php echo $item['vendor_name']; ?></td>
 											<td><?php echo $item['po_number']; ?></td>

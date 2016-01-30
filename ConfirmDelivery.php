@@ -16,7 +16,10 @@
   $allResult = $oMaster->getDeliveryList('Receipt');
   $id_delivery_item = $aRequest['id'];
   $ItemList  = $oMaster->getDeliveryItemInfoList($id_delivery_item,'delivery');
- 
+/* echo '<pre>';
+  print_r($allResult);
+  echo '</pre>';
+ exit();*/
 ?>
 <!DOCTYPE html>
 <!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
@@ -31,6 +34,11 @@
    <meta content="" name="author" />
    <meta http-equiv="Cache-control" content="No-Cache">
   <?php include('Stylesheets.php');?>
+  <style>
+  .chzn-drop { width: 500px !important;}
+  .chosen { width: 500px !important;}
+  .chzn-container,.chzn-container-single (width: 505px !important;)
+  </style>
   </head>
 <!-- END HEAD -->
 <!-- BEGIN BODY -->
@@ -153,7 +161,7 @@
                                        <div class="span12">
                                           <div class="control-group error">
                                              <label class="control-label">Store Delivery No:</label>
-                                             <div class="controls">
+                                             <div class="controls" style="width:500px;">
                                               <select class="chosen" data-placeholder="Store Delivery No" tabindex="1" name="fStoreDeliveryId" id="fStoreDeliveryId" onChange="ShowResult(this.value)">
      										    <option value="0"></option>
 												  <?php
@@ -161,7 +169,7 @@
 												  foreach($aDeliveryList as $aDeliveryList)
 												  {
 												 ?>
-												 <option value="<?php echo $aDeliveryList['id_asset_delivery']; ?>" <?php if($DeliveryId == $aDeliveryList['id_asset_delivery']) { echo 'selected=selected' ;}?> ><?php echo $aDeliveryList['issue_no']; ?></option>
+												 <option value="<?php echo $aDeliveryList['id_asset_delivery']; ?>" <?php if($DeliveryId == $aDeliveryList['id_asset_delivery']) { echo 'selected=selected' ;}?> ><?php echo $aDeliveryList['issue_no']; ?>&nbsp;&nbsp;From: <?php echo $aDeliveryList['from_storename']; ?>&nbsp;&nbsp;To:<?php echo $aDeliveryList['to_storename']; ?></option>
 												 <?php
 												  }
 												 ?>

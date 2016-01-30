@@ -32,6 +32,13 @@
 	
 	$aItemWiseReport = $oReport->ItemGroupReport();
 	$aItemDetailReport = $oReport->ItemReport();
+	
+	//echo '<pre>';
+	//print_r($oDepreciation);
+	//$currentFinaYear = $oDepreciation->getFinancialyearCal(date('Y-m-d'));
+	//echo $currentFinaYear['fina_year'];
+	
+	//echo '</pre>';
 
 ?>
 <!DOCTYPE html>
@@ -91,7 +98,7 @@
                         <span class="icon-angle-right"></span>
                      </li>
                      <li>
-                        <a href="StockReport.php"> Report</a>
+                        <a href="Reports.php"> Report</a>
                         <span class="icon-angle-right"></span>
                      </li>
                      <li><a href="#"> Report List</a></li>
@@ -102,7 +109,13 @@
                                 
             <!-- END PAGE HEADER-->
             <!-- BEGIN PAGE CONTENT-->
-             <a href="Reports.php">BACK TO FORM</a>
+             <a href="Reports.php">Back To Report List</a>
+             <?php if($aRequest['report'] == 'storewise')
+			{
+			?>
+             <br>
+             <a href="ViewReportListPDF.php?report=<?php echo $aRequest['report'];?>">Print PDF</a>
+             <?php } ?>
             <!-- BEGIN PAGE CONTENT-->
 			<?php if($aRequest['report'] == 'unit')
 			{
@@ -379,12 +392,23 @@
 						{
 							//echo 'assetlist';$aStockReportList
 							$result = $oReport->assetStockReportList($aRequest);
-							/*echo '<pre>';
-							print_r($result);
-							echo '</pre>';*/
+							//echo '<pre>';
+							//print_r($result);
+							//echo '</pre>';
+							
+							$totalAssetValue = 0;
+							$totalAssetDepValue = 0;
+							$totalAssetDepValuedep = 0;
+							$url = "ViewReportPDF.php?report=assetlist";
+							$urlValues = "&fUnitId=".$aRequest['fUnitId']."&fStoreId=".$aRequest['fStoreId']."&fGroup1=".$aRequest['fGroup1']."&fGroup2=".$aRequest['fGroup2'].
+							"&fItemName=".$aRequest['fItemName']."&fStartDate=".$aRequest['fStartDate']."&fEndDate=".$aRequest['fEndDate'];
+							$URL = $url.$urlValues;
+							
 					?>
-                            <div >SEARCH FOR :&nbsp;<b>All Asset Stock List</b></div>
+                            <div>SEARCH FOR :&nbsp;<b>All Asset Stock List</b></div>
                             <br>
+                            <a href="<?php echo $URL; ?>">View PDF</a>
+                            
                             <div class="row-fluid profile">
                             <table class="table table-striped table-hover">
                             <thead>
@@ -394,15 +418,20 @@
                             <th>Item</th>
                             <th>Machine No</th>
                             <th>Asset no</th>
-                            <th>Installed Date</th>
+                            <th>Ins.Start.Dt</th>
+                            <th>Ins.End.Dt</th>
+                            <th>Install Date</th>
                             <th>Value</th>
-                            <th>Depreciation %</th>
-                            <th>Current Value</th>
+                            <th>Depre %</th>
+                            <th>End.Life.Val</th>
+                            <th>Cur.Value</th>
                             </tr>
                             </thead>
                     <?php 
 							foreach($result as $aItem)
 							{
+								$totalAssetValue += $aItem['machine_price'];
+								
 					?>
                                 <tr>
                                 <td><?php echo $aItem['itemgroup1_name'];?> </td>
@@ -410,15 +439,85 @@
                                 <td><?php echo $aItem['item_name'];?></td> 
                                 <td><?php echo $aItem['machine_no'];?></td>
                                 <td><?php echo $aItem['asset_no'];?></td>
+                                <td><?php echo $aItem['ins_start_date'];?></td>
+                                <td><?php echo $aItem['ins_end_date'];?></td>
                                 <td><?php echo $aItem['date_of_install'];?></td>
-                                <td><?php echo $aItem['machine_price'];?></td>
-                                <td><?php echo $aItem['machine_price'];?></td>
-                                <td><?php echo $aItem['machine_price'];?></td>
+                                <td style="text-align:right;"><?php echo number_format($aItem['machine_price'],2);?></td>
+                                <td style="text-align:center;"><?php echo $aItem['depressation_percent'];?></td>
+                                <td style="text-align:center;"><?php 
+								    //depreciation calculation.
+									if( ($aItem['date_of_install'] != '01-01-1970') && ($aItem['machine_price'] > 0) && ($aItem['depressation_percent'] > 0) )
+									{
+										//echo 'calculate depreciation here.';
+										$purchasedate = $aItem['date_of_install'];
+										$purchasePrice = $aItem['machine_price'];
+										$saledate = date('Y-m-d');
+										$lifeTime  = $aItem['machine_life'];
+										$startYear = $purchasedate;
+										$percent = $aItem['depressation_percent'];
+	                                    //echo '<br>diffyears : '.$oDepreciation->getFinYearDiff($purchasedate,$saledate);
+										//echo '<pre>';
+										$deparray1 = $oDepreciation->reducingBalanceDepreciation($purchasePrice, $lifeTime, $startYear,$percent,$lookup);
+										$totdep = count($deparray1);
+										$finalval = $totdep - 1;
+										echo number_format($deparray1[$finalval]['Written_Down_Value'],2);
+										$totalAssetDepValuedep += $deparray1[$finalval]['Written_Down_Value'];
+										//echo '</pre>';
+										
+									}
+									//echo $aItem['machine_price'];?></td>
+                                <td style="text-align:right;"><?php 
+								    //depreciation calculation.
+									if( ($aItem['date_of_install'] != '01-01-1970') && ($aItem['machine_price'] > 0) && ($aItem['depressation_percent'] > 0) )
+									{
+										//echo 'calculate depreciation here.';
+										$purchasedate = $aItem['date_of_install'];
+										$purchasePrice = $aItem['machine_price'];
+										$saledate = date('Y-m-d');
+										$lifeTime  = $oDepreciation->getFinYearDiff($purchasedate,$saledate);
+										$startYear = $purchasedate;
+										$percent = $aItem['depressation_percent'];
+	                                    //echo '<br>diffyears : '.$oDepreciation->getFinYearDiff($purchasedate,$saledate);
+										//echo '<pre>';
+										$deparray = $oDepreciation->reducingBalanceDepreciation($purchasePrice, $lifeTime, $startYear,$percent,$lookup);
+										$totdep = count($deparray);
+										$finalval = $totdep - 1;
+										echo number_format($deparray[$finalval]['Written_Down_Value'],2);
+										$totalAssetDepValue += $deparray[$finalval]['Written_Down_Value'];
+										//echo '</pre>';
+										
+									}
+									//echo $aItem['machine_price'];?>
+                                    
+                                    
+                                    
+                                    </td>
+                                
                                 </tr>
+                                
+                               
+                                
                     <?php			
 								
-							}
+							} // forloop
+							
+							//$assetDepValue  = $totalAssetValue - $totalAssetDepValue;
+							$assetDepValue    = $totalAssetDepValue;
+							$assetDepValueDep = $totalAssetDepValuedep;
+							
 			         ?>
+                                <tr>
+                                <td colspan="5" style="text-align:right; font-weight:bold;">Total Asset Actual Value</td>
+                                <td colspan="1" style="text-align:right; font-weight:bold;"><?php echo number_format($totalAssetValue,2); ?></td>
+                                <td colspan="2" style="text-align:right; font-weight:bold;">Total Current Depreciated Value</td>
+                                <td colspan="1" style="text-align:right; font-weight:bold;"><?php echo number_format($assetDepValue,2); ?></td>
+                                </tr>
+                                <tr>
+                                <td colspan="5" style="text-align:right; font-weight:bold;"></td>
+                                <td colspan="1" style="text-align:right; font-weight:bold;"></td>
+                                <td colspan="2" style="text-align:right; font-weight:bold;">Total Depreciated Value at End of Lifetime</td>
+                                <td colspan="1" style="text-align:right; font-weight:bold;"><?php echo number_format($assetDepValueDep,2); ?></td>
+                                </tr>
                            </table>
                      <?php
 					   
@@ -430,7 +529,226 @@
 				?>
                 
                 
+                 <?php
+						if($aRequest['report'] == 'fuel')
+						{
+							//echo 'assetlist';$aStockReportList
+							$result = $oReport->getFuelLimitInfo($aRequest);
+							//echo '<pre>';
+							//print_r($result);
+							//echo '</pre>';
+							
+							$totalAssetValue = 0;
+							$totalAssetDepValue = 0;
+							$url = "ViewReportPDF.php?report=fuel";
+							$urlValues = "&fUnitId=".$aRequest['fUnitId']."&fStoreId=".$aRequest['fStoreId']."&fGroup1=".$aRequest['fGroup1']."&fGroup2=".$aRequest['fGroup2'].
+							"&fItemName=".$aRequest['fItemName']."&fStartDate=".$aRequest['fStartDate']."&fEndDate=".$aRequest['fEndDate'];
+							$URL = $url.$urlValues;
+							
+					?>
+                            <div>SEARCH FOR :&nbsp;<b>All Asset Stock List</b></div>
+                            <br>
+                            <a href="<?php echo $URL; ?>">View PDF</a>
+                            
+                            <div class="row-fluid profile">
+                            <table class="table table-striped table-hover">
+                            <thead>
+                            <tr>
+                            <th>Item Group 1</th>
+                            <th>Brand / Make</th>
+                            <th>Item</th>
+                            <th>Machine No</th>
+                            <th>Asset no</th>
+                            <th>Ins.Start.Dt</th>
+                            <th>Ins.End.Dt</th>
+                            <th>Installed Date</th>
+                            <th>Value</th>
+                            <th>Depreciation %</th>
+                            <th>Current Value</th>
+                            </tr>
+                            </thead>
+                    <?php 
+							foreach($result as $aItem)
+							{
+								$totalAssetValue += $aItem['machine_price'];
+								
+					?>
+                                <tr>
+                                <td><?php echo $aItem['itemgroup1_name'];?> </td>
+                                <td><?php echo $aItem['itemgroup2_name'];?> </td>
+                                <td><?php echo $aItem['item_name'];?></td> 
+                                <td><?php echo $aItem['machine_no'];?></td>
+                                <td><?php echo $aItem['asset_no'];?></td>
+                                <td><?php echo $aItem['ins_start_date'];?></td>
+                                <td><?php echo $aItem['ins_end_date'];?></td>
+                                <td><?php echo $aItem['date_of_install'];?></td>
+                                <td style="text-align:right;"><?php echo number_format($aItem['machine_price'],2);?></td>
+                                <td style="text-align:center;"><?php echo $aItem['depressation_percent'];?></td>
+                                <td style="text-align:right;"><?php 
+								    //depreciation calculation.
+									if( ($aItem['date_of_install'] != '01-01-1970') && ($aItem['machine_price'] > 0) && ($aItem['depressation_percent'] > 0) )
+									{
+										//echo 'calculate depreciation here.';
+										$purchasedate = $aItem['date_of_install'];
+										$purchasePrice = $aItem['machine_price'];
+										$saledate = date('Y-m-d');
+										$lifeTime  = $oDepreciation->getFinYearDiff($purchasedate,$saledate);
+										$startYear = $purchasedate;
+										$percent = $aItem['depressation_percent'];
+	                                    //echo '<br>diffyears : '.$oDepreciation->getFinYearDiff($purchasedate,$saledate);
+										//echo '<pre>';
+										$deparray = $oDepreciation->reducingBalanceDepreciation($purchasePrice, $lifeTime, $startYear,$percent,$lookup);
+										$totdep = count($deparray);
+										$finalval = $totdep - 1;
+										echo number_format($deparray[$finalval]['Written_Down_Value'],2);
+										$totalAssetDepValue += $deparray[$finalval]['Written_Down_Value'];
+										//echo '</pre>';
+										
+									}
+									//echo $aItem['machine_price'];?>
+                                    
+                                    
+                                    
+                                    </td>
+                                
+                                </tr>
+                                
+                               
+                                
+                    <?php			
+								
+							} // forloop
+							
+							$assetDepValue = $totalAssetValue - $totalAssetDepValue;
+							
+			         ?>
+                                <tr>
+                                <td colspan="5" style="text-align:right; font-weight:bold;">Total Asset Actual Value</td>
+                                <td colspan="1" style="text-align:right; font-weight:bold;"><?php echo number_format($totalAssetValue,2); ?></td>
+                                <td colspan="2" style="text-align:right; font-weight:bold;">Total Depreciated Value</td>
+                                <td colspan="1" style="text-align:right; font-weight:bold;"><?php echo number_format($assetDepValue,2); ?></td>
+                                </tr>
+                           </table>
+                     <?php
+					   
+					   
+					   
+					   
+					   
+				      }//end if assetlist
+				?>
                 
+                
+                 <?php
+						if($aRequest['report'] == 'transport')
+						{
+							//echo 'assetlist';$aStockReportList
+							$result = $oReport->assetStockReportList($aRequest);
+							//echo '<pre>';
+							//print_r($result);
+							//echo '</pre>';
+							
+							$totalAssetValue = 0;
+							$totalAssetDepValue = 0;
+							$url = "ViewReportPDF.php?report=fuel";
+							$urlValues = "&fUnitId=".$aRequest['fUnitId']."&fStoreId=".$aRequest['fStoreId']."&fGroup1=".$aRequest['fGroup1']."&fGroup2=".$aRequest['fGroup2'].
+							"&fItemName=".$aRequest['fItemName']."&fStartDate=".$aRequest['fStartDate']."&fEndDate=".$aRequest['fEndDate'];
+							$URL = $url.$urlValues;
+							
+					?>
+                            <div>SEARCH FOR :&nbsp;<b>All Asset Stock List</b></div>
+                            <br>
+                            <a href="<?php echo $URL; ?>">View PDF</a>
+                            
+                            <div class="row-fluid profile">
+                            <table class="table table-striped table-hover">
+                            <thead>
+                            <tr>
+                            <th>Item Group 1</th>
+                            <th>Brand / Make</th>
+                            <th>Item</th>
+                            <th>Machine No</th>
+                            <th>Asset no</th>
+                            <th>Ins.Start.Dt</th>
+                            <th>Ins.End.Dt</th>
+                            <th>Installed Date</th>
+                            <th>Value</th>
+                            <th>Depreciation %</th>
+                            <th>Current Value</th>
+                            </tr>
+                            </thead>
+                    <?php 
+							foreach($result as $aItem)
+							{
+								$totalAssetValue += $aItem['machine_price'];
+								
+					?>
+                                <tr>
+                                <td><?php echo $aItem['itemgroup1_name'];?> </td>
+                                <td><?php echo $aItem['itemgroup2_name'];?> </td>
+                                <td><?php echo $aItem['item_name'];?></td> 
+                                <td><?php echo $aItem['machine_no'];?></td>
+                                <td><?php echo $aItem['asset_no'];?></td>
+                                <td><?php echo $aItem['ins_start_date'];?></td>
+                                <td><?php echo $aItem['ins_end_date'];?></td>
+                                <td><?php echo $aItem['date_of_install'];?></td>
+                                <td style="text-align:right;"><?php echo number_format($aItem['machine_price'],2);?></td>
+                                <td style="text-align:center;"><?php echo $aItem['depressation_percent'];?></td>
+                                <td style="text-align:right;"><?php 
+								    //depreciation calculation.
+									if( ($aItem['date_of_install'] != '01-01-1970') && ($aItem['machine_price'] > 0) && ($aItem['depressation_percent'] > 0) )
+									{
+										//echo 'calculate depreciation here.';
+										$purchasedate = $aItem['date_of_install'];
+										$purchasePrice = $aItem['machine_price'];
+										$saledate = date('Y-m-d');
+										$lifeTime  = $oDepreciation->getFinYearDiff($purchasedate,$saledate);
+										$startYear = $purchasedate;
+										$percent = $aItem['depressation_percent'];
+	                                    //echo '<br>diffyears : '.$oDepreciation->getFinYearDiff($purchasedate,$saledate);
+										//echo '<pre>';
+										$deparray = $oDepreciation->reducingBalanceDepreciation($purchasePrice, $lifeTime, $startYear,$percent,$lookup);
+										$totdep = count($deparray);
+										$finalval = $totdep - 1;
+										echo number_format($deparray[$finalval]['Written_Down_Value'],2);
+										$totalAssetDepValue += $deparray[$finalval]['Written_Down_Value'];
+										//echo '</pre>';
+										
+									}
+									//echo $aItem['machine_price'];?>
+                                    
+                                    
+                                    
+                                    </td>
+                                
+                                </tr>
+                                
+                               
+                                
+                    <?php			
+								
+							} // forloop
+							
+							$assetDepValue = $totalAssetValue - $totalAssetDepValue;
+							
+			         ?>
+                                <tr>
+                                <td colspan="5" style="text-align:right; font-weight:bold;">Total Asset Actual Value</td>
+                                <td colspan="1" style="text-align:right; font-weight:bold;"><?php echo number_format($totalAssetValue,2); ?></td>
+                                <td colspan="2" style="text-align:right; font-weight:bold;">Total Depreciated Value</td>
+                                <td colspan="1" style="text-align:right; font-weight:bold;"><?php echo number_format($assetDepValue,2); ?></td>
+                                </tr>
+                           </table>
+                     <?php
+					   
+					   
+					   
+					   
+					   
+				      }//end if assetlist
+				?>
+                
+                 
                 	
          <!-- END PAGE CONTAINER-->
       </div>

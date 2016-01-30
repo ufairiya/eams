@@ -84,23 +84,23 @@ class="subtitle">EMAIL</FONT></TD>
               <TR class="srow">
                 <TD> '.$edit_result[0]["vendor_contact"]["address_format"].' </TD></TR></TBODY></TABLE></TD>
 				
-				 <TD width="20%">
-            <TABLE cellSpacing="0" cellPadding="0" width="100%"  align="right">
+				 <TD width="30%" style="float: left;width: 100%;" >
+            <TABLE cellSpacing="0" cellPadding="0" width="100%"  >
               <TBODY>
-              <TR class="srow" align="right">
+              <TR  >
                 <TD ><B><FONT class="detail">&nbsp;TIN NO</FONT></B></TD>
                 <TD ><B>:&nbsp;'.$aVendorInfo['tin_no'].'</B></TD></TR>
-              <TR class="srow" align="right">
+              <TR >
                 <TD><FONT  class="detail">&nbsp;CST NO</FONT></TD>
                 <TD><FONT  class="detail">: &nbsp;'. $aVendorInfo['cst_no'].'</FONT></TD></TR>
              </TBODY></TABLE></TD>
-          <TD width="30%">
+          <TD width="20%" style="float: right;width: 100%;">
             <TABLE cellSpacing="0" cellPadding="0" width="100%"  align="right">
-              <TBODY>
-              <TR class="srow" align="right">
+              <TBODY >
+              <TR class="srow">
                 <TD width="30%"><B><FONT class="detail">&nbsp;PO NO</FONT></B></TD>
                 <TD width="70%"><B>:&nbsp;'.$edit_result[0]['purchaseorderinfo']['po_number'].'</B></TD></TR>
-              <TR class="srow" align="right">
+               <TR >
                 <TD><FONT  class="detail">&nbsp;DATE</FONT></TD>
                 <TD><FONT  class="detail">: &nbsp;'. date("d/m/Y",strtotime($edit_result[0]["purchaseorderinfo"]["po_duedate"])).'</FONT></TD></TR>
              </TBODY></TABLE></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE><BR>
@@ -143,9 +143,8 @@ $html.='
   </TR>';
 	}
      
-	 
-	  $net_total +=$unittotal1;
-	  $sl_no ++;
+	 $net_total +=$unittotal1;
+	 $sl_no ++;
 	}
 	$html.='
    <TR class="srow" bgColor="white">
@@ -192,13 +191,13 @@ $html.='
       
   $sl_nos++; }
  
-/* Radha */
+
 $posid = $aRequest['id'];
 $polResult = $oMaster->getPurchaseOrderApproved($posid);
 $apprempname = $oMaster->getEmployeeInfo($polResult[approved_by]);
 $creatempname = $oMaster->getEmployeeInfo($polResult[created_by]);
 $verifyempname = $oMaster->getEmployeeInfo($polResult[modified_by]);
-/* Radha */
+
 
      $html.=' 
 	  <TR class="srow" bgColor="white">
@@ -273,7 +272,7 @@ $stylesheet = file_get_contents('MPDF56/mpdfstylesheet.css');
 $mpdf->WriteHTML($stylesheet,1);
 $mpdf->WriteHTML($html);
 $time_pdf =strtotime("now");
-$file_pdf_name = "Purchaserequest_".$item_id.$time_pdf.".pdf";
+$file_pdf_name = "Purchaseorder_".$item_id.$time_pdf.".pdf";
 /*$mpdf->Output('PDF/'.$file_pdf_name, 'D');*/ // Download PDF file in browser
 $mpdf->Output('PDF/'.$file_pdf_name, 'I'); // Display PDFin browser
 $pdf_op =$mpdf->Output('PDF/'.$file_pdf_name, 'F'); // Downloadpdf file in specific dolder

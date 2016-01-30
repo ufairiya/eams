@@ -12,7 +12,8 @@ class Master
 {
 	function __construct()
 	{
-	
+	  $asset_stock_not_in = array('8','21','23');
+	  $this->asset_stock_not_in = implode(',', $asset_stock_not_in);
 	}
 	
 	public function setDb($oDb)
@@ -1710,14 +1711,42 @@ class Master
 			{
 				$aMaintenance = array();
 				$aMaintenance['id_asset_maintenance']    = $row->id_asset_maintenance;
+
+				$aServiceInvoice = $this->getServiceInvoiceListDetails($row->id_asset_maintenance);
+				foreach ($aServiceInvoice as $serviceinfo)
+				{
+					$aMaintenances['bill_number']     = $serviceinfo['bill_number'];
+					$aMaintenances['bill_amount']     = $serviceinfo['bill_amount'];
+					$aMaintenances['bill_date']     = $serviceinfo['bill_date'];
+
+					if($serviceinfo['created_on'] !='0000-00-00 00:00:00')
+					{
+					$aMaintenances['bill_created_on'] = date('d-m-Y',strtotime($serviceinfo['created_on']));
+					}
+					
+					if($serviceinfo['for_depreciation'] == 1)
+					{
+					$aMaintenances['for_depreciation']  = 'yes';
+					}
+					else
+					{
+					$aMaintenances['for_depreciation']  = 'no';
+					}
+					$aMaintenances['remarks']     = $serviceinfo['remarks'];
+					$aMaintenances['document_path']     = $serviceinfo['document_path'];
+					$aMaintenance['maintenance_billinfo'][]        = $aMaintenances;
+				}
 				$aMaintenance['id_asset_item']    = $row->id_asset_item;
 				$aMaintenance['asset_no']    = $this->getAssetNumber( $row->id_asset_item );
 				$aMaintenance['from_id_store']    = $row->from_id_store;
+				$aMaintenance['asset_name'] = $this->getAssetItemName( $row->id_asset_item);
 				$aMaintenance['store_name']    = $this->getStoreName($row->from_id_store);
 				$aMaintenance['vendor_name']    = $this->getVendorName($row->to_id_vendor);
 				$aMaintenance['to_id_vendor']     = $row->to_id_vendor;
 				$aMaintenance['idle_start_date']  = $row->idle_start_date;
+				$aMaintenance['created_on']  = $row->created_on;
 				$aMaintenance['status']     = $row->status;
+
 				$aMaintenanceList[]        = $aMaintenance;
 			}
 		}
@@ -1769,15 +1798,15 @@ class Master
 	}
 	
 	public function getMaintenanceListInfo($lookup)
-	{
+	{		
 	$qry = "SELECT * FROM asset_maintenance WHERE status != 2 AND id_asset_item ='$lookup' ORDER BY id_asset_maintenance DESC";
-	
 		$aMaintenanceListInfo = array();
 		if($result = $this->oDb->get_results($qry))
 		{
+			
+			$aMaintenance = array();
 			foreach($result as $row)
-			{
-				$aMaintenance = array();
+			{				
 				$aMaintenance['id_asset_maintenance']    = $row->id_asset_maintenance;
 				$aMaintenance['id_asset_item']    = $row->id_asset_item;
 				$aMaintenance['asset_no']    = $this->getAssetNumber( $row->id_asset_item );
@@ -1791,30 +1820,34 @@ class Master
 				}
 				
 				$aMaintenance['status']     = $row->status;
-				$aServiceInvoice = $this->getServiceInvoiceListInfo($row->id_asset_maintenance);
-				$aMaintenance['bill_number']     = $aServiceInvoice['bill_number'];
-				$aMaintenance['bill_amount']     = $aServiceInvoice['bill_amount'];
-				$aMaintenance['bill_date']     = $aServiceInvoice['bill_date'];
-				
-				if($aServiceInvoice['created_on'] !='0000-00-00 00:00:00')
+				$aServiceInvoice = $this->getServiceInvoiceListDetails($row->id_asset_maintenance);
+				foreach ($aServiceInvoice as $serviceinfo)
 				{
-				$aMaintenance['bill_created_on'] = date('d-m-Y',strtotime($aServiceInvoice['created_on']));
+					$aMaintenance['bill_number']     = $serviceinfo['bill_number'];
+					$aMaintenance['bill_amount']     = $serviceinfo['bill_amount'];
+					$aMaintenance['bill_date']     = $serviceinfo['bill_date'];
+					
+					if($serviceinfo['created_on'] !='0000-00-00 00:00:00')
+					{
+					$aMaintenance['bill_created_on'] = date('d-m-Y',strtotime($serviceinfo['created_on']));
+					}
+					
+					if($serviceinfo['for_depreciation'] == 1)
+					{
+					$aMaintenance['for_depreciation']  = 'yes';
+					}
+					else
+					{
+					$aMaintenance['for_depreciation']  = 'no';
+					}
+					$aMaintenance['remarks']     = $serviceinfo['remarks'];
+					$aMaintenance['document_path']     = $serviceinfo['document_path'];
+					$aMaintenanceListInfo['maintenance'][]        = $aMaintenance;
 				}
-				
-				if($aServiceInvoice['for_depreciation'] == 1)
-				{
-				$aMaintenance['for_depreciation']  = 'yes';
-				}
-				else
-				{
-				$aMaintenance['for_depreciation']  = 'no';
-				}
-				$aMaintenance['remarks']     = $aServiceInvoice['remarks'];
-				$aMaintenance['document_path']     = $aServiceInvoice['document_path'];
-				
-				$aMaintenanceListInfo['maintenance'][]        = $aMaintenance;
 			}
+			
 		}
+		
 		return $aMaintenanceListInfo;
 	}
 	public function getMaintenanceInfo($lookup, $type,$lookup1 = '')
@@ -5362,6 +5395,8 @@ public function addInventory($aRequest,$files)
 			 $condition = " id_grn	 = ".$lookup;
 		   }
 		   $qry = $qry.$condition;
+		   //echo $qry;
+		   //exit();
 		$aInventoryItemInfoList = array();
 			  
 		   if($result = $this->oDb->get_results($qry))
@@ -6006,6 +6041,17 @@ public function addAssetImagesEdit($aRequest,$files,$asseetid=null)
 		   else if($type == 'asset') {
 			$condition = " WHERE id_inventory IN( $strings_ids1) ORDER BY id_inventory DESC";
 		   }
+		   else if($type == 'inspection') {
+			   $querys = "SELECT Distinct id_grn FROM inventory_item WHERE asset_status =1 and inspection_status = 1";
+		 $res = $this->oDb->get_results($querys);
+		  foreach($res as $row)
+			{
+			$strings_id.="'".$row->id_grn."',";
+		
+			}
+		 $strings_ids=substr($strings_id,0,strlen($strings_id)-1); 
+			  $condition = " WHERE id_inventory IN( $strings_ids) ORDER BY id_inventory DESC"; 
+		   }
 		   else
 		   {
 			   $condition = "ORDER BY id_inventory DESC";
@@ -6022,6 +6068,7 @@ public function addAssetImagesEdit($aRequest,$files,$asseetid=null)
 				$aInventoryItem['dc_number']   = $row->dc_number;
 				$aInventoryItem['dc_date']   = $row->dc_date;
 				$aInventoryItem['grn_no']   = $row->grn_no;
+				$aInventoryItem['grn_date']   = $row->invendory_date;
 				$aPurchaseOrderInfo= $this->getPurchaseOrderInfo($row->id_po);
 				$aInventoryItem['po_number']   = $aPurchaseOrderInfo['po_number'];
 				$aInventoryItem['id_po']   = $row->id_po;
@@ -6419,11 +6466,11 @@ public function getInventoryInfo($lookup, $type)
   {
 		if(empty($type))
 		{
-		$qry = "SELECT * FROM asset_stock WHERE status !=2 ORDER BY id_asset_stock DESC ";
+		$qry = "SELECT * FROM asset_stock WHERE status !=2 AND status NOT IN(".$this->asset_stock_not_in.") ORDER BY id_asset_stock DESC ";
 		 }
 		 else
 		 {
-		 $qry = "SELECT * FROM asset_stock WHERE status !=2 and  status !=19  ORDER BY id_asset_stock DESC ";
+		 $qry = "SELECT * FROM asset_stock WHERE status !=2 and  status !=19 AND status NOT IN(".$this->asset_stock_not_in.") ORDER BY id_asset_stock DESC ";
 		 }
 		$aStockList = array();
 		
@@ -6965,7 +7012,7 @@ else
 			  }
 		   }
 	}
-		public function updateContract($aRequest,$files)
+	public function updateContract($aRequest,$files)
 	{
 	  $vendor_contact = $aRequest['fVendorContactId'];
 		$remark = $aRequest['fRemark'];
@@ -8381,7 +8428,7 @@ FROM
         ON (asset_item.asset_name = item.id_item)
     INNER JOIN itemgroup1 
         ON (asset_item.id_itemgroup1 = itemgroup1.id_itemgroup1)
-WHERE (itemgroup1.id_itemgroup1 ='".$lookup."' AND asset_stock.id_store = '".$storeId."' AND asset_item.asset_name IN('".$item."') AND asset_stock.status!=8);";
+WHERE (itemgroup1.id_itemgroup1 ='".$lookup."' AND asset_stock.id_store = '".$storeId."' AND asset_item.asset_name IN('".$item."') AND asset_stock.status NOT IN (".$this->asset_stock_not_in."));";
 		}
 		else
 		{
@@ -8397,7 +8444,7 @@ FROM
         ON (asset_item.asset_name = item.id_item)
     INNER JOIN itemgroup1 
         ON (asset_item.id_itemgroup1 = itemgroup1.id_itemgroup1)
- WHERE (itemgroup1.id_itemgroup1 ='".$lookup."' AND  asset_stock.id_store = '".$storeId."' AND asset_stock.status!=8
+ WHERE (itemgroup1.id_itemgroup1 ='".$lookup."' AND  asset_stock.id_store = '".$storeId."' AND asset_stock.status NOT IN (".$this->asset_stock_not_in.")
   );";
 		}
 		/* if($item !='')
@@ -8437,7 +8484,7 @@ WHERE asset_stock.id_asset_item = asset_item.id_asset_item and asset_stock.statu
 		if($type == 'store')
 		{
 		$qry="SELECT DISTINCT asset_item.id_itemgroup2 AS ItemGroup2 FROM asset_item,asset_stock
-WHERE asset_stock.id_asset_item = asset_item.id_asset_item and asset_stock.id_store = ".$storeId;
+WHERE asset_stock.id_asset_item = asset_item.id_asset_item and asset_stock.status NOT IN (".$this->asset_stock_not_in.") AND asset_stock.id_store = ".$storeId;
 	$aItemGroup2List = array();
 		
 		if($result = $this->oDb->get_results($qry))
@@ -8457,13 +8504,14 @@ WHERE asset_stock.id_asset_item = asset_item.id_asset_item and asset_stock.id_st
 			 if($item !='')
 		{
 		$qry="SELECT DISTINCT asset_item.asset_no AS asset_no,asset_item.machine_no As machine_no,asset_item.asset_name AS id_item ,asset_item.id_asset_item AS asset_item FROM asset_item,asset_stock
-WHERE asset_stock.id_asset_item = asset_item.id_asset_item and asset_stock.status!=8 and  asset_item.asset_name IN('".$item."') and   asset_stock.id_store ='".$storeId."' and asset_item.id_itemgroup1='".$lookup2."' and asset_item.id_itemgroup2=".$lookup1;
+WHERE asset_stock.id_asset_item = asset_item.id_asset_item and asset_stock.status NOT IN (".$this->asset_stock_not_in.") and  asset_item.asset_name IN('".$item."') and   asset_stock.id_store ='".$storeId."' and asset_item.id_itemgroup1='".$lookup2."' and asset_item.id_itemgroup2=".$lookup1;
 		}
 		else
-		{
+		{			
 			$qry="SELECT DISTINCT asset_item.asset_name AS id_item  FROM asset_item,asset_stock
-WHERE asset_stock.id_asset_item = asset_item.id_asset_item and asset_stock.status!=8 and  asset_stock.id_store ='".$storeId."' and asset_item.id_itemgroup1='".$lookup2."' and asset_item.id_itemgroup2=".$lookup1;
+WHERE asset_stock.id_asset_item = asset_item.id_asset_item and asset_stock.status NOT IN (".$this->asset_stock_not_in.")and  asset_stock.id_store ='".$storeId."' and asset_item.id_itemgroup1='".$lookup2."' and asset_item.id_itemgroup2=".$lookup1;
 		}
+		
 	$aItemGroup2List = array();
 		
 		if($result = $this->oDb->get_results($qry))
@@ -8489,11 +8537,11 @@ WHERE asset_stock.id_asset_item = asset_item.id_asset_item and asset_stock.statu
 	{
 		if($type=="item")
 		{
-	 $qry="SELECT DISTINCT asset_item.asset_no AS asset_no,asset_item.machine_no As machine_no,asset_item.asset_name AS id_item ,asset_item.id_asset_item AS asset_item FROM asset_item,asset_stock WHERE asset_stock.id_asset_item = asset_item.id_asset_item and asset_stock.status!=8 and asset_item.asset_name IN('".$item."')and asset_stock.id_store = ".$storeId;
+	 $qry="SELECT DISTINCT asset_item.asset_no AS asset_no,asset_item.machine_no As machine_no,asset_item.asset_name AS id_item ,asset_item.id_asset_item AS asset_item FROM asset_item,asset_stock WHERE asset_stock.id_asset_item = asset_item.id_asset_item and asset_stock.status NOT IN (".$this->asset_stock_not_in.") and asset_item.asset_name IN('".$item."')and asset_stock.id_store = ".$storeId;
 		}
 		else
 		{
-			 $qry="SELECT DISTINCT asset_item.asset_name AS id_item  FROM asset_item,asset_stock WHERE asset_stock.id_asset_item = asset_item.id_asset_item and asset_stock.status!=8 and asset_stock.id_store = ".$storeId;
+			 $qry="SELECT DISTINCT asset_item.asset_name AS id_item  FROM asset_item,asset_stock WHERE asset_stock.id_asset_item = asset_item.id_asset_item and asset_stock.status NOT IN (".$this->asset_stock_not_in.") and asset_stock.id_store = ".$storeId;
 		}
 	$aItemList = array();
 		
@@ -8552,7 +8600,7 @@ FROM
     INNER JOIN asset_stock 
         ON (asset_item.id_asset_item = asset_stock.id_asset_item)
 WHERE (asset_item.asset_name = '".$lookup."' AND asset_item.id_itemgroup2 = '".$lookup1."'
-    AND asset_stock.id_store  = '".$storeId."' AND asset_stock.id_division = 0);
+    AND asset_stock.id_store  = '".$storeId."' AND asset_stock.id_division = 0 AND asset_stock.status NOT IN (".$this->asset_stock_not_in."));
 		";
 		}
 		
@@ -8603,6 +8651,7 @@ WHERE asset_stock.id_asset_item = asset_item.id_asset_item and asset_stock.id_st
 			{
 				$aStockItems = array();
 				$aStockItems['asset_no'] = $row->asset_no;
+				$aStockItems['machine_no'] = $row->machine_no;
 				$aStockItems['asset_item'] = $row->asset_item;
 				$aStockItems['id_item'] = $row->id_item;
 				$aStockItems['id_uom'] = $row->id_uom;
@@ -8725,6 +8774,7 @@ $done = 0;
 	{
 		$DEBUGS = 0;
 		$delivery_type = $aRequest['fDeliveryType'];
+		$noreturn_item = $aRequest['fNoReturnItem'];
 		
 		$id_fromstore = $aRequest['fFromStoreId'];
 		if($delivery_type == 'ESD')
@@ -8794,10 +8844,35 @@ $done = 0;
 	  $this->oDb->query($qry_mainat);
 	
 		}
-	////									
-						  				$qrys = "UPDATE asset_stock SET status='8' WHERE id_asset_item=".$aItem[1];
-										  $this->oDb->query($qrys);	
-						               $done = 1;
+	////
+	if($noreturn_item == 'on' && $delivery_type == 'ESD')
+		  {
+			  $updated_by        = $_SESSION['sesCustomerInfo']['user_id'];
+			 $update_status = '23';
+			 $update_asset_items = "UPDATE asset_item SET status='".$update_status."' WHERE id_asset_item='$aItem[1]'";
+			 $this->oDb->query($update_asset_items); 
+			 $qrys_return = "UPDATE asset_stock SET return_status='1',status='".$update_status."' WHERE id_asset_item=".$aItem[1];
+			 $this->oDb->query($qrys_return);	
+			 $qrys_stock = "UPDATE asset_stock SET status='".$update_status."' WHERE id_asset_item=".$aItem[1];
+			 $this->oDb->query($qrys_stock);	
+			 $qry_tran = "UPDATE transaction SET status='".$update_status."',modified_by='".$updated_by."',modified_on=now() WHERE id_asset_item=".$aItem[1];
+			  $this->oDb->query($qry_tran);
+			  
+			  $update_delivery = "UPDATE asset_delivery SET status='".$update_status."',modified_by='".$updated_by."',modified_on=now() WHERE  id_asset_delivery='$delivery_lastInsertId'";
+			  $this->oDb->query($update_delivery);
+			  
+			  $qry_item_delivery = "UPDATE asset_delivery_item SET status='".$update_status."',modified_by='".$updated_by."',modified_on=now() WHERE id_asset_item='$aItem[1]' AND id_asset_delivery='$delivery_lastInsertId'";
+			  $this->oDb->query($qry_item_delivery);
+			    $done = 1;
+			
+		  }
+		  else
+		  {								
+			$qrys = "UPDATE asset_stock SET status='8' WHERE id_asset_item=".$aItem[1];
+			$this->oDb->query($qrys);
+			  $done = 1;
+		  }
+						              
 								   }
 								   else
 								   {
@@ -8855,6 +8930,7 @@ $done = 0;
 	{
 		$delivery_type = $aRequest['fDeliveryType'];
 		$id_fromstore = $aRequest['fFromStoreId'];
+		$noreturn_item = $aRequest['fNoReturnItem'];
 		if($delivery_type == 'ESD')
 		{
 			 $id_vendor = $aRequest['fvendorId'];
@@ -8885,6 +8961,17 @@ $done = 0;
 		{
 			 $_id_gate_pass = $row->id_asset_gate_pass;
 		}
+		
+		if($noreturn_item == 'on' && $delivery_type == 'ESD')
+	    {
+		foreach($aItems as $aItem)
+			  {
+		 			$update_asset_items = "UPDATE asset_item SET status='23' WHERE id_asset_item='$aItem[1]'";
+	  	 			$this->oDb->query($update_asset_items); 
+					$qrys_return = "UPDATE asset_stock SET return_status='1' WHERE id_asset_item=".$aItem[1];
+			        $this->oDb->query($qrys_return);
+	           }
+		  }
 		
 		$qry2= "DELETE FROM asset_delivery_item WHERE id_asset_delivery=".$id_delivery;
 	 $qry4 = "DELETE FROM gate_pass_item WHERE id_asset_gate_pass=".$_id_gate_pass;	
@@ -8990,7 +9077,8 @@ public function getDeliveryItemList()
   {
 		if($type == 'Delivery')
 		{
-			$qry = "SELECT * FROM asset_delivery WHERE status = 1";
+			//$qry = "SELECT * FROM asset_delivery WHERE status = 1";
+			$qry = "SELECT * FROM asset_delivery WHERE status = 1 AND id_asset_delivery NOT IN (SELECT id_asset_delivery from asset_sales_invoice) ORDER BY `asset_delivery`.`id_asset_delivery` DESC";
 		}
 		elseif($type == 'Receipt')
 		{
@@ -9012,19 +9100,48 @@ public function getDeliveryItemList()
 				$aStore  = $this->getStoreInfo($row->from_id_store,'id');
 				$aDelivery['from_storename'] = $aStore['store_name'];
 				$aStore1  = $this->getStoreInfo($row->to_id_store,'id');
-				$aDelivery['to_storename'] = $aStore1['store_name'];
+				
 				$aDelivery['to_id_store']   = $row->to_id_store;
 				$aDelivery['to_id_vendor']   = $row->to_id_vendor;
 				$avendorName = $this->getVendorName($row->to_id_vendor);
+				$aDelivery['to_storename'] = (!empty($aStore1['store_name'])) ? $aStore1['store_name'] : $avendorName;
 				$aDelivery['vendor_name'] =  $avendorName;
 				$aDelivery['bill_count'] =$this->getDeliveryItemBillStatus($row->id_asset_delivery);
 				$aDelivery['remark']   = $row->remark;
 				$aDelivery['issue_no']   = $row->issue_no;
 				$aDelivery['issue_date']   = $row->issue_date;
 				$aDelivery['status']   = $row->status;
+				
+				$itqry = "select * from asset_delivery_item where id_asset_delivery = ".$row->id_asset_delivery;
+				$aDelItem = array();
+				if($itres = $this->oDb->get_results($itqry))
+				{
+					$item = array();
+					foreach($itres as $itrow)
+					{
+						$item['id_asset_item'] = $itrow->id_asset_item;
+						$item['asset_no'] = $itrow->asset_no;
+						$item['id_item'] = $itrow->id_item;
+						
+						$aItem = $this->getItemInfo($itrow->id_item,'id');
+				        $item['item_name']       = $aItem['item_name'];
+				        $aGroup1 = $this->getItemGroup1Info($itrow->id_itemgroup1,'id');
+				        $item['itemgroup1_name']       = $aGroup1['itemgroup1_name'];
+				        $aGroup2 = $this->getItemGroup2Info($itrow->id_itemgroup2,'id');
+				        $item['itemgroup2_name']       = $aGroup2['itemgroup2_name'];
+						$item['id_itemgroup1'] = $itrow->id_itemgroup1;
+						$item['id_itemgroup2'] = $itrow->id_itemgroup2;
+						
+						$aDelItem[] = $item;
+					}
+				}
+				$aDelivery['delivery_items'] = $aDelItem;
 				$aDeliveryList[]        = $aDelivery;
 			}
 		}
+		
+		
+		
 		return $aDeliveryList;
   } //	
   
@@ -9234,6 +9351,8 @@ public function getDeliveryItemList()
 			   $aDeliveryItem['id_asset_delivery_item']   = $row->	id_asset_delivery_item;
 				$aDeliveryItem['id_asset_item']   = $row->id_asset_item;
 				$aDeliveryItem['asset_no']   = $row->asset_no;
+				$aAssetItemInfo =$this->getAssetItemInfo($row->id_asset_item,'id');
+				$aDeliveryItem['machine_no']  = $aAssetItemInfo['machine_no'];
 				$aDeliveryItem['stock_quantity']   = $row->stock_quantity;
 				$aDeliveryItem['current_stock_quantity']   = $row->current_stock_quantity;
 				$aDeliveryItem['id_asset_delivery']   = $row->id_asset_delivery;
@@ -9270,7 +9389,11 @@ public function getDeliveryItemList()
 	{
 	 
 	   
-	   $qry = "SELECT DISTINCT id_asset_delivery,id_asset_delivery_item,id_asset_item,asset_no ,current_stock_quantity,id_asset_delivery,issue_quantitiy,id_itemgroup1,id_itemgroup2,id_item,id_uom,status FROM asset_delivery_item WHERE bill_status!=1";
+	   $qry = "SELECT DISTINCT id_asset_delivery,asset_delivery_item.id_asset_delivery_item,asset_delivery_item.id_asset_item,asset_delivery_item.asset_no ,machine_no,asset_delivery_item.current_stock_quantity,id_asset_delivery,issue_quantitiy,asset_delivery_item.id_itemgroup1,asset_delivery_item.id_itemgroup2,asset_delivery_item.id_item,asset_delivery_item.id_uom,asset_delivery_item.status FROM asset_delivery_item 
+	   INNER JOIN asset_item
+        ON (asset_item.id_asset_item = asset_delivery_item.id_asset_item)
+		WHERE bill_status!=1
+	   ";
 	 
 	     $condition = " and id_asset_delivery = ".$lookup;
 	   
@@ -9282,9 +9405,10 @@ public function getDeliveryItemList()
 	            foreach($result as $row)
 				{
 				$aDeliveryItem= array();
-			   $aDeliveryItem['id_asset_delivery_item']   = $row->	id_asset_delivery_item;
+			   $aDeliveryItem['id_asset_delivery_item']   = $row->id_asset_delivery_item;
 				$aDeliveryItem['id_asset_item']   = $row->id_asset_item;
 				$aDeliveryItem['asset_no']   = $row->asset_no;
+				$aDeliveryItem['machine_no'] = $row->machine_no;
 				$aDeliveryItem['stock_quantity']   = $row->stock_quantity;
 				$aDeliveryItem['current_stock_quantity']   = $row->current_stock_quantity;
 				$aDeliveryItem['id_asset_delivery']   = $row->id_asset_delivery;
@@ -10162,6 +10286,432 @@ public function getDeliveryItemList()
 	$results=substr($results,0,(strlen($results)-1));
 	return $results;
 	}
+	
+
+
+/* stallioni - fuel token code added. 19th may. 2015*/
+/*new code below*/	
+	public function addFuelToken($aRequest)
+	{
+		
+		$token_number = $aRequest['fTkNumber'];
+		$token_date = date('Y-m-d',strtotime($aRequest['fTkDate']));
+		$qty = $aRequest['fQuantity'];
+		$oil_qty = $aRequest['fOilQuantity'];
+		$id_asset_item = $aRequest['fItemName'];
+		$id_vendor = $aRequest['fVendorId'];
+		$remarks = $aRequest['fRemark'];
+		$fuel_type = $aRequest['fFuelType'];
+		$id_employee = $aRequest['fEmployeeId'];
+		$vehicle_type = $aRequest['fIsOutside'];
+		if(empty($vehicle_type)) {$vehicle_type = 'asset';}
+		$vehicle_reg_number = $aRequest['fVehicleRegNumber'];
+		
+		$OMR = $aRequest['fOMR'];
+		$CMR = $aRequest['fCMR'];
+		
+		$created_by  = $_SESSION['sesCustomerInfo']['user_id'];
+		 
+		$trip_qry = "INSERT INTO trip(id_trip, omr, cmr,id_asset_item,remarks,created_by, created_on) VALUES (NULL,'$OMR','$CMR','$id_asset_item','Fuel','$created_by',now())";
+		if($this->oDb->query($trip_qry))
+	    {
+	       $lastInsertId = $this->oDb->insert_id;
+	    }
+	  
+		 //echo '<br>';
+		 $qry = "INSERT INTO fuel_token(id_fuel_token, token_no, token_date, id_fuel_type, qty, oil_qty, id_asset_item, vehicle_type, vehicle_reg_number, id_trip, id_vendor, id_employee, remarks, created_by, created_on, modified_by, modified_on, status) VALUES (NULL,'$token_number','$token_date', '$fuel_type','$qty','$oil_qty','$id_asset_item','$vehicle_type','$vehicle_reg_number', '$lastInsertId','$id_vendor','$id_employee','$remarks','$created_by ',now(),'','','1')";
+		 //exit();
+		 if($this->oDb->query($qry))
+	   {
+	     //exit();
+	     return true;
+	   }
+	   else { //exit();
+	     return false;
+	   }	 
+	}//
+	
+	
+	public function getFuelTokenList()
+	{
+		
+		$qry = "SELECT
+    asset_item.machine_no
+    , asset_item.asset_no
+    , asset_item.asset_name
+    , fuel_token.id_fuel_token
+    , fuel_token.token_no
+	, fuel_token.token_date
+    , fuel_token.qty
+	, fuel_token.oil_qty
+    , fuel_token.id_asset_item
+    , fuel_token.id_fuel_type
+    , fuel_token.id_vendor
+    , fuel_token.id_trip
+    , fuel_token.id_employee
+	
+    , fuel_token.remarks
+    , fuel_token.status
+    , fuel_token.id_asset_item
+  	, vendor.vendor_name
+	, employee.first_name
+	, employee.last_name
+	, employee.employee_code
+FROM
+    asset_item
+    INNER JOIN fuel_token 
+        ON (asset_item.id_asset_item = fuel_token.id_asset_item)
+		  INNER JOIN vendor 
+        ON (fuel_token.id_vendor = vendor.id_vendor)
+	INNER JOIN employee
+	    ON ( employee.id_employee = fuel_token.id_employee)	
+    WHERE  fuel_token.status !=2 ";
+		  $order = 'ORDER BY fuel_token.id_fuel_token DESC';
+		$qry =$qry.$order;
+		$aFuelTokenList = array();
+		if($result = $this->oDb->get_results($qry))
+		{
+			foreach($result as $row)
+			{
+				$aFuelToken = array();
+				$aFuelToken['id_fuel_token']  = $row->id_fuel_token;
+				$aFuelToken['token_no']       = $row->token_no;
+				$aFuelToken['token_date']     = $row->token_date;
+				$aFuelToken['qty']            = $row->qty;
+				$aFuelToken['oil_qty']        = $row->oil_qty;
+				$aFuelToken['id_asset_item']  = $row->id_asset_item;
+				$aFuelToken['id_fuel_type']   = $row->id_fuel_type;
+				$aFuelToken['id_vendor']      = $row->id_vendor;
+				$aFuelToken['asset_no']       = $row->asset_no;
+				$aFuelToken['machine_no']     = strtoupper($row->machine_no);
+				$aFuelToken['id_trip']        = $row->id_trip;
+				$aFuelToken['remarks']        = $row->remarks;
+				$aFuelToken['vendor_name']    = $row->vendor_name;
+				$aFuelToken['first_name']     = $row->first_name;
+				$aFuelToken['last_name']      = $row->last_name;
+				$aFuelToken['employee_code']  = $row->employee_code;
+				$aFuelToken['status']         = $row->status;
+				$aFuelToken['uom_name']       = 'Liters';
+				$aItem = $this->getItemInfo($row->asset_name,'id');
+				$aFuelToken['item_name']       = $aItem['item_name'];
+				$aFuelTokenList[]        = $aFuelToken;
+			}
+		}
+		return $aFuelTokenList;
+	}//
+	
+	public function updateFuelToken($aRequest,$action = null)
+	{
+		if($action == 'delete')
+		{
+	
+		  $id_fuel_token  = $aRequest['fFuelTokenId'];
+		  $qry = "UPDATE fuel_token SET status = 2 WHERE id_fuel_token = ".$id_fuel_token ;
+		
+		}
+		else
+		{
+			
+		$token_number = $aRequest['fTkNumber'];
+		$token_date = date('Y-m-d',strtotime($aRequest['fTkDate']));
+		$qty = $aRequest['fQuantity'];
+		$oil_qty = $aRequest['fOilQuantity'];
+		$id_asset_item = $aRequest['fItemName'];
+		$id_vendor = $aRequest['fVendorId'];
+		$remarks = $aRequest['fRemark'];
+		$fuel_type = $aRequest['fFuelType'];
+		$id_employee = $aRequest['fEmployeeId'];
+		
+		
+		$id_fuel_token = $aRequest['fFuelTokenId'];
+		$token_date = date('Y-m-d',strtotime($aRequest['fTkDate']));
+		$token_number = $aRequest['fTkNumber'];
+    	$qty = $aRequest['fQuantity'];
+        $oil_qty = $aRequest['fOilQuantity'];
+		$id_asset_item = $aRequest['fItemName'];
+		$id_vendor = $aRequest['fVendorId'];
+		$remarks = $aRequest['fRemark'];
+		$fuel_type = $aRequest['fFuelType'];
+		$id_employee = $aRequest['fEmployeeId'];
+		
+		$id_trip = $aRequest['fTripId'];
+				
+		$OMR = $aRequest['fOMR'];
+		$CMR = $aRequest['fCMR'];
+		
+		 $checkqry = "SELECT * FROM fuel_limit WHERE status=1 and id_asset_item='$id_asset_item'";
+ 		 $this->oDb->query($checkqry);
+		 $num_rows = $this->oDb->num_rows;
+		if(	$num_rows > 0)
+		{	
+		 $result_fuel  = $this->oDb->get_row($checkqry);
+		 $fuel_limit = $result_fuel->id_fuel_limit;
+		}
+		
+		
+		 $created_by        = $_SESSION['sesCustomerInfo']['user_id'];
+		 $qry = "UPDATE fuel_token SET token_no='".$token_number."',token_date='".$token_date."',qty='".$qty."',oil_qty='".$oil_qty."',id_asset_item='".$id_asset_item."',id_fuel_type='".$fuel_type."',id_vendor='".$id_vendor."',id_employee='".$id_employee."',remarks='".$remarks."',modified_by='".$created_by."',modified_on=now() WHERE id_fuel_token=".$id_fuel_token;
+		 $trip_qry = "UPDATE trip SET omr='".$OMR."', cmr='".$CMR."',id_asset_item='".$id_asset_item."' WHERE id_asset_item='".$id_asset_item."' AND id_trip=".$id_trip;
+		 $this->oDb->query($trip_qry);
+		}
+		 if($this->oDb->query($qry))
+	   {
+	     
+	     return true;
+	   }
+	   else { 
+	     return false;
+	   }	 
+	}//	
+	
+
+
+  public function getFuelTokenInfo($lookup, $type )
+  {
+	
+	  $qry = "SELECT
+    asset_item.machine_no
+    , asset_item.asset_no
+    , asset_item.asset_name
+
+	, fuel_token.id_fuel_token
+    , fuel_token.token_date
+    , fuel_token.token_no
+
+    , fuel_token.qty
+    , fuel_token.oil_qty
+
+    , fuel_token.id_asset_item
+    , fuel_token.id_fuel_type
+    , fuel_token.id_vendor
+	, fuel_token.id_employee
+    , fuel_token.id_trip
+    , fuel_token.remarks
+    , fuel_token.status
+    , fuel_token.id_asset_item
+    , item.item_name AS fuel_type
+	, vendor.vendor_name
+    , itemgroup2.itemgroup2_name
+    , itemgroup1.itemgroup1_name
+    , itemgroup2.id_itemgroup2
+    , itemgroup1.id_itemgroup1
+	, asset_item.id_asset_item
+	, item.id_item
+	, employee.first_name
+	, employee.last_name
+FROM
+    asset_item
+    INNER JOIN fuel_token 
+        ON (asset_item.id_asset_item = fuel_token.id_asset_item)
+    INNER JOIN vendor 
+        ON (fuel_token.id_vendor = vendor.id_vendor)
+	INNER JOIN employee
+	    ON (fuel_token.id_employee = employee.id_employee)	
+	INNER JOIN itemgroup1 
+        ON (asset_item.id_itemgroup1 = itemgroup1.id_itemgroup1)
+    INNER JOIN itemgroup2 
+        ON (asset_item.id_itemgroup2 = itemgroup2.id_itemgroup2)
+    INNER JOIN item 
+        ON (asset_item.asset_name= item.id_item) WHERE  asset_item.status !=2 ";
+		
+		if($type == 'asset') {
+			 $condition = " and fuel_token.id_asset_item = '$lookup'";
+		   }
+		  
+		   else {
+			 $condition = " and fuel_token.id_fuel_token = ".$lookup;
+		   }
+		 
+		 $qry = $qry.$condition;
+	
+		$aFuelInfo = array();
+		if($result = $this->oDb->get_results($qry))
+		{
+			foreach($result as $row)
+			{
+				
+				$aFuelInfo['id_fuel_token']   = $row->id_fuel_token;
+				
+				$aFuelInfo['token_date']    = $row->token_date;
+				$aFuelInfo['token_no']  = $row->token_no;
+
+				$aFuelInfo['qty']    = $row->qty;
+				$aFuelInfo['oil_qty']    = $row->oil_qty;
+
+				$aFuelInfo['id_asset_item']    = $row->id_asset_item;
+				$aFuelInfo['id_fuel_type']    = $row->id_fuel_type;
+			
+				$aFuelInfo['id_vendor']    = $row->id_vendor;
+				$aFuelInfo['id_employee']    = $row->id_employee;
+				$aFuelInfo['asset_no']    = $row->asset_no;
+				$aFuelInfo['machine_no']    = strtoupper($row->machine_no);
+				$aFuelInfo['id_trip']    = $row->id_trip;
+			
+				$aFuelInfo['remarks']    = $row->remarks;
+				$aFuelInfo['vendor_name']    = $row->vendor_name;
+				$aFuelInfo['first_name'] =    $row->first_name;
+				$aFuelInfo['last_name'] =    $row->last_name;
+				$aFuelInfo['id_itemgroup2']    = $row->id_itemgroup2;
+				$aFuelInfo['itemgroup2_name']    = $row->itemgroup2_name;
+				$aFuelInfo['id_itemgroup1']    = $row->id_itemgroup1;
+				$aFuelInfo['itemgroup1_name']    = $row->itemgroup1_name;
+				$aFuelInfo['asset_name']    = $row->asset_name;
+				$aFuelInfo['id_asset_item']    = $row->id_asset_item;
+				$aFuelInfo['status']    = $row->status;
+				
+				
+				$aItem = $this->getItemInfo($row->asset_name,'id');
+				$aFuelInfo['item_name']       = $aItem['item_name'];
+				$aTrip = $this->getTripInfo($row->id_trip,'id');
+				$aFuelInfo['omr']       = $aTrip['omr'];
+				$aFuelInfo['id_trip']       = $aTrip['id_trip'];
+				$aFuelInfo['cmr']       = $aTrip['cmr'];
+				
+			}
+		}
+		return $aFuelInfo;
+  }//
+
+  public function getOutsideFuelTokenInfo($lookup)
+  {
+	
+	  $qry = "SELECT
+    fuel_token.id_fuel_token
+    , fuel_token.token_date
+    , fuel_token.token_no
+
+    , fuel_token.qty
+    , fuel_token.oil_qty
+
+    , fuel_token.id_asset_item
+	, fuel_token.vehicle_type
+	, fuel_token.vehicle_reg_number
+    , fuel_token.id_fuel_type
+   
+	, fuel_token.id_employee
+    , fuel_token.id_trip
+    , fuel_token.remarks
+    , fuel_token.status
+    
+   
+
+	, employee.first_name
+	, employee.last_name
+FROM
+    fuel_token
+      
+	INNER JOIN employee
+	    ON (fuel_token.id_employee = employee.id_employee) WHERE fuel_token.id_fuel_token = ".$lookup;	
+    
+//echo $qry;
+		$aFuelInfo = array();
+		if($result = $this->oDb->get_results($qry))
+		{
+			foreach($result as $row)
+			{
+				
+				$aFuelInfo['id_fuel_token']   = $row->id_fuel_token;
+				
+				$aFuelInfo['token_date']    = $row->token_date;
+				$aFuelInfo['token_no']  = $row->token_no;
+
+				$aFuelInfo['qty']    = $row->qty;
+				$aFuelInfo['oil_qty']    = $row->oil_qty;
+
+				$aFuelInfo['id_asset_item']    = $row->id_asset_item;
+				$aFuelInfo['id_fuel_type']    = $row->id_fuel_type;
+			
+				$aFuelInfo['id_employee']     = $row->id_employee;
+				$aFuelInfo['vehicle_type']    = $row->vehicle_type;
+				$aFuelInfo['vehicle_reg_number']    = strtoupper($row->vehicle_reg_number);
+				$aFuelInfo['id_trip']    = $row->id_trip;
+			
+				$aFuelInfo['remarks']    = $row->remarks;
+				
+				$aFuelInfo['first_name'] =    $row->first_name;
+				$aFuelInfo['last_name'] =    $row->last_name;
+				
+				$aFuelInfo['status']    = $row->status;
+
+				$aTrip = $this->getTripInfo($row->id_trip,'id');
+				$aFuelInfo['omr']       = $aTrip['omr'];
+				$aFuelInfo['id_trip']       = $aTrip['id_trip'];
+				$aFuelInfo['cmr']       = $aTrip['cmr'];
+				
+			}
+		}
+		return $aFuelInfo;
+  }//
+
+
+public function getOutsideFuelTokenList()
+	{
+		$qry = "SELECT
+    fuel_token.id_fuel_token
+    , fuel_token.token_no
+	, fuel_token.token_date
+    , fuel_token.qty
+	, fuel_token.oil_qty
+    , fuel_token.vehicle_reg_number
+    , fuel_token.id_fuel_type
+    , fuel_token.id_vendor
+    , fuel_token.id_trip
+    , fuel_token.id_employee
+
+    , fuel_token.remarks
+    , fuel_token.status
+    
+  	, vendor.vendor_name
+	, employee.first_name
+	, employee.last_name
+	, employee.employee_code
+FROM
+    fuel_token
+   INNER JOIN vendor 
+        ON (fuel_token.id_vendor = vendor.id_vendor)
+	INNER JOIN employee
+	    ON ( employee.id_employee = fuel_token.id_employee)	
+    WHERE  fuel_token.status !=2 AND fuel_token.vehicle_type ='outside' ";
+   $order = ' ORDER BY fuel_token.id_fuel_token DESC';
+		$qry =$qry.$order;
+		$aFuelTokenList = array();
+		if($result = $this->oDb->get_results($qry))
+		{
+			foreach($result as $row)
+			{
+				$aFuelToken = array();
+				$aFuelToken['id_fuel_token']  = $row->id_fuel_token;
+				$aFuelToken['token_no']       = $row->token_no;
+				$aFuelToken['token_date']     = $row->token_date;
+				$aFuelToken['qty']            = $row->qty;
+				$aFuelToken['oil_qty']        = $row->oil_qty;
+				$aFuelToken['id_asset_item']  = $row->id_asset_item;
+				$aFuelToken['vehicle_reg_number']  = $row->vehicle_reg_number;
+				
+				$aFuelToken['id_fuel_type']   = $row->id_fuel_type;
+				$aFuelToken['id_vendor']      = $row->id_vendor;
+				
+				$aFuelToken['id_trip']        = $row->id_trip;
+				$aFuelToken['remarks']        = $row->remarks;
+				$aFuelToken['vendor_name']    = $row->vendor_name;
+				$aFuelToken['first_name']     = $row->first_name;
+				$aFuelToken['last_name']      = $row->last_name;
+				$aFuelToken['employee_code']  = $row->employee_code;
+				$aFuelToken['status']         = $row->status;
+				$aFuelToken['uom_name']       = 'Liters';
+				
+				$aFuelTokenList[]        = $aFuelToken;
+			}
+		}
+		return $aFuelTokenList;
+	}//
+
+	
+	
+	
+/*new code above*/
+	
+	
 	
 	public function addFuel($aRequest)
 	{
@@ -14009,7 +14559,7 @@ else if($results = $this->CheckContractPeriod($lookup))
 
 		 $qry="SELECT DISTINCT asset_item.asset_no AS asset_no,asset_item.machine_no As machine_no,asset_item.asset_name AS id_item ,asset_item.id_asset_item AS asset_item FROM asset_item,asset_stock
 
-WHERE asset_stock.id_asset_item = asset_item.id_asset_item and asset_stock.status!=8 and  asset_stock.status!=21 and asset_item.asset_name IN('".$item."') and asset_item.id_itemgroup1='".$lookup1."' and asset_item.id_itemgroup2=".$lookup2;
+WHERE asset_stock.id_asset_item = asset_item.id_asset_item and asset_stock.status NOT IN (".$this->asset_stock_not_in.") and asset_item.asset_name IN('".$item."') and asset_item.id_itemgroup1='".$lookup1."' and asset_item.id_itemgroup2=".$lookup2;
 
 		}
 
@@ -14019,7 +14569,7 @@ WHERE asset_stock.id_asset_item = asset_item.id_asset_item and asset_stock.statu
 
 	$qry="SELECT DISTINCT asset_item.asset_name AS id_item  FROM asset_item,asset_stock
 
-WHERE asset_stock.id_asset_item = asset_item.id_asset_item and asset_stock.status!=8 and asset_stock.status!=21 and asset_item.id_itemgroup1='".$lookup1."' and asset_item.id_itemgroup2=".$lookup2;
+WHERE asset_stock.id_asset_item = asset_item.id_asset_item and asset_stock.status NOT IN (".$this->asset_stock_not_in.") and asset_item.id_itemgroup1='".$lookup1."' and asset_item.id_itemgroup2=".$lookup2;
 
 		}
 
@@ -14479,7 +15029,109 @@ $qry = "SELECT * FROM asset_sales_invoice_item WHERE status !=2 ";
 }
 
 
+public function getSalesInvoiceItemList($lookup,$type)
 
+{
+
+$qry = "SELECT * FROM asset_sales_invoice_item WHERE status !=2 ";
+
+ if($type =='asset')
+
+ {
+
+ $conditions = ' AND id_asset_item='.$lookup;
+
+ }
+
+ else
+
+ {
+
+  $conditions = ' AND id_asset_sales_invoice='.$lookup;
+
+ }
+
+ $qry = $qry.$conditions;
+
+ $aSalesInvoiceItemInfo = array();
+$aSalesInvoiceItemList = array();
+ if($result = $this->oDb->get_results($qry))
+ {
+       foreach($result  as $row)
+       {
+		$aSalesInvoiceItemInfo['id_asset_sales_invoice_item'] = $row->id_asset_sales_invoice_item;
+
+		$aSalesInvoiceItemInfo['id_asset_sales_invoice'] = $row->id_asset_sales_invoice;
+
+		$aSalesInvoiceItemInfo['id_asset_item'] = $row->id_asset_item;
+		$aAssetItemInfo =$this->getAssetItemInfo($row->id_asset_item,'id');
+		$aSalesInvoiceItemInfo['machine_no']   =strtoupper($aAssetItemInfo['machine_no']);
+		$aSalesInvoiceItemInfo['asset_no'] = $aAssetItemInfo['asset_no'];		
+
+		$aSalesInvoiceItemInfo['id_itemgroup1'] = $row->id_itemgroup1;
+
+		$aSalesInvoiceItemInfo['id_itemgroup2'] = $row->id_itemgroup2;
+		
+		$aGroup2name = $this->getItemGroup2Info($row->id_itemgroup2,'id');
+		
+		$aGroup1name = $this->getItemGroup1Info( $row->id_itemgroup1,'id');
+		
+		$aItem = $this->getItemInfo($row->id_item,'id');
+		$aSalesInvoiceItemInfo['item_name']       = $aItem['item_name'];
+		
+		$aSalesInvoiceItemInfo['itemgroup1_name']       = $aGroup1name['itemgroup1_name'];
+		
+		$aSalesInvoiceItemInfo['itemgroup2_name']       = $aGroup2name['itemgroup2_name'];
+		
+		$aSalesInvoiceItemInfo['id_item'] = $row->id_item;
+
+		$aSalesInvoiceItemInfo['quantity'] = $row->quantity;
+
+		$aSalesInvoiceItemInfo['id_uom'] = $row->id_uom;
+
+		$aSalesInvoiceItemInfo['purchased_price'] = $row->purchased_price;
+
+		$aSalesInvoiceItemInfo['depreciation_price'] = $row->depreciation_price;
+
+		$aSalesInvoiceItemInfo['sale_price'] = $row->sale_price;
+
+		$aSalesInvoiceItemInfo['id_taxform'] = $row->id_taxform;
+
+		$aSalesInvoiceItemInfo['tax_percentage'] = $row->tax_percentage;
+
+		$aSalesInvoiceItemInfo['tax_price'] = $row->tax_price;
+
+		$aSalesInvoiceItemInfo['total_price'] = $row->total_price;
+
+		$aSalesInvoiceItemInfo['status'] = $row->status;
+
+		$aTaxinfo = $this->getTaxFormInfo($row->id_taxform,'id');
+
+		$aSalesInvoiceItemInfo['tax_name'] = $aTaxinfo['taxform_name'];
+
+		$aSalesInvoiceDetails = $this->getSalesInvoiceList('Sales',$row->id_asset_sales_invoice);
+
+		$aSalesInvoiceItemInfo['invoice_number'] = $aSalesInvoiceDetails[0]['invoice_number'];
+
+		$aSalesInvoiceItemInfo['invoice_date'] = $aSalesInvoiceDetails[0]['invoice_date'];
+
+		$aSalesInvoiceItemInfo['delivery_number'] = $aSalesInvoiceDetails[0]['delivery_number'];
+
+		$aSalesInvoiceItemInfo['vendor_name'] = $aSalesInvoiceDetails[0]['vendor_name'];
+		
+		$aSalesInvoiceItemInfo['created_by'] = $row->created_by;
+		
+		$ainvoiceprepName = $this->getEmployeeInfo($row->created_by);
+		
+		$aSalesInvoiceItemInfo['employee_invoiceprepname'] = $ainvoiceprepName['employee_name'];
+		$aSalesInvoiceItemList[] = $aSalesInvoiceItemInfo;
+	}
+		
+}
+
+		return $aSalesInvoiceItemList;
+
+}
 
 
 public function getMainMenuNames($aMainMenuId)
@@ -14886,10 +15538,31 @@ return $aInventoryInfo;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+public function getFuelLimit($id_asset_item)
+{
+	$checkqry = "SELECT * FROM fuel_limit WHERE status=1 and id_asset_item='$id_asset_item'";
+	$aFuelInfo = array();
+	if($row = $this->oDb->get_row($checkqry))
+	{
+		$aFuelInfo['id_fuel_limit'] = $row->id_fuel_limit ;
+		$aFuelInfo['id_asset_item'] = $row->id_asset_item ;
+		$aFuelInfo['fuel_limit'] = $row->fuel_limit ;
+		$aFuelInfo['remarks'] = $row->remarks ;
+	}
+	return $aFuelInfo;
+	
+}//
+
 public function addFuelLimit($aRequest)
 {
-
-$id_asset_item = $aRequest['fAssetNumber'];
+if(!isset($aRequest['fAssetNumber']))
+{
+	$id_item = explode("/",$aRequest['fItemName']);
+	$id_asset_item =$id_item[0]; 
+}
+else {
+    $id_asset_item = $aRequest['fAssetNumber'];
+}
 $fuel_limit = $aRequest['fFuelLimit'];
 $remarks = $aRequest['fRemarks'];
  $created_by        = $_SESSION['sesCustomerInfo']['user_id'];
@@ -15037,14 +15710,31 @@ $this->addHistoryTransLog($tablename,$value,'TBL',$tablename,'','',$value,'1',$q
  }
  else
  {
-	  
-	$query = "UPDATE $tablename SET status = 2 where $field = ".$value;
+	if($tablename == 'purchase_order') {
+		$chqry = "select id_po from inventory where id_po = '$value'";
+		if($result = $this->oDb->get_results($chqry))
+		{
+			$this->addHistoryTransLog($tablename,$value,'TBL',$tablename,'','',$value,'1',$query,'Not Deleted','');
+		}
+		else {
+		$query = "UPDATE $tablename SET status = 2 where $field = ".$value;
+
+		if($this->oDb->query($query))
+		{
+			$exists = '3';
+		}
+			$this->addHistoryTransLog($tablename,$value,'TBL',$tablename,'','',$value,'1',$query,'Deleted','');
+		}
+	}
+	else {
+		$query = "UPDATE $tablename SET status = 2 where $field = ".$value;
 
 		if($this->oDb->query($query))
 		{
 		$exists = '3';
 		}
 		$this->addHistoryTransLog($tablename,$value,'TBL',$tablename,'','',$value,'1',$query,'Deleted','');
+	}
 		
  }
 return $exists ;
@@ -15176,6 +15866,211 @@ public function getGroup2ItemDisp($lookup, $type,$lookup1 = '',$lookup2='')
 	}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+public function getAssetItemName($lookup)
+{
+	 $qry="SELECT DISTINCT
+		  item.id_item,
+		  asset_item.id_asset_item,
+    asset_item.machine_no
+    , asset_item.asset_no   
+    , itemgroup1.itemgroup1_name
+    , itemgroup2.itemgroup2_name
+	, item.item_name,CONCAT_WS(' - ',itemgroup1.itemgroup1_name, itemgroup2.itemgroup2_name,item.item_name) as full_asset_name	
+	 
+FROM
+    asset_item
+    INNER JOIN asset_stock 
+        ON (asset_item.id_asset_item = asset_stock.id_asset_item)
+		 INNER JOIN item 
+        ON (asset_item.asset_name = item.id_item)
+    INNER JOIN itemgroup1 
+        ON (asset_item.id_itemgroup1 = itemgroup1.id_itemgroup1)
+	INNER JOIN itemgroup2 
+        ON (asset_item.id_itemgroup2 = itemgroup2.id_itemgroup2)
+		
+WHERE ( asset_item.id_asset_item ='".$lookup."')
+GROUP BY  item.id_item;
+";
+		
+		
+	$aItemGroup1List = array();
+		
+		if($result = $this->oDb->get_row($qry))
+		{
+			$machine_no = $result->machine_no;
+			if(!empty($machine_no))
+			{
+				return $asset_item = $result->full_asset_name.'( '.$machine_no.' )';
+			}
+			else
+			{
+				return $asset_item = $result->full_asset_name;
+			}
+		}
+}
+
+public function getServiceInvoiceListDetails($lookup)
+	{
+		$qry = "SELECT * FROM service_invoice WHERE status != 2 AND id_asset_maintenance ='$lookup' ORDER BY id_asset_maintenance DESC";
+	
+		$aService = $aServiceinfo = array();
+		if($result = $this->oDb->get_results($qry))
+		{ 
+				foreach($result as $row)
+				{
+				$aService['id_service_invoice']    = $row->id_service_invoice;
+				$aService['id_asset_item']    = $row->id_asset_item;
+				$aService['asset_no']    = $this->getAssetNumber( $row->id_asset_item );
+				$aService['from_id_store']    = $row->from_id_store;
+				$aService['store_name']    = $this->getStoreName($row->from_id_store);
+				$aService['vendor_name']    = $this->getVendorName($row->to_id_vendor);
+				$aService['to_id_vendor']     = $row->to_id_vendor;
+				$aService['id_asset_maintenance']  = $row->id_asset_maintenance	;
+				$aService['service_type']  = $row->service_type;
+				$aService['id_asset_delivery']  = $row->id_asset_delivery;
+				$aService['id_vendor']  = $row->id_vendor;
+				$aService['for_depreciation']  = $row->for_depreciation;
+				$aService['bill_number']  = $row->bill_number;
+				$aService['bill_amount']  = $row->bill_amount;
+				$aService['bill_date']  = $row->bill_date;
+				$aService['created_on']  = $row->created_on;
+				$aService['remarks']  = $row->remarks;
+				$aService['status']     = $row->status;
+			    $aDocument =  $this->getMaintenanceDocument($row->id_service_invoice);
+				$aService['document_path']     =  $aDocument['document_path'];
+				$aServiceinfo[] = $aService;
+				}
+		
+			}
+			
+			return $aServiceinfo;
+	}
+	public function deleteAssetDelivery($delvalue)
+	{
+				
+		 $qry_delivery = "SELECT * FROM asset_delivery WHERE id_asset_delivery=".$delvalue;
+		if($deliveryinfo = $this->oDb->get_row($qry_delivery))
+		{
+			$delivery_type = $deliveryinfo->delivery_type;
+		}
+		$qry3 = "SELECT * FROM asset_gate_pass WHERE id_asset_delivery=".$delvalue;
+		if($row = $this->oDb->get_row($qry3))
+		{
+			$gate_pass = $row->id_asset_gate_pass; 
+		}		
+				
+		 $qrys = "UPDATE asset_delivery SET status = 2 WHERE id_asset_delivery = ".$delvalue;		
+		   if($this->oDb->query($qrys))	{
+			   $qrys_gate_pass = "UPDATE asset_gate_pass SET status = 2 WHERE id_asset_delivery = ".$delvalue;	
+			   $this->oDb->query($qrys_gate_pass);
+			   $qrys_delivery_item = "UPDATE asset_delivery_item SET status = 2 WHERE id_asset_delivery = ".$delvalue;	
+			   $this->oDb->query($qrys_delivery_item);
+			   $qrys_gate_pass_item = "UPDATE gate_pass_item SET status = 2 WHERE id_asset_gate_pass = ".$gate_pass;	
+			   $this->oDb->query($qrys_gate_pass_item);
+			   if($delivery_type == 'ESD')
+			   {
+			  	    $qrys_asset_maintenance = "UPDATE asset_maintenance SET status = 2 WHERE id_asset_delivery = ".$delvalue;		
+			   		$this->oDb->query($qrys_asset_maintenance);
+		        }
+				$qry_item = "SELECT * FROM gate_pass_item WHERE id_asset_gate_pass=".$gate_pass;
+				if($iteminfo = $this->oDb->get_results($qry_item))
+				{
+				  foreach($iteminfo as $item)
+				  {
+					  $id_asset_item =  $item->id_asset_item;
+						
+						$qrys_asset_stock = "UPDATE asset_stock SET status = 1 WHERE id_asset_item = ".$id_asset_item;	
+						$this->oDb->query($qrys_asset_stock);
+						
+						$qrys_asset_item = "UPDATE asset_item SET status = 1 WHERE id_asset_item = ".$id_asset_item;	
+						$this->oDb->query($qrys_asset_item);
+					  
+					  
+				  }
+				}					
+					return '1';
+					}
+					else
+					{
+						return '0';
+						 if($DEBUGS !=0)
+			  {
+		  echo '<div style=" margin-top:50px;color:#FFF;background-color: gold;" ><font color="#FFFFFF">';
+			  $this->oDb->debug();
+			  echo '</font></div>';
+			  }
+					}
+		
+		
+	}
+	// Delete Sales Invoice and Reset the asset item and asset stcok from "21" to "1"
+	public function deleteSalesInvoice($delvalue)
+	{
+				
+		 $qry_delivery = "SELECT * FROM asset_sales_invoice WHERE id_asset_sales_invoice=".$delvalue;
+		if($assetsalesinfo = $this->oDb->get_row($qry_delivery))
+		{
+			$return_val = 0;
+			$id_asset_sales_invoiceid = $assetsalesinfo->id_asset_sales_invoice;
+			$sales_Inv_item_qry = "SELECT * FROM asset_sales_invoice_item WHERE id_asset_sales_invoice=".$id_asset_sales_invoiceid;
+			if($assetsalesinfo = $this->oDb->get_results($sales_Inv_item_qry))
+			{				
+				$assetcount = count((array) $assetsalesinfo); 
+				$i = 0;
+				foreach($assetsalesinfo as $sales_inv_item)
+				{
+					$i++;					
+					$asset_item = $sales_inv_item->id_asset_item;
+					$id_asset_invoice = $sales_inv_item->id_asset_sales_invoice;
+					
+					$qrys = "UPDATE asset_stock SET status = 1 WHERE status = 21 and id_asset_item = ".$asset_item;		
+					if($this->oDb->query($qrys))
+					{
+						$assetitemqrys = "UPDATE asset_item SET status = 1 WHERE status = 21 and id_asset_item = ".$asset_item;	
+						$this->oDb->query($assetitemqrys);	
+						if($assetcount == $i)
+						{
+							$asset_invqrys = "UPDATE asset_sales_invoice SET status = 2 WHERE id_asset_sales_invoice = ".$id_asset_invoice ;	
+							$this->oDb->query($asset_invqrys);
+							
+							$asset_invitemqrys = "UPDATE asset_item SET status = 2 WHERE  id_asset_sales_invoice = ".$id_asset_invoice ;	
+							$this->oDb->query($asset_invitemqrys);
+							$return_val = '1';
+						}
+					}
+					else
+					{
+						$qrys1 = "SELECT * FROM asset_stock WHERE status = 1 AND id_asset_item = ".$asset_item;		
+						if($this->oDb->query($qrys1))
+						{
+							$asset_invqrys = "UPDATE asset_sales_invoice SET status = 2 WHERE id_asset_sales_invoice = ".$id_asset_invoice ;	
+							$this->oDb->query($asset_invqrys);
+							
+							$asset_invitemqrys = "UPDATE asset_item SET status = 2 WHERE  id_asset_sales_invoice = ".$id_asset_invoice ;	
+							$this->oDb->query($asset_invitemqrys);
+							$return_val = '1';
+						 }
+					}
+					
+				}//endfor
+			}
+			return $return_val;
+		}//endif
+		else
+		{
+			return '0';
+			if($DEBUGS !=0)
+			{
+				echo '<div style=" margin-top:50px;color:#FFF;background-color: gold;" ><font color="#FFFFFF">';
+				$this->oDb->debug();
+				echo '</font></div>';
+			}
+		}	
+				
+		
+		
+		
+	}
 } //end Master
 
 ?>

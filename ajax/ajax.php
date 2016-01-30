@@ -758,7 +758,7 @@ if($action == 'getGroupItemList1'){
 	   
 	  <td>'.$stock['stock_quantity'].'<input type="hidden" name="fStockQuqntity[]" value="'.$stock['stock_quantity'].'"/></td>
 	  <td><input type="text" name="fIssueQuantity[]" size="15" onKeyup="addQuanitity('.$stock['asset_item'].')" value="'.$stock['stock_quantity'].'"/></td>
-	   <td>'.$stock['asset_no'].'<input type="hidden" name="fAssetNumber[]" value="'.$stock['asset_no'].'"/></td>
+	   <td>'.$stock['asset_no'].'/'.$stock['machine_no'].'<input type="hidden" name="fAssetNumber[]" value="'.$stock['asset_no'].'"/></td>
 	  <td>'.$oMaster->checkMaintenace($stock['asset_item']).'</td>
 	  <td><a href="#" id="RemoveItem" onClick="removeItem('.$stock['asset_item'].')">Remove Item</a><input type="hidden" name="fAssetItemId[]" value="'.$stock['asset_item'].'"/></td>
 	  </tr>';
