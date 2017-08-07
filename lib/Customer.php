@@ -31,6 +31,70 @@ class Customer extends Master{
 		return $_SESSION['ADMIN'];
 	}
 	
+    public function registerNewUser($aRequest)
+    {
+    	$first_name = $aRequest['fFirstName'];
+		$last_name = $aRequest['fLastName'];
+		$email = $aRequest['fEmail'];
+		$phone = $aRequest['fPhone'];
+		$login_id = $aRequest['fLoginName'];
+		$password = $aRequest['fPassword'];  
+
+
+		$checkqry = "SELECT * FROM user WHERE login_id='".$aRequest['fLoginName']."'";
+		$this->oDb->query($checkqry);
+			$num_rows = $this->oDb->num_rows;
+			if($num_rows > 0)
+			{	
+			  $done['msg'] = 2;
+			}
+			else
+			{
+				$created_date = date('Y-m-d H:i:s');
+				$status = 1;
+				$insert_profile = "INSERT INTO user SET ";
+				$insert_profile .="login_id = '".$aRequest['fLoginName']."'";
+				$insert_profile .=",password = '".$aRequest['fPassword']."'";  
+				$insert_profile .=",first_name = '".$first_name."'";
+				$insert_profile .=",last_name= '".$last_name."'";
+				$insert_profile .=",email= '".$email."'";
+				$insert_profile .=",created_date= '".$created_date."'";
+				$insert_profile .=",status= '".$status."'";
+				$insert_profile .=",modified_date= '$created_date'";
+				//echo $insert_profile;
+
+				if($this->oDb->query($insert_profile))
+				{
+				   $inserted = 1;
+				   $last=$this->oDb->insert_id;
+				   $done['msg'] = 1;
+
+                   //update user table
+                   $updateqry  = "UPDATE user SET db_roleId = 1, db_lcatId='1,2,3,7,8,9,10,11,13,14,15',";
+                   $updateqry .= "db_lscatId='1,2,3,7,8,9,10,11,13,14,15'";
+                   $updateqry .= "create_crud = '62,1,2,7,4,14,11,12,8,15,17,27,24,25,19,23,49,20,21,29,30,31,32,33,50,51,52,35,36,38,34,39,40,42,41,6,43,22,48,47,63,65,53,54'";
+                   $updateqry .= "retrieve_crud='3,5,11,12,13,9,10,16,24,26,28,18,20,21,37,46,57,58,59,60,61,44,45'";
+                   $updateqry .=  "update_crud = '65'";
+                   $updateqry .=  "download_crud ='3,9'";
+
+                   $this->oDb->query($updateqry);
+
+                   //create new directory:
+                   mkdir('../'.$aRequest['fLoginName']);
+                   chmod('../'.$aRequest['fLoginName'], 777);
+
+				   //return $done;		
+				}
+				else
+				{
+				   $done['msg'] = 0;
+				   //return $done;
+				}
+			}
+			return $done;
+    } //
+
+
 	public function registerNewCustomer($aRequest)
 	{
 	

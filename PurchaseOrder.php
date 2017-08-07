@@ -12,12 +12,14 @@
 	}
 	else
 	{
- $allResult = $oMaster->getPurchaseOrderList();
+      $allResult = $oMaster->getPurchaseOrderList();
 	}
   $oAssetDepartment = &Singleton::getInstance('Department');
   $oAssetDepartment->setDb($oDb);
   $oAssetVendor = &Singleton::getInstance('Vendor');
   $oAssetVendor->setDb($oDb);
+  $from_address = (isset($aCompany['address_format'])) ? $aCompany['address_format'] : '';
+  //echo '<pre>'; print_r($allResult); exit;
 ?>
 <!DOCTYPE html>
 <!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
@@ -191,16 +193,19 @@
 								<div class="clearfix">
                                 <div class="btn-group">
                                 <a href="PurchaseOrderCreate.php?action=Add&type=General"  role="button" class="btn green" data-toggle="modal">Create New PO <i class="icon-plus"></i></a>								
+								<a href ="PoItemReport.php" role="button" class="btn blue" style="margin-left: 2%">PO Item Search</a>	
 									</div>
 								</div>
 								<?php } ?>
 								<table class="table table-striped table-bordered table-hover" id="sample_1">
 									<thead>
 										<tr>
-											<th>SLNO</th>
-                                            <th>PurchaseOrder ID</th>
+											<th>S.NO</th>
+                                            <th>P.Order ID</th>
 											 <th>Date</th>
-											<th>Vendor Name</th>
+											 <th>From addr</th>
+											<!--<th>Vendor Name</th>-->
+											<th> To addr (Vendor)</th>
                                             <th>Po Type</th>
 											<th>Status</th>
                                             <th>Download PDF</th>
@@ -213,16 +218,23 @@
 										<?php 
 											$a=1;
 										foreach ($allResult as $item){
+											
+											$avendorInfo = $oAssetVendor->getVendorInfo($item['id_vendor'], 'id');
+											$v_name = $avendorInfo['vendor_name']; 
+											$from_addr = ($item['shipping_addr'] == 'Self') ? $from_address : $item['shipping_addr'];
+											 $to_addr  =  ($item['vendor_contact']['address_format'] != '' ) ? $item['vendor_contact']['address_format']  :$v_name;
 										 ?>
                                        
 										<tr class="odd gradeX">
                                         		<td><?php echo $a; ?></td>
 											<td><?php echo $item['po_number']; ?></td>
 											<td><?php echo date('d/m/Y',strtotime($item['po_date'])); ?></td>
-												<td><?php 
+											<td><?php echo $from_addr;?></td>
+											<!--	<td><?php 
 											    $avendorInfo = $oAssetVendor->getVendorInfo($item['id_vendor'], 'id');
 											    echo $avendorInfo['vendor_name']; 
-											?></td>
+											?></td> -->
+											<td><?php echo $to_addr;?></td>
 											<td><?php 
 											if( $item['id_pr'] == 0)
 											{
@@ -249,7 +261,7 @@
 											</a>
 											<?php /*?><form action='PurchaseOrderView.php' target="_blank" method='post' enctype='multipart/form-data'><input type='hidden' name='purchaseRequestId' value="<?php echo  $item['id_po']; ?>"/>
                                               <button type='submit' class="btn mini purple" style="height: 20px;">View</button></form><?php */?> </td>
-                                              <td>
+                                              <td style="width: 250px;">
                                                                                   
                                            <div class="flash" id="flash_<?php echo  $item['id_po']; ?>"></div>
                                            <?php if($item['status'] == '1')

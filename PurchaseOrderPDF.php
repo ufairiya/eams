@@ -19,7 +19,7 @@
   }
 	$edit_result = $oMaster->getPurchaseOrderItemInfo($item_id,'');
 	$aVendorInfo = $oAssetVendor->getVendorInfo($edit_result[0]['id_vendor'],'id');
-
+$aAdditPoinfo = $oMaster->getPoAdditionalinfoList($item_id,'id');
 include("MPDF56/mpdf.php");
 
 $mpdf=new mPDF('utf-8','A4','','','10','10','10','31','5','5','5');
@@ -190,6 +190,26 @@ $html.='
       </TR>';
       
   $sl_nos++; }
+
+
+   if(count($aAdditPoinfo)>0){
+  foreach($aAdditPoinfo as $aAdditionalinfo) {
+   $aAddless =array('+','-');
+   $Addprice = str_replace( $aAddless, '', trim($aAdditionalinfo->additional_price));  
+   $aAdd_str = (strpos($aAdditionalinfo->additional_price,'-') !== false) ? '-' : '+';
+   
+  
+  $html.=' 
+   
+  <TR class="srow" bgColor="white">
+    <TD align="right">'.$sl_nos.'&nbsp;&nbsp;</TD>
+    <TD>&nbsp;&nbsp;'.$aAdditionalinfo->additional_charge_desc.'&nbsp;&nbsp;</TD>
+    <TD  align="right">'.$aAdd_str.' &nbsp;</TD>
+    
+    <TD noWrap align="right">'.$oMaster->moneyFormat($Addprice).'&nbsp;&nbsp;</TD>
+      </TR>';
+      
+  $sl_nos++; }}
  
 
 $posid = $aRequest['id'];

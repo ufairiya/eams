@@ -8,7 +8,7 @@
 	$clearUserId   = $oSecurity->stripAllTags($userId);
 	$clearPassword = $oSecurity->stripAllTags($password);
 	$aCustomerInfo = $oCustomer->checkLogin($clearUserId, $clearPassword);
-    print_r($aCustomerInfo);
+    //print_r($aCustomerInfo);
 	
 	$oSession->setSession('sesCustomerInfo',$aCustomerInfo);
 	 $login = $_SESSION['sesCustomerInfo']['CheckLogin'];

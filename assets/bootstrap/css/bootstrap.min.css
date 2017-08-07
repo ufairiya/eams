@@ -4,4 +4,7 @@ position: absolute;
 right: 90px;
 border: 1px solid lightgrey;
 padding: 15px;
-height: auto;}
+height: 200px;
+overflow-y:scroll;
+background-color: gold;
+}

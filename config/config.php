@@ -7,24 +7,21 @@ date_default_timezone_set('Asia/Calcutta');
 session_cache_limiter( 'nocache' );
 session_cache_limiter( 'public' );
 session_start();
-//define ('DB_USER',       	'adminKAdv5FJ');
-//define ('DB_PASSWORD',   	'HQydkmh5wU_Y');
 define ('DB_USER',       	'root');
 define ('DB_PASSWORD',   	'root');
 define ('DB_HOST',       	'localhost');
-//define ('DB_NAME',       	'php');
-define('DB_NAME','deams');
-define ('ADMIN_APP_ROOT', 		$_SERVER['DOCUMENT_ROOT'].'/php/admin');
-define ('ADMIN_APP_HTTP',  		'http://' . $_SERVER['SERVER_NAME']."/php/admin");
+define ('DB_NAME',       	'deams2');
+define ('ADMIN_APP_ROOT', 		$_SERVER['DOCUMENT_ROOT'].'/deams/admin');
+define ('ADMIN_APP_HTTP',  		'http://' . $_SERVER['SERVER_NAME']."/deams/admin");
 define ('ADMIN_IMAGE_PATH',		ADMIN_APP_HTTP.'/images');
 define ('ADMIN_CSS_PATH',		ADMIN_APP_HTTP.'/css');
 define ('ADMIN_JS_PATH',		ADMIN_APP_HTTP.'/js');
 define ('ADMIN_LIB_PATH',		ADMIN_APP_ROOT.'/lib');
 define ('ADMIN', 'Administrator');
 /*===========CAN BE MOVED TO OUTSIDE CONFIG AND INCLUDE THAT CONFIG HERE*/
-define ('APP_HTTP', 			'http://' . $_SERVER['SERVER_NAME'].'/php');
-define ('APP_HTTPS',            'https://' . $_SERVER['SERVER_NAME'].'/php');
-define ('APP_ROOT', 			$_SERVER['DOCUMENT_ROOT'].'/php');
+define ('APP_HTTP', 			'http://' . $_SERVER['SERVER_NAME'].'/deams');
+define ('APP_HTTPS',            'https://' . $_SERVER['SERVER_NAME'].'/deams');
+define ('APP_ROOT', 			$_SERVER['DOCUMENT_ROOT'].'/deams');
 define ('MAIN_APP_HTTP',        APP_HTTP);
 define ('LIB_PATH',				APP_ROOT.'/lib');
 define ('THUMBNAIL_PATH',		APP_ROOT.'/images/thumbnails');
@@ -40,8 +37,13 @@ define ('ERROR_DISPLAY', '0'); //0 = no display, 1 = basic error msg , 2 = Detai
 define ('CATCH_ERROR', '4');
 define ('DEBUG_ERROR', '0');
 define ('ERROR_LOG_TYPE', '1'); // 1 - log error msgs, 2 = send error msg as email , 3 =both (send and log)
-include LIB_PATH.'/Db.php';
-$oDb = new Db(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST);
-//echo APP_HTTP;
-//print_r($oDb);
-//exit();
+//include LIB_PATH.'/Db.php';
+//$oDb = new Db(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST);
+
+// Include ezSQL core
+	include_once LIB_PATH."/ez_sql_core.php";
+
+	// Include ezSQL database specific component
+	include_once LIB_PATH."/ez_sql_mysqli.php";
+	$oDb = new ezSQL_mysqli(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST);
+	//$oDb = new Db(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST);

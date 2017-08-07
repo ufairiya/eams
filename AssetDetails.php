@@ -31,13 +31,11 @@ $counts = $oMaster->assetCount();
 		}
 		
 		
-/*echo '<pre>';
-print_r($aInventoryItemAsset );
-echo '</pre>';*/
+
 	 }
 	 if(isset($aRequest['send']))
   {
-    $oFormValidator->setField("ALLTEXT", " Asset Type", $aRequest['fAssetTypeId'], 1, '', '', '', '');
+   $oFormValidator->setField("ALLTEXT", " Asset Type", $aRequest['fAssetTypeId'], 1, '', '', '', '');
 	 $oFormValidator->setField("ALLTEXT", " Machine Life", $aRequest['fMachineLife'], 1, '', '', '', '');
 		
 		
@@ -67,6 +65,7 @@ echo '</pre>';*/
 		
 	  if($oFormValidator->validation())
 	  {
+
 	if( $oMaster->addContract($aRequest,$_FILES))
 	{
 	   $msg = "New Contract Added.";
@@ -80,7 +79,7 @@ echo '</pre>';*/
 	   $errMsg = $oFormValidator->createMsg("<br />");
 	  }
   } //submit 
-	 
+	// echo '<pre>';print_r($aInventoryItemAsset );echo '</pre>';exit;
 ?>
 <!DOCTYPE html>
 <!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
@@ -999,7 +998,7 @@ echo '</pre>';*/
       <!-- END PAGE -->  
    </div>
    <!-- END CONTAINER -->
-	<?php include_once 'Footer1.php'; ?>
+	<?php  include_once 'Footer2.php'; ?>
     <script type="text/javascript">
 	
 	function ShowResult(id,grnid)

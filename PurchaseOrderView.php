@@ -23,7 +23,7 @@ include_once 'config/config.php';
 	$aVendorInfo = $oAssetVendor->getVendorInfo($edit_result[0]['id_vendor'],'id');
 	$oAssetVendor = &Singleton::getInstance('Vendor');
     $oAssetVendor->setDb($oDb);
- 
+ $aAdditPoinfo = $oMaster->getPoAdditionalinfoList($item_id,'id');
  /*echo '<pre>';
  print_r($edit_result);
  echo '</pre>';*/
@@ -186,9 +186,10 @@ size="2">EMAIL</FONT></TD>
                 <TD width="70%">:&nbsp; &nbsp;<B><?php echo $edit_result[0]['purchaseorderinfo']['po_number']; ?></B></TD></TR>
               <TR class="srow" align="left">
                 <TD><FONT  class="detail">&nbsp;DATE</FONT></TD>
-                <TD><FONT  class="detail">: &nbsp;<?php echo date('d/m/Y',strtotime($edit_result[0]['purchaseorderinfo']['po_duedate']));?></FONT></TD>
+                <TD><FONT  class="detail">: &nbsp;<?php echo date('d/m/Y',strtotime($edit_result[0]['purchaseorderinfo']['po_duedate']));?></FONT></TD></TR>
                 <TD><FONT  class="detail">&nbsp;APPROVED</FONT></TD>
                 <TD><FONT  class="detail">: &nbsp;<?php echo $edit_result[0]['purchaseorderinfo']['approved_by'];?></FONT></TD></TR>
+                
                 
                 
              </TBODY></TABLE></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE><BR>
@@ -275,6 +276,7 @@ size="2">EMAIL</FONT></TD>
  
   <?php 
    $sl_nos = 1;
+   if(count($edit_result[0]['po_tax']) > 0 ){
   foreach($edit_result[0]['po_tax'] as $aPOTax) {
 	 
 	  ?>
@@ -286,8 +288,27 @@ size="2">EMAIL</FONT></TD>
     <TD noWrap align="right"><?php echo $oMaster->moneyFormat($aPOTax['tax_price']);?> &nbsp;</TD>
       </TR>
       
-    <?php $sl_nos++; }
+    <?php $sl_nos++; } }
 	  ?>
+
+    <?php 
+   if(count($aAdditPoinfo)>0){
+  foreach($aAdditPoinfo as $aAdditionalinfo) {
+   $aAddless =array('+','-');
+   $Addprice = str_replace( $aAddless, '', trim($aAdditionalinfo->additional_price));  
+   $aAdd_str = (strpos($aAdditionalinfo->additional_price,'-') !== false) ? '-' : '+';
+  
+    ?>
+  <TR class="srow" bgColor="white">
+    <TD align="right"><?php echo $sl_nos;?>&nbsp;&nbsp;</TD>
+    <TD>&nbsp;&nbsp;<?php echo $aAdditionalinfo->additional_charge_desc;?>&nbsp;&nbsp;</TD>
+    <TD  align="right"><?php echo $aAdd_str;?> &nbsp;</TD>
+    
+    <TD noWrap align="right"><?php echo $oMaster->moneyFormat($Addprice);?> &nbsp;</TD>
+      </TR>
+      
+    <?php $sl_nos++; } }
+    ?>
       <TR class="srow" bgColor="white">
     <TD colSpan="3" align="right">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Grant Total </b> &nbsp;&nbsp;
       </TD>

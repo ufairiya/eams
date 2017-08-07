@@ -47,8 +47,9 @@ class Master
 		$lookup   = strtoupper($aRequest['fLookup']);
 		$bsr_code = $aRequest['fBsrCode'];
 		$status   = $aRequest['fStatus'];
-		$qry = "INSERT INTO bank (id_bank, bank_name, lookup, bsr_code, status) VALUES (null, '$bankName','$lookup','$bsr_code', '$status')";
-		
+		$id_saascust = $aRequest['id_saascust'];
+		$qry = "INSERT INTO bank (id_bank, bank_name, lookup, bsr_code, status, id_saascust) VALUES (null, '$bankName','$lookup','$bsr_code', '$status', $id_saascust)";
+		//exit;
 		if($this->oDb->query($qry))	{
 		  return true;
 		}
@@ -56,9 +57,9 @@ class Master
 		  return false;
 		}
 	}
-	public function getBankList()
+	public function getBankList($id_saascust)
 	{
-		$qry = "SELECT * FROM bank";
+		$qry = "SELECT * FROM bank where id_saascust = ".$id_saascust;
 		$aBankList = array();
 		if($result = $this->oDb->get_results($qry))
 		{
@@ -70,6 +71,7 @@ class Master
 				$aBank['lookup']    = strtoupper($row->lookup);
 				$aBank['bsr_code']  = $row->bsr_code;
 				$aBank['status']    = $row->status;
+				$aBank['id_saascust']    = $row->id_saascust;
 				$aBankList[]        = $aBank;
 			}
 		}
@@ -3727,6 +3729,7 @@ public function addPurchaseRequest($aRequest)
 	public function updatePurchaseOrder($aRequest)
 	{
 	   		
+		
 		$id_pr         = $aRequest['fPurchaseRequestId'];
 		$id_vendor     = $aRequest['fvendorId'];
 		$id_unit       =  $aRequest['fUnitId'];
@@ -3746,6 +3749,8 @@ public function addPurchaseRequest($aRequest)
 		 $id_tax   = $aRequest['fTaxId'];
 		 
 		$id_po = $aRequest['fPurchaseOrderId'];
+
+
 		$approved_by = $aRequest['fApprovalEmployeeId'];
 		if($approved_by != '')
 		{
@@ -3762,6 +3767,11 @@ public function addPurchaseRequest($aRequest)
 			 $this->addHistoryTransLog($aRequest,'','','PO',$Trans,$PONumber,$id_po,$status,$qry,'Purchase Order Approved');
 		}
 		
+			if($id_po)
+			{
+				$this->updatePoAdditionalCharges($aRequest,$id_po);
+			}
+
 		$qry = "UPDATE purchase_order SET id_pr='".$id_pr."',id_unit='".$id_unit."',id_department='".$id_department."',id_division='".$id_department."',id_shipping_addr='".$id_shippingAddress."',id_vendor='".$id_vendor."',grant_total='".$grant_total."',total='".$total."',net_total='".$net_total."',round_off='".$round_off."',po_duedate='".$due_date."',remarks='".$remarks."',terms_and_conditions='".$terms_condtions."',modified_by='".$created_by."',modified_date=now() WHERE id_po=".$id_po;
 		  if($id_tax !=null)
 			  {
@@ -3800,7 +3810,7 @@ public function addPurchaseRequest($aRequest)
 			 $this->addHistoryTransLog($aRequest,'','','PO','ERROR',$PONumber,$id_po,'1',$qry,'Some Error Occur during Purchase Order Updation',$error_log);
 			}
 			if($done ==1)
-				{
+				{					
 				   return true;
 				}
 				else
@@ -3812,7 +3822,7 @@ public function addPurchaseRequest($aRequest)
 	public function addPurchaseOrder($aRequest)
 	{
 	 
-		
+		//echo '<pre>'; print_r($aRequest);
 		$id_pr         = $aRequest['fPurchaseRequestId'];
 		$id_vendor     = $aRequest['fvendorId'];
 		$id_unit       =  $aRequest['fUnitId'];
@@ -3833,6 +3843,7 @@ public function addPurchaseRequest($aRequest)
 		 $purchase_Order_Number = $acompany['lookup'].'-'.'PO'.$aOrder_no['count'];
 		 $terms_condtions = $aRequest['fTerms'];
 		 $id_tax   = $aRequest['fTaxId'];
+		 $add_charges   = array_sum($aRequest['fAdditionalprice']);
 		/*$addr1   = $aRequest['fAddr1'];
 		$addr2   = $aRequest['fAddr2'];
 		$addr3   = $aRequest['fAddr3'];
@@ -3869,6 +3880,17 @@ public function addPurchaseRequest($aRequest)
 				}
 				
 			  }
+
+			  if($add_charges > 0)
+			  {
+			  if($this->addPoAdditionalCharges($aRequest,$lastInsertId))
+			  {
+				    $done = 1;
+				}
+				
+			  }
+
+			  
 			  
 			   if($this->addPurchaseOrderItem($aRequest,$lastInsertId))
 			   {
@@ -3928,6 +3950,76 @@ public function addPurchaseRequest($aRequest)
 				{
 				    return false;
 				}
+	}
+
+	public function addPoAdditionalCharges($aRequest,$lastInsertId)
+	{
+		$add_desc     = $aRequest['fAdditional'];
+		$add_price   = $aRequest['fAdditionalprice'];
+		$aAddList = array_map(null,$add_desc,$add_price);
+		//print_r($aAddList);exit;
+		foreach($aAddList as $aAdd)
+			 {
+				  			  
+			 $qry = "INSERT INTO po_additional_charges(id_po, additional_charge_desc, additional_price,status) VALUES ('$lastInsertId','$aAdd[0]','$aAdd[1] ','1')";
+			 
+			 
+				if($this->oDb->query($qry))
+				{
+				   $done = 1;
+				}
+				else
+				{
+				   $done = 0;
+				    
+				}
+					 
+	        }
+		   
+				if($done ==1)
+				{
+				   return true;
+				}
+				else
+				{
+				    return false;
+				}
+
+	}
+
+	public function updatePoAdditionalCharges($aRequest,$lastInsertId)
+	{
+		$add_desc     = $aRequest['fAdditional'];
+		$add_price   = $aRequest['fAdditionalprice'];
+		$id_additional = $aRequest['fAdditionalid'];
+		$aAddList = array_map(null,$add_desc,$add_price,$id_additional);
+		//print_r($aAddList);exit;
+		foreach($aAddList as $aAdd)
+			 {			  			  
+			 
+			 $qry = "UPDATE po_additional_charges SET additional_charge_desc='".$aAdd[0]."', additional_price = '".$aAdd[1]."' WHERE id_po =".$lastInsertId." AND id_additional='".$aAdd[2]."'";
+			
+				if($this->oDb->query($qry))
+				{
+				   $done = 1;
+				}
+				else
+				{
+				   $done = 0;
+				    
+				}
+					 
+	        }
+		 
+				if($done ==1)
+				{
+				   return true;
+				}
+				else
+				{
+				    return false;
+				}
+
 	}
 	public function addPurchaseOrderItem($aRequest,$lastInsertId)
 	{
@@ -4261,7 +4353,21 @@ public function addPurchaseRequest($aRequest)
 				$aPurchaseOrder['return_status']       = $row->return_status;
 				$aPurchaseOrder['status']       = $row->status;
 				$aPurchaseOrder['terms_and_conditions']       = $row->terms_and_conditions;
+				$aPurchaseOrder['vendor_contact']   = $this->getVendorAddress($row->id_vendor,'');
+
+				if($aPurchaseOrder['id_shipping_addr']>0)
+				{
+				$aUnitInfo = $this->getUnitInfo($row->id_shipping_addr,'id');
+	$aUnitaddress = $this->getUnitAddress($aUnitInfo['id_unit_address'],$aUnitInfo['unit_name'],'id'); 
+	
 				
+				//$aShippingAddress = $this->getShippingAddress($row->id_shipping_addr);
+				$aPurchaseOrder['shipping_addr']   = $aUnitaddress['address_format'];
+				}
+				else
+				{
+					$aPurchaseOrder['shipping_addr'] = "Self";
+				}
 				
 				$aPurchaseOrderList[]           = $aPurchaseOrder;
 			}
@@ -7994,6 +8100,28 @@ public function getPOTaxInfo($lookup, $type)  //lookup may be 'id' or 'Lookup te
 		  $aItem['tax_price']    = $row->tax_price;	
 		  $aItemList[]= $aItem; 
 			}
+	   }
+	   return $aItemList;
+	   
+	}  
+
+	public function getPoAdditionalinfoList($lookup, $type)  //lookup may be 'id' or 'Lookup text'
+	{
+	   $qry = "SELECT `id_additional`, `id_po`, `additional_charge_desc`, `additional_price`, `status`  FROM po_additional_charges  WHERE ";
+	   if($type == 'id') {
+	   	 $condition = " id_po = '$lookup'";
+	   }
+	   
+	   $qry = $qry.$condition;
+	 
+	   $aItemList = array();
+	   if($result = $this->oDb->get_results($qry))
+	   {
+	     foreach($result as $key => $val)
+			{
+		  $aItem = array();
+		  $aItemList[$key] = $val;		  
+		 }
 	   }
 	   return $aItemList;
 	   
@@ -16069,6 +16197,17 @@ public function getServiceInvoiceListDetails($lookup)
 				
 		
 		
+		
+	}
+
+	public function getPO()
+	{
+	   $qry = "SELECT * FROM purchase_order ";
+	   $qry .= " WHERE status != 2 AND status != 12";	   
+	   $order = ' ORDER BY id_po DESC';	 
+	   $qry = $qry.$order;	    
+	   $aPurchaseOrderList = array();
+		return ($result = $this->oDb->get_results($qry));
 		
 	}
 } //end Master

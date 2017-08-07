@@ -248,7 +248,7 @@
 										  
                                     </div> 
                                     
-                                    <div id="listofitems"></div>
+                                    <div id="listofitems" style="position: absolute; right: 90px;    border: 1px solid lightgrey;    padding: 15px;    height: 200px;    overflow-y: scroll;    background-color: gold;"></div>
 										                                     
                                   <div class="control-group">
                                        <label class="control-label">Brand/Make<span class="required">*</span></label>

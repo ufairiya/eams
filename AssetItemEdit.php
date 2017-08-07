@@ -7,6 +7,8 @@
   $aCustomerInfo = $oSession->getSession('sesCustomerInfo');
   $aRequest = $_REQUEST;
   
+  $aPendingPo = $oMaster->getPO();
+
  $GRNNumber = $oMaster->GoodsReceivedNumberCount();
  $oAssetUnit = &Singleton::getInstance('AssetUnit');
   $oAssetUnit->setDb($oDb);
@@ -808,7 +810,7 @@
 										  <div class="alert alert-success" id="error_msg">
 									         <button class="close" data-dismiss="alert"></button>
 											 <?php echo $errMsg; ?>
-									      <div id= delete_info></div>
+									      <div id="delete_info"></div>
 								         </div>
 										<?php
 										  }
@@ -831,6 +833,7 @@
                                        </div>
                                        <!--/span-->
                               </div>
+                               <div style="clear:both"></div>
                                     <div class="row-fluid">
                                        <div class="span6 ">
                                           <div class="control-group">
@@ -864,7 +867,7 @@
                                              </div>
                                           </div>
                                        </div>
-                                       <!--/span-->
+                                      
 									   <div class="span6 ">
                                           <div class="control-group">
 											  <label class="control-label" >Party D C Date<span class="required">*</span></label>
@@ -879,7 +882,57 @@
                                        </div>
                                        
                                     </div>
-                                    <!--/row-->
+                               
+                                      <div style="clear:both"></div>
+                      <div class="row-fluid">
+                                      
+                                       
+                     <div class="span4 ">
+                      <div class="control-group">
+                      <label class="control-label">PO No.<span class="required">*</span></label>
+                       <div class="controls">
+                      <?php if(empty($aRequest['fPOId'])){  $fpoid =  $aRequest['fPOId'] = '0';} else {  $fpoid = $aRequest['fPOId'];}?>
+                                 
+                     <select class="m-wrap" data-placeholder="Choose a PO" tabindex="8" name="fPOId" id="pendingpo">
+                                    <option value="0">Choose a PO</option>
+                                    <?php if(count($aPendingPo) > 0) {
+                                        foreach($aPendingPo as $ppo)
+                                        {
+                                      ?>
+                                      <option value="<?php echo $ppo->id_po;?>"
+                                        <?php if($fpoid ==$ppo->id_po ) { echo ' selected=selected';} ?>
+                                        ><?php echo $ppo->po_number;?></option>  
+                                    <?php } } ?>
+                                    </select>
+                            </div>  
+                            <div style="clear:both"></div>                
+                    </div> 
+                     
+                    </div> 
+                
+                    <div class="span4 ">
+                        <div class="control-group">
+                        <label class="control-label" >PO Date</label>
+                        <div class="controls">
+                         <div class="input-append date date-picker" data-date="<?php echo date('d-m-Y');?>" data-date-format="dd-mm-yyyy">
+                          <input class="m-wrap m-ctrl-small date-picker span8" size="10" type="text" name="fPoDate" id="fPoDate" value="<?php echo $aRequest['fPoDate'];?>"><span class="add-on"><i class="icon-calendar"></i></span>
+                         </div>
+                        </div>
+                      </div>
+                                       </div>
+                                      
+                     <div class="span4 ">
+                      <div class="control-group" style="margin-top:12px;">
+                      
+                      <div class="controls">
+                                              <input type="checkbox" name="fDirectOrder" value="on"/> Direct Order
+                                          </div>
+                                          
+                    </div>  
+                    </div>
+                  </div>
+                                
+                         
 									  
 									<div class="row-fluid">
 									  
@@ -951,45 +1004,9 @@
                                      
                                       </div>
                               </div>
-                                      	<div class="row-fluid">
-                                       <!--/span-->
-                                       
-									   <div class="span4 ">
-									    <div class="control-group">
-										  <label class="control-label">PO No.<span class="required">*</span></label>
-										  <div class="controls" id="polist">
-                                                <input type="hidden" class="m-wrap " placeholder="Purchase Order No." name="fPOId" value="<?php if(empty($aRequest['fPOId'])){  echo $aRequest['fPOId'] = '0';} else {  echo $aRequest['fPOId'];}?>">
-                                                
-                                                <!--<span class="help-block">Purchase Order No.</span>-->
-                                          </div>
-                                          
-										</div>  
-									  </div>
-                                      
-                                       <!--/span-->
-									  <div class="span4 ">
-                                          <div class="control-group">
-											  <label class="control-label" >PO Date</label>
-											  <div class="controls">
-												 <div class="input-append date date-picker" data-date="<?php echo date('d-m-Y');?>" data-date-format="dd-mm-yyyy">
-													<input class="m-wrap m-ctrl-small date-picker span8" size="10" type="text" name="fPoDate" id="fPoDate" value="<?php echo $aRequest['fPoDate'];?>"><span class="add-on"><i class="icon-calendar"></i></span>
-												 </div>
-											  </div>
-									    </div>
-                                       </div>
-                                       <!--/span-->
-									   <div class="span4 ">
-									    <div class="control-group" style="margin-top:12px;">
-										  
-										  <div class="controls">
-                                              <input type="checkbox" name="fDirectOrder" value="on"/> Direct Order
-                                          </div>
-                                          
-										</div>  
-									  </div>
-									</div>
-                                    <!--/row-->
-                                 
+                      <div style="clear:both"></div>
+                     
+                              
 								    <div class="row-fluid">
                                        <div class="span12">
                                           <div class="control-group">
@@ -1320,7 +1337,31 @@
 			   }
           });
 		 });
-		 }); // 
+		  
+    jQuery("#pendingpo").on('change', function() {
+       //alert($("#fVendorId option:selected").text());
+       //alert($("#fVendorId").val());
+       var poid = $("#pendingpo").val();
+       var dataStr = 'action=getVendor&po='+ poid;
+          $.ajax({
+         type: 'POST',
+         url: 'ajax/ajax.php',
+         dataType : 'JSON',
+         data: dataStr,
+         cache: false,
+         success: function(result) {
+           jQuery("#fPoDate").val(result.podate);
+           jQuery("#fVendorId").val(result.vendorid);
+          // jQuery("#fVendorId").trigger('change');
+          // jQuery("#fPOId").val(poid);
+          //console.log(result);
+         }
+          });
+     });
+    
+    });
+
+     // 
 	function getPoDate(value)
 	{
 		  // var PoId = $("#fPOId").val();

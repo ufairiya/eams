@@ -2063,6 +2063,85 @@ FROM
 		}
 	}
 	
-	
+	public function PoItemReportList($aRequest,$type='', $offset='', $rowsPerPage='', $field='', $sort='' )
+	{
+	$condition = ''; $limit = ''; $orderBy = '';
+
+	$id_itemGtoup1 = $aRequest['fGroup1'];
+	$id_itemGtoup2 = $aRequest['fGroup2'];
+	$id_item = $aRequest['fItemName'];
+
+	$filter = '';
+	if($id_itemGtoup1 != null )
+	{
+		$filter.= "  po_item.id_itemgroup1 =".$id_itemGtoup1;
+	}
+	if($id_itemGtoup2 != null )
+	{
+		if($id_itemGtoup1 != null )
+		{
+			$filter.= ' AND ';
+		}
+		$filter.= "  po_item.id_itemgroup2 =".$id_itemGtoup2;
+	}
+		if($id_item != null )
+	{
+		if($id_itemGtoup1 != null || $id_itemGtoup2 != null )
+		{
+			$filter.= ' AND ';
+		}
+		$filter.= "   po_item.id_item =".$id_item;
+	}
+	$qry_condtions = '*';
+	if($type =='count')
+	 {
+	 	$qry_condtions = ' COUNT(*) As num_rows ';
+	 }
+	 else
+	 {
+	 	$qry_condtions = ' po_item.*, item.item_name
+    , itemgroup2.itemgroup2_name
+    , itemgroup1.id_itemgroup1
+    , itemgroup1.itemgroup1_name
+    , vendor.vendor_name
+    ,purchase_order.po_number
+    ,purchase_order.po_date ';
+
+	 }
+		
+	$qry = "SELECT ".$qry_condtions." FROM
+    po_item
+    INNER JOIN itemgroup1 
+        ON (po_item.id_itemgroup1 = itemgroup1.id_itemgroup1)
+    INNER JOIN itemgroup2 
+        ON (po_item.id_itemgroup2 = itemgroup2.id_itemgroup2)    
+    INNER JOIN item 
+        ON (po_item.id_item = item.id_item)
+    INNER JOIN vendor 
+        ON (vendor.id_vendor = po_item.id_vendor)
+    INNER JOIN purchase_order 
+        ON (purchase_order.id_po = po_item.id_po)
+      ";
+	     if($filter != '')
+		{
+			$filter = " WHERE ".$filter;
+		}
+
+		if($type !='count')
+		{
+			if(!empty($rowsPerPage))
+			{
+				$limit 	= " LIMIT $offset, $rowsPerPage";
+			}
+			if(!empty($field))
+			{
+				$orderBy 		= " ORDER BY ".$field." ".$sort." ";
+			}
+			else $orderBy = " GROUP BY po_item.id_po_item ASC ";
+	   }	
+	$query = $qry.$filter.$orderBy.$limit;
+	$result = $this->oDb->get_results($query);
+	return ($result != FALSE) ? $result : FALSE;
+}
 	
 }

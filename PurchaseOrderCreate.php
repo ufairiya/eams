@@ -76,6 +76,7 @@
 	{
 	 $avendorList = $oAssetVendor->getAllVendorInfo();
 	}
+   $aAdditPoinfo = $oMaster->getPoAdditionalinfoList($item_id,'id'); 
  $aPurchasedItem = $aitemInfo;
 
   } //edit
@@ -597,11 +598,22 @@
 									
 								</tr>
 								<?php } ?>
+                    <tr>
+                                    <td ></td>
+                                    <td><input type="text" class="additional" name="fAdditional[]" id="fAdditional1"/></td>
+                                    <td>&nbsp;</td>
+                                     <td><input type="text" style="text-align:right;" class="additionalprice" name="fAdditionalprice[]" id="fAdditionalprice_1" value="0" onChange="additionalpricecalc(this.id,this.value)"/></td>
+                                     <td> <input type="button" name="addRow[]" class="add" value='+'> &nbsp; <input type="button" name="addRow[]" class="removeRowadd" value='-' id="remove1" onClick="recalc();"></td>
+                                   </tr>
+
+                                 <tr>
+                     <tr>               
+
                                      <td style="text-align:right;" colspan="3">Grant Total : </td>
                                     <td><input type="text" class="price" name="fGrantTotal" id="granttotal"/></td>
                                     <td>&nbsp;</td>
                                     </tr>
-                                   
+
                                 
                                     <tr>
                                   
@@ -851,6 +863,24 @@
 									
 								</tr>
 								<?php } ?>
+
+                <?php if(count($aAdditPoinfo) > 0) { 
+                  $a = 1;
+                  foreach($aAdditPoinfo as $additional_info)
+                  {
+                ?>
+
+                <tr>
+                  <td ></td>
+                  <td><input type="text" class="additional" name="fAdditional[]" id="fAdditional<?php echo $a;?>" value="<?php echo $additional_info->additional_charge_desc;?>"/></td>
+                  <td>&nbsp;</td>
+                  <td><input type="text" style="text-align:right;" class="additionalprice" name="fAdditionalprice[]" id="fAdditionalprice_<?php echo $a;?>" value="<?php echo $additional_info->additional_price;?>" onChange="additionalpricecalc(this.id,this.value)"/>
+                      <input type="hidden" name="fAdditionalid[]" value="<?php echo $additional_info->id_additional;?>"/>
+                  </td>
+                  <td> <input type="button" name="addRow[]" class="add" value='+'> &nbsp; <input type="button" name="addRow[]" class="removeRowadd" value='-' id="remove1" onClick="recalc();"></td>
+                </tr>
+
+                <?php $a++; } } ?>
                                      <td style="text-align:right;" colspan="3">Grant Total : </td>
                                     <td><input type="text" class="price" name="fGrantTotal" id="granttotal"/></td>
                                     <td>&nbsp;</td>
@@ -1039,6 +1069,15 @@
                                     <input type="button" name="addRow[]" class="add" value='+'> &nbsp; <input type="button" name="addRow[]" class="removeRow" value='-' id="remove1" onClick="recalc();"></td>
 									
 								</tr>
+                                 
+                                <tr>
+                                    <td ></td>
+                                    <td><input type="text" class="additional" name="fAdditional[]" id="fAdditional1"/></td>
+                                    <td>&nbsp;</td>
+                                     <td><input type="text" style="text-align:right;" class="additionalprice" name="fAdditionalprice[]" id="fAdditionalprice_1" value="0" onChange="additionalpricecalc(this.id,this.value)"/></td>
+                                     <td> <input type="button" name="addRow[]" class="add" value='+'> &nbsp; <input type="button" name="addRow[]" class="removeRowadd" value='-' id="remove1" onClick="recalc();"></td>
+                                   </tr>
+
                                  <tr>
                                   
                                      <td style="text-align:right;" colspan="3">Grant Total : </td>
@@ -1046,7 +1085,7 @@
                                     <td>&nbsp;</td>
                                     </tr>
                                    
-                                
+
                                     <tr>
                                   
                                      <td style="text-align:right;" colspan="3">Round Off : </td>
@@ -1080,7 +1119,7 @@
                                        
                                        <select class="span12 " placeholder="Choose a Unit Id"  name="fShippingId" id="fShippingId">
 											    <option value=""></option>
-                                              <option value="Self">Self</option>
+                          <option value="Self" <?php if($aEditPurchaseOrder['shipping_addr'] == 'Self') {echo 'selected=selected' ;} ?>>Self</option>
 											<?php
 											  $aUnitList = $oAssetUnit->getAllAssetUnitInfo();
 											  foreach($aUnitList as $aUnit)
@@ -1494,10 +1533,51 @@ if($aRequest['action'] == 'edit' && $aRequest['submits']=='approval') {
 					var taxid = "tax"+taxprice[1];
 					taxcalc(taxid);
 					}); 
+
+        $("input[name='fAdditionalprice[]']").each(function(){
+          var addprice = $(this).attr('id').split("_");
+          var addid = "fAdditionalprice_"+addprice[1];
+          additionalpricecalc(addid);
+          }); 
 					recalc();	
 				
 				
 			}
+
+      function additionalpricecalc(id)
+      {
+        
+          var grantunitprice=0;
+        $("input[name='fUnitTotal[]']").each(function(){
+          grantunitprice+=parseFloat($(this).val());
+        }); 
+          var val = $('#'+id).val();
+          
+            if(val == 0)
+            {
+              recalc();
+            }
+                   
+         
+          var TAXtotal=0;
+          $("input[name='fTaxTotal[]']").each(function(){
+          TAXtotal+= parseFloat($(this).val());
+          });
+
+          var Addtotal=0;
+          $("input[name='fAdditionalprice[]']").each(function(){
+          Addtotal+= parseFloat($(this).val());
+          });
+          
+          
+          var netamount = parseFloat(TAXtotal) +parseFloat(grantunitprice) + parseFloat(Addtotal);                 
+          var netamount= netamount.toFixed(2);
+          $('#nettotal').val(netamount);    
+           recalc();
+                 
+        
+      }
+      
 			
 			function recalc()
 			{
@@ -1513,9 +1593,16 @@ if($aRequest['action'] == 'edit' && $aRequest['submits']=='approval') {
 					$("input[name='fTaxTotal[]']").each(function(){
 					TAXtotal+= parseFloat($(this).val());
 					});
+
+          var Addtotal=0;
+          $("input[name='fAdditionalprice[]']").each(function(){
+          Addtotal+= parseFloat($(this).val());
+          });
+          
 					
-					var netamount = parseFloat(TAXtotal) +parseFloat(grantunitprice);
+					var netamount = parseFloat(TAXtotal) +parseFloat(grantunitprice) + parseFloat(Addtotal);
 				    $('#nettotal').val(netamount.toFixed(2));
+            console.log(netamount);
 				 if(parseFloat(TAXtotal) == 0)
 				{
 					var netamounts = grantunitprice.toString();
@@ -1879,6 +1966,7 @@ if($aRequest['action'] == 'edit' && $aRequest['submits']=='approval') {
 			tr.find('input[name="fQuantity[]"]').val('1');
 			tr.find('input[name="fTaxTotal[]"]').val('0');
 		tr.find('input[name="fTaxTotals[]"]').val('0');
+    tr.find('input[name="fAdditionalprice[]"]').val('0');
 		tr.find('input[name="fRequireDate[]"]').siblings('.ui-datepicker-trigger,.ui-datepicker-apply').remove();
 		tr.find('input[name="fRequireDate[]"]').removeClass('hasDatepicker');
 		tr.find('input[name="fRequireDate[]"]').removeData('datepicker');
@@ -1990,6 +2078,21 @@ if($aRequest['action'] == 'edit' && $aRequest['submits']=='approval') {
 			$(this).closest('tr').remove();
         }
     });
+
+$(document).on('keypress', '#purchaseItems .nextRowadd', function (e) {
+        if (e.which == 13) {
+            $(this).closest('tr').find('.add').trigger('click');
+            $(this).closest('tr').next().find('input:first').focus();
+        
+      
+        }
+    });
+    $(document).on('click', '#purchaseItems .removeRowadd', function () {
+        if ($('#purchaseItems .add').length > 1) {
+      $(this).closest('tr').remove();
+        }
+    });
+
   });
 jQuery(document).ready(function() { 
 $(function () {

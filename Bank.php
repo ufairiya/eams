@@ -5,8 +5,9 @@
 	header("Location: login.php");
   }
   $aCustomerInfo = $oSession->getSession('sesCustomerInfo');
+
   $aRequest = $_REQUEST;
-  $allResult = $oMaster->getBankList();
+  $allResult = $oMaster->getBankList($aCustomerInfo['user_id']);
 ?>
 <!DOCTYPE html>
 <!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->

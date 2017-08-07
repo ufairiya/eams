@@ -1,5 +1,4 @@
 <?php
-
 /**
 
  * Error handler class maintains all errors in system
@@ -177,37 +176,21 @@ class ErrorHandler
 	 */
 
 	private function errorDisplay()
-
 	{
-
 		switch($this->errorDisplay)
-
 		{
-
 			case 0: // do not show error
-
 				break;
-
 			case 1: //show only Basic Error Message
-
 				$this->errorMsgBasic();//if(in_array($this->errno, $this->errorCodes))
-
 				exit();
-
 				break;
-
 			case 2: // show Detailed Error Mesage
-
 				$this->errorMsgDetailed();
-
 				break;
-
 			default:
-
 				break;
-
 		}
-
 	}
 
 
@@ -504,7 +487,7 @@ class ErrorHandler
 
 		if ($this->logFile != '') {
 
-			error_log($message, 3, $this->logFile);
+			//error_log($message, 3, $this->logFile);
 
 		}
 

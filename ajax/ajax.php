@@ -74,6 +74,15 @@
 	 }
 	 echo trim($poList .= $poListend);
   } //
+  if($action == 'getVendor')
+  {
+  	$Response = array();  	
+  	$id_po = $aRequest['po'];
+	$podate = $oMaster->getPurchaseOrderInfo($id_po,'id');
+	$Response['podate'] = date('d-m-Y',strtotime($podate['po_date']));
+	$Response['vendorid'] = $podate['id_vendor'];
+	echo json_encode($Response);
+  }
   
     if($action == 'getassetitem')
   {

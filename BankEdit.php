@@ -20,6 +20,7 @@
   {
     if($oMaster->addBank($aRequest))
 	{
+    // exit;
 	   $msg = "New Bank Added.";
 	  echo '<script type="text/javascript">window.location.href="Bank.php?msg=success";</script>';
 	}
@@ -150,7 +151,7 @@
                                     <div class="control-group">
                                        <label class="control-label">Bank Name<span class="required">*</span></label>
                                        <div class="controls">
-                                          <input type="text" placeholder="" class="m-wrap large" name="fBankName" data-required="1" value="<?php echo $edit_result['bank_name']; ?>"/                                          <span class="help-inline">Enter Bank name</span>
+                                          <input type="text" placeholder="" class="m-wrap large" name="fBankName" data-required="1" value="<?php echo $edit_result['bank_name']; ?>"> <span class="help-inline">Enter Bank name</span>
                                        </div>
                                     </div>
 									                                       
@@ -184,7 +185,7 @@
                                        </div>
                                     </div>
                                   <input type="hidden" name="fBankId" value="<?php echo $aRequest['id'];?>"/>
-									
+									                <input type="hidden" name="id_saascust" value="<?php echo $aCustomerInfo['user_id'];?>"/>
                                     <div class="form-actions">
                                    <?php if($aRequest['action'] == 'Add')
 								   {
